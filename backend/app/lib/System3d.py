@@ -1,7 +1,12 @@
-from Crossection import Crossection
-from Crossection import Material
 import math
 import numpy as np
+
+try:
+    from .Crossection import Crossection
+    from .Crossection import Material
+except ImportError:
+    from Crossection import Crossection
+    from Crossection import Material
 
 class BeamKnot:
     '''

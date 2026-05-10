@@ -1,8 +1,24 @@
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-from GreekLetters import gl
+try:
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:  # optional dependency for local plotting/debugging
+    mpl = None
+    plt = None
+
+try:
+    from .GreekLetters import gl
+except ImportError:
+    from GreekLetters import gl
+
+
+def _require_matplotlib():
+    if mpl is None or plt is None:
+        raise ModuleNotFoundError(
+            "matplotlib is required to use Crossection plotting methods"
+        )
+    return mpl, plt
 
 
 class Crossection:
@@ -1140,9 +1156,10 @@ class Crossection:
         ''' 
         Графический вывод полученных результатов
         '''
-        fig, ax = plt.subplots()
+        mpl_mod, plt_mod = _require_matplotlib()
+        fig, ax = plt_mod.subplots()
         image = np.ma.masked_where(self.arr == 0, self.arr)
-        cmap = mpl.colormaps['gist_gray']
+        cmap = mpl_mod.colormaps['gist_gray']
         cmap.set_bad(color='white')
         ax.imshow(image, cmap=cmap)
         y_ticks = ax.get_yticks()
@@ -1157,7 +1174,7 @@ class Crossection:
         x_ticks = np.append(x_ticks, self.b)
         ax.set_xticks(x_ticks, labels=[
                       f'{round(x * self.res)}'for x in x_ticks])
-        plt.show()
+        plt_mod.show()
 
     def plotNormalTension(self, Forces=None):
         ''' 
@@ -1167,10 +1184,11 @@ class Crossection:
         '''
         if Forces is None:
             Forces = {}
+        mpl_mod, plt_mod = _require_matplotlib()
         TMatrix = self.getNormalTensionMatrix(Forces)
-        fig, ax = plt.subplots()
+        fig, ax = plt_mod.subplots()
         image = np.ma.masked_where(TMatrix == 0, TMatrix)
-        cmap = mpl.colormaps['hsv']
+        cmap = mpl_mod.colormaps['hsv']
         cmap.set_bad(color='white')
         fig.colorbar(ax.imshow(image, cmap=cmap))
         y_ticks = ax.get_yticks()
@@ -1185,7 +1203,7 @@ class Crossection:
         x_ticks = np.append(x_ticks, self.b)
         ax.set_xticks(x_ticks, labels=[
                       f'{round(x * self.res)}'for x in x_ticks])
-        plt.show()
+        plt_mod.show()
 
     def plotTangetialTension(self, Forces=None):
         ''' 
@@ -1197,10 +1215,11 @@ class Crossection:
         '''
         if Forces is None:
             Forces = {}
+        mpl_mod, plt_mod = _require_matplotlib()
         TMatrix = self.getTangetialTensionMatrix(Forces)
-        fig, ax = plt.subplots()
+        fig, ax = plt_mod.subplots()
         image = np.ma.masked_where(TMatrix == 0, TMatrix)
-        cmap = mpl.colormaps['hsv']
+        cmap = mpl_mod.colormaps['hsv']
         cmap.set_bad(color='white')
         fig.colorbar(ax.imshow(image, cmap=cmap))
         y_ticks = ax.get_yticks()
@@ -1215,7 +1234,7 @@ class Crossection:
         x_ticks = np.append(x_ticks, self.b)
         ax.set_xticks(x_ticks, labels=[
                       f'{round(x * self.res)}'for x in x_ticks])
-        plt.show()
+        plt_mod.show()
 
     def __str__(self):
         return f'Crossection: {self.name}'

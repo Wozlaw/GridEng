@@ -29,5 +29,6 @@ Thumbs.db
 # Codex / local scratch
 .codex/
 *.tmp
-
+# Прочее
+Materials/
 sandBox.ipynb
