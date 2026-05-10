@@ -1,0 +1,304 @@
+{
+  "project": "GridEng",
+  "kit": "codex-implementation-kit",
+  "created_at": "2026-05-10T12:06:23",
+  "tasks": [
+    {
+      "id": "00-01-update-agents",
+      "title": "Task 0.1 — Update AGENTS.md",
+      "prompt_file": "prompts/00-01-update-agents.md",
+      "default_checks": []
+    },
+    {
+      "id": "01-01-install-frontend-dependencies",
+      "title": "Task 1.1 — Install frontend dependencies",
+      "prompt_file": "prompts/01-01-install-frontend-dependencies.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "01-02-create-frontend-folders",
+      "title": "Task 1.2 — Create frontend folder structure",
+      "prompt_file": "prompts/01-02-create-frontend-folders.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "02-01-model-types",
+      "title": "Task 2.1 — GridEngModel TypeScript types",
+      "prompt_file": "prompts/02-01-model-types.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "02-02-zod-schemas",
+      "title": "Task 2.2 — Zod schemas for GridEngModel v0.1",
+      "prompt_file": "prompts/02-02-zod-schemas.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "02-03-integrity-validator",
+      "title": "Task 2.3 — GridEngModel integrity validator",
+      "prompt_file": "prompts/02-03-integrity-validator.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "02-04-sample-model",
+      "title": "Task 2.4 — Sample tower segment model",
+      "prompt_file": "prompts/02-04-sample-model.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "03-01-zustand-store",
+      "title": "Task 3.1 — Zustand model store",
+      "prompt_file": "prompts/03-01-zustand-store.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "04-01-mui-provider",
+      "title": "Task 4.1 — MUI ThemeProvider",
+      "prompt_file": "prompts/04-01-mui-provider.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "04-02-cad-shell-layout",
+      "title": "Task 4.2 — CAD shell layout",
+      "prompt_file": "prompts/04-02-cad-shell-layout.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "04-03-properties-panel",
+      "title": "Task 4.3 — Properties panel",
+      "prompt_file": "prompts/04-03-properties-panel.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "05-01-json-import",
+      "title": "Task 5.1 — JSON import",
+      "prompt_file": "prompts/05-01-json-import.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "05-02-json-export",
+      "title": "Task 5.2 — JSON export",
+      "prompt_file": "prompts/05-02-json-export.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "06-01-viewport-scaffold",
+      "title": "Task 6.1 — Three/R3F viewport scaffold",
+      "prompt_file": "prompts/06-01-viewport-scaffold.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "06-02-nodes-members-rendering",
+      "title": "Task 6.2 — Nodes and members rendering",
+      "prompt_file": "prompts/06-02-nodes-members-rendering.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "06-03-fit-to-model",
+      "title": "Task 6.3 — Fit to model",
+      "prompt_file": "prompts/06-03-fit-to-model.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-01-dxf-import-types",
+      "title": "Task 7.1 — DXF import types",
+      "prompt_file": "prompts/07-01-dxf-import-types.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-02-parse-dxf-lines",
+      "title": "Task 7.2 — Parse DXF LINE only",
+      "prompt_file": "prompts/07-02-parse-dxf-lines.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-03-merge-dxf-nodes",
+      "title": "Task 7.3 — Tolerance merge DXF nodes",
+      "prompt_file": "prompts/07-03-merge-dxf-nodes.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-04-normalize-dxf-coordinates",
+      "title": "Task 7.4 — Normalize DXF coordinates",
+      "prompt_file": "prompts/07-04-normalize-dxf-coordinates.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-05-dxf-to-grideng-model",
+      "title": "Task 7.5 — DXF to GridEngModel",
+      "prompt_file": "prompts/07-05-dxf-to-grideng-model.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "07-06-dxf-import-ui",
+      "title": "Task 7.6 — DXF import UI",
+      "prompt_file": "prompts/07-06-dxf-import-ui.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "08-01-section-api-contract-types",
+      "title": "Task 8.1 — Section API contract types",
+      "prompt_file": "prompts/08-01-section-api-contract-types.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "08-02-local-profile-catalog",
+      "title": "Task 8.2 — Local profile catalog",
+      "prompt_file": "prompts/08-02-local-profile-catalog.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "08-03-dxf-profile-assignment",
+      "title": "Task 8.3 — Assign profiles to DXF color groups",
+      "prompt_file": "prompts/08-03-dxf-profile-assignment.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "09-01-loads-moments-rendering",
+      "title": "Task 9.1 — Load and moment vectors rendering",
+      "prompt_file": "prompts/09-01-loads-moments-rendering.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "09-02-restraints-rendering",
+      "title": "Task 9.2 — Restraint markers rendering",
+      "prompt_file": "prompts/09-02-restraints-rendering.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "10-01-local-frame-math",
+      "title": "Task 10.1 — Local member frame math",
+      "prompt_file": "prompts/10-01-local-frame-math.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "10-02-section-outlines",
+      "title": "Task 10.2 — Section outlines",
+      "prompt_file": "prompts/10-02-section-outlines.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "10-03-real-view-rendering",
+      "title": "Task 10.3 — Real view rendering",
+      "prompt_file": "prompts/10-03-real-view-rendering.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "11-01-analysis-result-types",
+      "title": "Task 11.1 — Analysis result types",
+      "prompt_file": "prompts/11-01-analysis-result-types.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "11-02-stress-map-mode",
+      "title": "Task 11.2 — Stress map mode",
+      "prompt_file": "prompts/11-02-stress-map-mode.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "12-01-model-docs",
+      "title": "Task 12.1 — GridEngModel documentation",
+      "prompt_file": "prompts/12-01-model-docs.md",
+      "default_checks": []
+    },
+    {
+      "id": "12-02-dxf-docs",
+      "title": "Task 12.2 — DXF import specification documentation",
+      "prompt_file": "prompts/12-02-dxf-docs.md",
+      "default_checks": []
+    }
+  ]
+}

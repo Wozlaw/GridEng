@@ -25,14 +25,19 @@ export const ForceMomentVectorSchema = z.object({
 export const WindLoadDefinitionSchema = z.object({
   direction: Vec3Schema,
   nominalPressureKPa: z.number().finite().nonnegative(),
+  comment: z.string().optional(),
 });
+
+export const DxfColorValueSchema = z.union([z.string(), z.number().finite()]);
 
 export const SourceRefSchema = z.object({
   source: z.enum(['dxf', 'json', 'manual']),
+  entityType: z.literal('LINE').optional(),
+  color: DxfColorValueSchema.optional(),
   layer: z.string().optional(),
   colorIndex: z.number().int().optional(),
-  trueColor: z.string().optional(),
-  entityHandle: z.string().optional(),
+  trueColor: DxfColorValueSchema.optional(),
+  handle: z.string().optional(),
 });
 
 export const NodeSchema = z.object({

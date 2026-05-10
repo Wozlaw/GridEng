@@ -22,13 +22,11 @@ export interface Vec3 {
   z: number;
 }
 
-export interface ForceVector extends Vec3 {
-  /** Force vector components in model.units.force. */
-}
+/** Force vector components in model.units.force. */
+export type ForceVector = Vec3;
 
-export interface MomentVector extends Vec3 {
-  /** Moment vector components in model.units.moment. */
-}
+/** Moment vector components in model.units.moment. */
+export type MomentVector = Vec3;
 
 export interface ForceMomentVector {
   force: ForceVector;
@@ -40,6 +38,8 @@ export interface WindLoadDefinition {
   direction: Vec3;
   /** Nominal wind pressure in kPa. Zero means wind pressure is not specified. */
   nominalPressureKPa: number;
+  /** Optional human-readable note for imported or hand-authored wind data. */
+  comment?: string;
 }
 
 export interface Node {
@@ -170,13 +170,22 @@ export interface ModelSettings {
   verticalAxis: 'Z';
 }
 
+export type DxfColorValue = string | number;
+
 export interface SourceRef {
   source: 'dxf' | 'json' | 'manual';
+  entityType?: 'LINE';
+  color?: DxfColorValue;
   layer?: string;
   colorIndex?: number;
-  trueColor?: string;
-  entityHandle?: string;
+  trueColor?: DxfColorValue;
+  handle?: string;
 }
+
+export type DxfEntitySource = SourceRef & {
+  source: 'dxf';
+  entityType: 'LINE';
+};
 
 export interface DxfImportMeta {
   fileName: string;
