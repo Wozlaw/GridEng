@@ -31,4 +31,5 @@ Thumbs.db
 *.tmp
 # Прочее
 Materials/
+patches/
 sandBox.ipynb
