@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+# FastAPI / local runtime
+*.log
+*.sqlite3
+*.db
+.env
+.env.*
+!.env.example
+# Node / React / Vite
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Codex / local scratch
+.codex/
+*.tmp
+
+sandBox.ipynb
