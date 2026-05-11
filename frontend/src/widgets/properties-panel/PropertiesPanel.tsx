@@ -9,13 +9,28 @@ import {
   Typography,
 } from '@mui/material';
 
+import {
+  getLoadUnits,
+  resolveConcentratedLoadVector,
+  resolveDistributedLoadVectors,
+  type Load,
+  type UnitSystem,
+} from '../../entities/model';
+import { getSelectedEntityLabel } from '../../features/selection';
 import { useModelStore } from '../../app/store';
 import { formatNumber, formatOptionalText, formatRestraintState, formatVector } from '../../shared/utils';
 
 export function PropertiesPanel() {
   const model = useModelStore((state) => state.model);
   const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedNode = useModelStore((state) => state.getSelectedNode());
+  const selectedMember = useModelStore((state) => state.getSelectedMember());
+  const selectedLoadCase = useModelStore((state) => state.getSelectedLoadCase());
+  const selectedLoad = useModelStore((state) => state.getSelectedLoad());
+  const selectedRestraint = useModelStore((state) => state.getSelectedRestraint());
+  const selectedRestraintNode = useModelStore((state) => state.getSelectedRestraintNode());
   const validationReport = useModelStore((state) => state.validationReport);
+  const selectedEntityLabel = getSelectedEntityLabel(selectedEntity);
   const errorCount = validationReport.errors.length;
   const warningCount = validationReport.warnings.length;
   const validationChipColor = errorCount > 0 ? 'error' : warningCount > 0 ? 'warning' : 'success';
@@ -25,20 +40,11 @@ export function PropertiesPanel() {
       ? `${warningCount} warnings`
       : 'Valid';
 
-  const selectedNode = selectedEntity.type === 'node'
-    ? model.nodes.find((node) => node.id === selectedEntity.id)
-    : undefined;
-  const selectedMember = selectedEntity.type === 'member'
-    ? model.members.find((member) => member.id === selectedEntity.id)
-    : undefined;
   const selectedProfile = selectedEntity.type === 'profile'
     ? model.profiles.find((profile) => profile.id === selectedEntity.id)
     : undefined;
   const selectedMaterial = selectedEntity.type === 'material'
     ? model.materials.find((material) => material.id === selectedEntity.id)
-    : undefined;
-  const selectedLoadCase = selectedEntity.type === 'loadCase'
-    ? model.loadCases.find((loadCase) => loadCase.id === selectedEntity.id)
     : undefined;
 
   const selectedNodeRestraint = selectedNode
@@ -47,8 +53,8 @@ export function PropertiesPanel() {
   const selectedNodeLoads = selectedNode
     ? model.loadCases.flatMap((loadCase) =>
         loadCase.loads
-          .filter((load) => load.target.type === 'node' && load.target.nodeId === selectedNode.id)
-          .map((load) => ({ loadCaseName: loadCase.name, load })),
+          .filter((load) => load.type === 'nodal_concentrated' && load.target.nodeId === selectedNode.id)
+          .map((load) => ({ loadCaseName: loadCase.name, load }))
       )
     : [];
 
@@ -64,6 +70,13 @@ export function PropertiesPanel() {
   const memberMaterial = selectedMember
     ? model.materials.find((material) => material.id === selectedMember.materialId)
     : undefined;
+  const selectedMemberLoads = selectedMember
+    ? model.loadCases.flatMap((loadCase) =>
+        loadCase.loads
+          .filter((load) => load.type === 'member_distributed' && load.target.memberId === selectedMember.id)
+          .map((load) => ({ loadCaseName: loadCase.name, load }))
+      )
+    : [];
 
   return (
     <Paper
@@ -80,9 +93,7 @@ export function PropertiesPanel() {
         <Typography variant="overline" color="text.secondary">
           Properties
         </Typography>
-        <Typography variant="h6">
-          {selectedEntity.type ? `${selectedEntity.type} ${selectedEntity.id}` : 'Model Summary'}
-        </Typography>
+        <Typography variant="h6">{selectedEntityLabel ?? 'Model Summary'}</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Chip
             size="small"
@@ -95,7 +106,7 @@ export function PropertiesPanel() {
       </Stack>
 
       <Stack sx={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', p: 2 }} spacing={2}>
-        {!selectedEntity.type && (
+        {selectedEntity.type == null && (
           <>
             <PropertySection title="Model">
               <PropertyRow label="Name" value={model.name} />
@@ -113,6 +124,7 @@ export function PropertiesPanel() {
               <PropertyRow label="Members" value={`${model.members.length}`} />
               <PropertyRow label="Profiles" value={`${model.profiles.length}`} />
               <PropertyRow label="Materials" value={`${model.materials.length}`} />
+              <PropertyRow label="Restraints" value={`${model.restraints.length}`} />
               <PropertyRow label="Load cases" value={`${model.loadCases.length}`} />
             </PropertySection>
 
@@ -149,6 +161,7 @@ export function PropertiesPanel() {
             <PropertySection title="Node">
               <PropertyRow label="Label" value={selectedNode.label ?? selectedNode.id} />
               <PropertyRow label="Position" value={formatVector(selectedNode.position)} />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedNode.comment)} />
               <PropertyRow label="Layer" value={formatOptionalText(selectedNode.source?.layer)} />
               <PropertyRow label="DXF handle" value={formatOptionalText(selectedNode.source?.handle)} />
             </PropertySection>
@@ -156,12 +169,14 @@ export function PropertiesPanel() {
             <PropertySection title="Restraint">
               {selectedNodeRestraint ? (
                 <>
+                  <PropertyRow label="Id" value={selectedNodeRestraint.id} />
                   <PropertyRow label="UX" value={formatRestraintState(selectedNodeRestraint.ux)} />
                   <PropertyRow label="UY" value={formatRestraintState(selectedNodeRestraint.uy)} />
                   <PropertyRow label="UZ" value={formatRestraintState(selectedNodeRestraint.uz)} />
                   <PropertyRow label="RX" value={formatRestraintState(selectedNodeRestraint.rx)} />
                   <PropertyRow label="RY" value={formatRestraintState(selectedNodeRestraint.ry)} />
                   <PropertyRow label="RZ" value={formatRestraintState(selectedNodeRestraint.rz)} />
+                  <PropertyRow label="Comment" value={formatOptionalText(selectedNodeRestraint.comment)} />
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -179,12 +194,11 @@ export function PropertiesPanel() {
                 <Stack spacing={1.25}>
                   {selectedNodeLoads.map(({ loadCaseName, load }) => (
                     <Box key={load.id}>
-                      <Typography variant="subtitle2">{load.description ?? load.id}</Typography>
+                      <Typography variant="subtitle2">{load.name}</Typography>
                       <Typography variant="caption" color="text.secondary">
                         {loadCaseName}
                       </Typography>
-                      <PropertyRow label="Force" value={formatVector(load.vector.force)} />
-                      <PropertyRow label="Moment" value={formatVector(load.vector.moment)} />
+                      <LoadDetails load={load} units={model.units} />
                     </Box>
                   ))}
                 </Stack>
@@ -212,6 +226,7 @@ export function PropertiesPanel() {
                 label="Offset Z"
                 value={`${formatNumber(selectedMember.offsetZmm ?? memberProfile?.defaultOffsetZmm ?? 0)} mm`}
               />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedMember.comment)} />
             </PropertySection>
 
             <PropertySection title="DXF Source">
@@ -222,6 +237,26 @@ export function PropertiesPanel() {
               <PropertyRow label="True color" value={formatOptionalText(selectedMember.source?.trueColor)} />
               <PropertyRow label="Handle" value={formatOptionalText(selectedMember.source?.handle)} />
             </PropertySection>
+
+            <PropertySection title="Member Loads">
+              {selectedMemberLoads.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  No member loads assigned.
+                </Typography>
+              ) : (
+                <Stack spacing={1.25}>
+                  {selectedMemberLoads.map(({ loadCaseName, load }) => (
+                    <Box key={load.id}>
+                      <Typography variant="subtitle2">{load.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {loadCaseName}
+                      </Typography>
+                      <LoadDetails load={load} units={model.units} />
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+            </PropertySection>
           </>
         )}
 
@@ -230,6 +265,7 @@ export function PropertiesPanel() {
             <PropertySection title="Profile">
               <PropertyRow label="Name" value={selectedProfile.name} />
               <PropertyRow label="Kind" value={selectedProfile.kind} />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedProfile.comment)} />
               <PropertyRow label="Mass" value={`${formatNumber(selectedProfile.massKgPerM, 3)} kg/m`} />
               <PropertyRow
                 label="Default rotation"
@@ -262,6 +298,7 @@ export function PropertiesPanel() {
         {selectedMaterial && (
           <PropertySection title="Material">
             <PropertyRow label="Name" value={selectedMaterial.name} />
+            <PropertyRow label="Comment" value={formatOptionalText(selectedMaterial.comment)} />
             <PropertyRow label="E" value={`${formatNumber(selectedMaterial.elasticModulusMPa)} MPa`} />
             <PropertyRow label="G" value={`${formatNumber(selectedMaterial.shearModulusMPa)} MPa`} />
             <PropertyRow label="Poisson" value={formatNumber(selectedMaterial.poissonRatio, 3)} />
@@ -270,10 +307,11 @@ export function PropertiesPanel() {
           </PropertySection>
         )}
 
-        {selectedLoadCase && (
+        {selectedEntity.type === 'loadCase' && selectedLoadCase && (
           <>
             <PropertySection title="Load Case">
               <PropertyRow label="Name" value={selectedLoadCase.name} />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedLoadCase.comment)} />
               <PropertyRow label="Loads count" value={`${selectedLoadCase.loads.length}`} />
               <PropertyRow label="Wind direction" value={formatVector(selectedLoadCase.wind.direction)} />
               <PropertyRow
@@ -283,20 +321,67 @@ export function PropertiesPanel() {
             </PropertySection>
 
             <PropertySection title="Loads">
-              <Stack spacing={1.25}>
-                {selectedLoadCase.loads.map((load) => (
-                  <Box key={load.id}>
-                    <Typography variant="subtitle2">{load.description ?? load.id}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {load.target.type === 'node'
-                        ? `Node ${load.target.nodeId}`
-                        : `Member ${load.target.memberId}`}
-                    </Typography>
-                    <PropertyRow label="Force" value={formatVector(load.vector.force)} />
-                    <PropertyRow label="Moment" value={formatVector(load.vector.moment)} />
-                  </Box>
-                ))}
-              </Stack>
+              {selectedLoadCase.loads.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  No loads assigned.
+                </Typography>
+              ) : (
+                <Stack spacing={1.25}>
+                  {selectedLoadCase.loads.map((load) => (
+                    <Box key={load.id}>
+                      <Typography variant="subtitle2">{load.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatLoadTarget(load)}
+                      </Typography>
+                      <LoadDetails load={load} units={model.units} />
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+            </PropertySection>
+          </>
+        )}
+
+        {selectedEntity.type === 'load' && selectedLoad && selectedLoadCase && (
+          <>
+            <PropertySection title="Load">
+              <PropertyRow label="Name" value={selectedLoad.name} />
+              <PropertyRow label="Id" value={selectedLoad.id} />
+              <PropertyRow label="Load case" value={selectedLoadCase.name} />
+              <PropertyRow label="Target" value={formatLoadTarget(selectedLoad)} />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedLoad.comment)} />
+            </PropertySection>
+
+            <PropertySection title="Load Details">
+              <LoadDetails load={selectedLoad} units={model.units} />
+            </PropertySection>
+          </>
+        )}
+
+        {selectedEntity.type === 'restraint' && selectedRestraint && (
+          <>
+            <PropertySection title="Restraint">
+              <PropertyRow label="Id" value={selectedRestraint.id} />
+              <PropertyRow label="Node" value={selectedRestraintNode?.label ?? selectedRestraint.nodeId} />
+              <PropertyRow label="Comment" value={formatOptionalText(selectedRestraint.comment)} />
+              <PropertyRow label="UX" value={formatRestraintState(selectedRestraint.ux)} />
+              <PropertyRow label="UY" value={formatRestraintState(selectedRestraint.uy)} />
+              <PropertyRow label="UZ" value={formatRestraintState(selectedRestraint.uz)} />
+              <PropertyRow label="RX" value={formatRestraintState(selectedRestraint.rx)} />
+              <PropertyRow label="RY" value={formatRestraintState(selectedRestraint.ry)} />
+              <PropertyRow label="RZ" value={formatRestraintState(selectedRestraint.rz)} />
+            </PropertySection>
+
+            <PropertySection title="Associated Node">
+              <PropertyRow label="Node id" value={selectedRestraint.nodeId} />
+              <PropertyRow
+                label="Position"
+                value={selectedRestraintNode ? formatVector(selectedRestraintNode.position) : '-'}
+              />
+              <PropertyRow
+                label="Node comment"
+                value={formatOptionalText(selectedRestraintNode?.comment)}
+              />
             </PropertySection>
           </>
         )}
@@ -366,4 +451,73 @@ function ValidationIssueGroup({ title, issues }: ValidationIssueGroupProps) {
       ))}
     </Stack>
   );
+}
+
+interface LoadDetailsProps {
+  load: Load;
+  units: UnitSystem;
+}
+
+function LoadDetails({ load, units }: LoadDetailsProps) {
+  if (load.type === 'nodal_concentrated') {
+    const resolved = resolveConcentratedLoadVector(load);
+    const vector = load.kind === 'force' ? resolved.force : resolved.moment;
+
+    return (
+      <>
+        <PropertyRow label="Type" value="Nodal concentrated" />
+        <PropertyRow label="Kind" value={load.kind} />
+        <PropertyRow label="Magnitude" value={`${formatNumber(load.magnitude, 3)} ${getLoadUnits(load, units)}`} />
+        <PropertyRow label="Direction" value={formatVector(load.direction, 3)} />
+        <PropertyRow label="Resolved vector" value={formatVector(vector, 3)} />
+        <PropertyRow label="Coordinate system" value={load.coordinateSystem} />
+        <PropertyRow label="Comment" value={formatOptionalText(load.comment)} />
+      </>
+    );
+  }
+
+  if (load.distribution.type === 'linear') {
+    const resolved = resolveDistributedLoadVectors(load);
+    const xStartRel = load.distribution.xStartRel ?? 0;
+    const xEndRel = load.distribution.xEndRel ?? 1;
+
+    return (
+      <>
+        <PropertyRow label="Type" value="Member distributed" />
+        <PropertyRow label="Kind" value={load.kind} />
+        <PropertyRow label="Direction" value={formatVector(load.direction, 3)} />
+        <PropertyRow
+          label="qStart"
+          value={`${formatNumber(load.distribution.qStart, 3)} ${getLoadUnits(load, units)}`}
+        />
+        <PropertyRow
+          label="qEnd"
+          value={`${formatNumber(load.distribution.qEnd, 3)} ${getLoadUnits(load, units)}`}
+        />
+        <PropertyRow label="Range" value={`${formatNumber(xStartRel, 3)} .. ${formatNumber(xEndRel, 3)} rel`} />
+        <PropertyRow label="Start vector" value={formatVector(resolved.start, 3)} />
+        <PropertyRow label="End vector" value={formatVector(resolved.end, 3)} />
+        <PropertyRow label="Coordinate system" value={load.coordinateSystem} />
+        <PropertyRow label="Comment" value={formatOptionalText(load.comment)} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PropertyRow label="Type" value="Member distributed" />
+      <PropertyRow label="Kind" value={load.kind} />
+      <PropertyRow label="Direction" value={formatVector(load.direction, 3)} />
+      <PropertyRow label="Distribution" value="Function placeholder" />
+      <PropertyRow label="Expression" value={load.distribution.expression} />
+      <PropertyRow label="Coordinate system" value={load.coordinateSystem} />
+      <PropertyRow label="Comment" value={formatOptionalText(load.comment)} />
+    </>
+  );
+}
+
+function formatLoadTarget(load: Load): string {
+  return load.type === 'nodal_concentrated'
+    ? `Node ${load.target.nodeId}`
+    : `Member ${load.target.memberId}`;
 }

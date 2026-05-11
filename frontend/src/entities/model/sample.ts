@@ -7,6 +7,7 @@ const SAMPLE_PROFILES: Profile[] = [
     name: 'L90x6 leg',
     kind: 'L_equal',
     params: { b: 90, t: 6 },
+    comment: 'Primary leg profile used in the tower shaft.',
     defaultLocalAxisRotationDeg: 0,
     defaultOffsetYmm: 0,
     defaultOffsetZmm: 0,
@@ -73,11 +74,12 @@ export function createSampleTowerSegmentModel(): GridEngModel {
       ...DEFAULT_STEEL,
       id: 'mat-steel-c245',
       name: 'Steel C245',
+      comment: 'Default construction steel for sample members.',
     },
   ];
 
   model.nodes = [
-    { id: 'n-1', position: { x: -1000, y: -1000, z: 0 }, label: 'Base A' },
+    { id: 'n-1', position: { x: -1000, y: -1000, z: 0 }, label: 'Base A', comment: 'Reference base corner.' },
     { id: 'n-2', position: { x: 1000, y: -1000, z: 0 }, label: 'Base B' },
     { id: 'n-3', position: { x: 1000, y: 1000, z: 0 }, label: 'Base C' },
     { id: 'n-4', position: { x: -1000, y: 1000, z: 0 }, label: 'Base D' },
@@ -115,6 +117,7 @@ export function createSampleTowerSegmentModel(): GridEngModel {
     profileId,
     materialId: model.materials[0].id,
     groupId: profileId,
+    comment: index === 8 ? 'Main tower leg used in load sample.' : undefined,
   }));
 
   model.restraints = ['n-1', 'n-2', 'n-3', 'n-4'].map((nodeId, index) => ({
@@ -132,25 +135,47 @@ export function createSampleTowerSegmentModel(): GridEngModel {
     {
       id: 'lc-1',
       name: 'Assembly load case',
+      comment: 'Sample v0.2 load case with nodal and distributed loads.',
       wind: NO_WIND,
       loads: [
         {
           id: 'load-1',
+          type: 'nodal_concentrated',
+          kind: 'force',
+          name: 'Top vertical force',
+          comment: 'Vertical service force',
+          coordinateSystem: 'global',
+          direction: { x: 0, y: 0, z: -1 },
           target: { type: 'node', nodeId: 'n-7' },
-          vector: {
-            force: { x: 0, y: 0, z: -12000 },
-            moment: { x: 0, y: 0, z: 0 },
-          },
-          description: 'Vertical service force',
+          magnitude: 12000,
         },
         {
           id: 'load-2',
+          type: 'nodal_concentrated',
+          kind: 'moment',
+          name: 'Top torsional moment',
+          comment: 'Torsional test moment',
+          coordinateSystem: 'global',
+          direction: { x: 1, y: 0, z: 0 },
           target: { type: 'node', nodeId: 'n-6' },
-          vector: {
-            force: { x: 0, y: 0, z: 0 },
-            moment: { x: 2500000, y: 0, z: 0 },
+          magnitude: 2500000,
+        },
+        {
+          id: 'load-3',
+          type: 'member_distributed',
+          kind: 'force',
+          name: 'Leg line load',
+          comment: 'Temporary distributed force on the first leg.',
+          coordinateSystem: 'global',
+          direction: { x: 0, y: -1, z: 0 },
+          target: { type: 'member', memberId: 'm-9' },
+          distribution: {
+            type: 'linear',
+            qStart: 3,
+            qEnd: 5.5,
+            xStartRel: 0.15,
+            xEndRel: 1,
           },
-          description: 'Torsional test moment',
         },
       ],
     },

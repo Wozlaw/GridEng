@@ -46,6 +46,7 @@ export interface Node {
   id: Id;
   position: Vec3;
   label?: string;
+  comment?: string;
   source?: SourceRef;
 }
 
@@ -67,6 +68,7 @@ export interface Member {
 
   groupId?: Id;
   label?: string;
+  comment?: string;
   source?: SourceRef;
 }
 
@@ -103,6 +105,7 @@ export interface Profile {
   name: string;
   kind: ProfileKind;
   params: Record<string, number>;
+  comment?: string;
 
   /** Default rotation of the profile around member local X axis, degrees. */
   defaultLocalAxisRotationDeg: number;
@@ -123,6 +126,7 @@ export interface Profile {
 export interface Material {
   id: Id;
   name: string;
+  comment?: string;
   elasticModulusMPa?: number;
   shearModulusMPa?: number;
   poissonRatio?: number;
@@ -133,6 +137,7 @@ export interface Material {
 export interface Restraint {
   id: Id;
   nodeId: Id;
+  comment?: string;
   /** Translations along global X/Y/Z. */
   ux: boolean;
   uy: boolean;
@@ -147,6 +152,58 @@ export type LoadTarget =
   | { type: 'node'; nodeId: Id }
   | { type: 'member'; memberId: Id };
 
+export type LoadCoordinateSystem = 'global';
+export type LoadKind = 'force' | 'moment';
+export type LoadType = 'nodal_concentrated' | 'member_distributed';
+export type LoadDistributionType = 'linear' | 'function';
+
+export interface LoadBase {
+  id: Id;
+  type: LoadType;
+  kind: LoadKind;
+  name: string;
+  comment?: string;
+  coordinateSystem: LoadCoordinateSystem;
+  /** Normalized non-zero global vector for non-zero loads. */
+  direction: Vec3;
+}
+
+export interface NodalConcentratedLoad extends LoadBase {
+  type: 'nodal_concentrated';
+  target: { type: 'node'; nodeId: Id };
+  /** In model.units.force for kind='force'; in model.units.moment for kind='moment'. */
+  magnitude: number;
+}
+
+export interface LinearLoadDistribution {
+  type: 'linear';
+  /** Force/length or moment/length depending on load.kind. */
+  qStart: number;
+  qEnd: number;
+  /** Relative position along member local X axis. Default 0. */
+  xStartRel?: number;
+  /** Relative position along member local X axis. Default 1. */
+  xEndRel?: number;
+}
+
+export interface FunctionLoadDistributionReserved {
+  type: 'function';
+  expression: string;
+  variables?: Record<string, number>;
+  comment?: string;
+}
+
+export interface MemberDistributedLoad extends LoadBase {
+  type: 'member_distributed';
+  target: { type: 'member'; memberId: Id };
+  distribution: LinearLoadDistribution | FunctionLoadDistributionReserved;
+}
+
+export type Load = NodalConcentratedLoad | MemberDistributedLoad;
+
+/**
+ * @deprecated v0.1 JSON import migration only. New models use `Load`.
+ */
 export interface ConcentratedLoad {
   id: Id;
   target: LoadTarget;
@@ -157,7 +214,8 @@ export interface ConcentratedLoad {
 export interface LoadCase {
   id: Id;
   name: string;
-  loads: ConcentratedLoad[];
+  comment?: string;
+  loads: Load[];
   wind: WindLoadDefinition;
 }
 
@@ -224,7 +282,7 @@ export interface AnalysisResults {
 }
 
 export interface GridEngModel {
-  schemaVersion: '0.1';
+  schemaVersion: '0.2';
   name: string;
   units: UnitSystem;
   settings: ModelSettings;

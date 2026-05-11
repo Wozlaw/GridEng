@@ -5,6 +5,7 @@ import {
   Chip,
   Divider,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   Paper,
@@ -13,12 +14,15 @@ import {
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
-import { isSelectedEntity } from '../../features/selection';
+import { isSelectedEntity, isSelectedLoad, isSelectedRestraint } from '../../features/selection';
 
 export function ProjectTreePanel() {
   const model = useModelStore((state) => state.model);
   const selectedEntity = useModelStore((state) => state.selectedEntity);
   const selectEntity = useModelStore((state) => state.selectEntity);
+  const selectLoad = useModelStore((state) => state.selectLoad);
+  const selectRestraint = useModelStore((state) => state.selectRestraint);
+  const totalLoads = model.loadCases.reduce((sum, loadCase) => sum + loadCase.loads.length, 0);
 
   return (
     <Paper
@@ -39,6 +43,7 @@ export function ProjectTreePanel() {
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Chip size="small" label={`${model.nodes.length} nodes`} variant="outlined" />
           <Chip size="small" label={`${model.members.length} members`} variant="outlined" />
+          <Chip size="small" label={`${totalLoads} loads`} variant="outlined" />
           <Chip size="small" label={`${model.profiles.length} profiles`} variant="outlined" />
         </Box>
       </Stack>
@@ -79,14 +84,56 @@ export function ProjectTreePanel() {
         <ProjectSection title="Load Cases" count={model.loadCases.length}>
           <List disablePadding dense>
             {model.loadCases.map((loadCase) => (
-              <ListItemButton
-                key={loadCase.id}
-                selected={isSelectedEntity(selectedEntity, 'loadCase', loadCase.id)}
-                onClick={() => selectEntity({ type: 'loadCase', id: loadCase.id })}
-              >
-                <ListItemText primary={loadCase.name} secondary={`${loadCase.loads.length} loads`} />
-              </ListItemButton>
+              <ListItem key={loadCase.id} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
+                  selected={isSelectedEntity(selectedEntity, 'loadCase', loadCase.id)}
+                  onClick={() => selectEntity({ type: 'loadCase', id: loadCase.id })}
+                >
+                  <ListItemText primary={loadCase.name} secondary={`${loadCase.loads.length} loads`} />
+                </ListItemButton>
+
+                {loadCase.loads.length > 0 && (
+                  <List disablePadding dense sx={{ pl: 1.5 }}>
+                    {loadCase.loads.map((load) => (
+                      <ListItemButton
+                        key={load.id}
+                        selected={isSelectedLoad(selectedEntity, loadCase.id, load.id)}
+                        onClick={() => selectLoad(loadCase.id, load.id)}
+                        sx={{ pl: 2.5 }}
+                      >
+                        <ListItemText
+                          primary={load.name}
+                          secondary={formatLoadTarget(load)}
+                        />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                )}
+              </ListItem>
             ))}
+          </List>
+        </ProjectSection>
+
+        <Divider />
+
+        <ProjectSection title="Restraints" count={model.restraints.length}>
+          <List disablePadding dense>
+            {model.restraints.map((restraint) => {
+              const node = model.nodes.find((candidate) => candidate.id === restraint.nodeId);
+
+              return (
+                <ListItemButton
+                  key={restraint.id}
+                  selected={isSelectedRestraint(selectedEntity, restraint.id)}
+                  onClick={() => selectRestraint(restraint.id)}
+                >
+                  <ListItemText
+                    primary={node?.label ?? restraint.nodeId}
+                    secondary={`${restraint.id} | ${formatRestraintSummary(restraint)}`}
+                  />
+                </ListItemButton>
+              );
+            })}
           </List>
         </ProjectSection>
 
@@ -147,4 +194,30 @@ function ProjectSection({ title, count, children }: ProjectSectionProps) {
       {children}
     </Stack>
   );
+}
+
+function formatLoadTarget(load: { type: 'nodal_concentrated' | 'member_distributed'; target: { nodeId?: string; memberId?: string } }) {
+  return load.type === 'nodal_concentrated'
+    ? `Node ${load.target.nodeId}`
+    : `Member ${load.target.memberId}`;
+}
+
+function formatRestraintSummary(restraint: {
+  ux: boolean;
+  uy: boolean;
+  uz: boolean;
+  rx: boolean;
+  ry: boolean;
+  rz: boolean;
+}) {
+  const locked = [
+    restraint.ux && 'UX',
+    restraint.uy && 'UY',
+    restraint.uz && 'UZ',
+    restraint.rx && 'RX',
+    restraint.ry && 'RY',
+    restraint.rz && 'RZ',
+  ].filter(Boolean);
+
+  return locked.length > 0 ? locked.join(', ') : 'free';
 }

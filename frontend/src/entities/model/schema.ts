@@ -44,6 +44,7 @@ export const NodeSchema = z.object({
   id: IdSchema,
   position: Vec3Schema,
   label: z.string().optional(),
+  comment: z.string().optional(),
   source: SourceRefSchema.optional(),
 });
 
@@ -58,6 +59,7 @@ export const MemberSchema = z.object({
   offsetZmm: z.number().finite().optional(),
   groupId: IdSchema.optional(),
   label: z.string().optional(),
+  comment: z.string().optional(),
   source: SourceRefSchema.optional(),
 });
 
@@ -86,6 +88,7 @@ export const ProfileSchema = z.object({
     'custom',
   ]),
   params: z.record(z.string(), z.number().finite()),
+  comment: z.string().optional(),
   defaultLocalAxisRotationDeg: z.number().finite().default(0),
   defaultOffsetYmm: z.number().finite().default(0),
   defaultOffsetZmm: z.number().finite().default(0),
@@ -97,6 +100,7 @@ export const ProfileSchema = z.object({
 export const MaterialSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
+  comment: z.string().optional(),
   elasticModulusMPa: z.number().finite().positive().optional(),
   shearModulusMPa: z.number().finite().positive().optional(),
   poissonRatio: z.number().finite().min(0).max(0.5).optional(),
@@ -107,6 +111,7 @@ export const MaterialSchema = z.object({
 export const RestraintSchema = z.object({
   id: IdSchema,
   nodeId: IdSchema,
+  comment: z.string().optional(),
   ux: z.boolean(),
   uy: z.boolean(),
   uz: z.boolean(),
@@ -127,10 +132,65 @@ export const ConcentratedLoadSchema = z.object({
   description: z.string().optional(),
 });
 
+export const LoadCoordinateSystemSchema = z.literal('global');
+export const LoadKindSchema = z.enum(['force', 'moment']);
+export const LoadDistributionTypeSchema = z.enum(['linear', 'function']);
+
+export const LoadBaseSchema = z.object({
+  id: IdSchema,
+  kind: LoadKindSchema,
+  name: z.string().min(1),
+  comment: z.string().optional(),
+  coordinateSystem: LoadCoordinateSystemSchema,
+  direction: Vec3Schema,
+});
+
+export const NodalConcentratedLoadSchema = LoadBaseSchema.extend({
+  type: z.literal('nodal_concentrated'),
+  target: z.object({
+    type: z.literal('node'),
+    nodeId: IdSchema,
+  }),
+  magnitude: z.number().finite(),
+});
+
+export const LinearLoadDistributionSchema = z.object({
+  type: z.literal('linear'),
+  qStart: z.number().finite(),
+  qEnd: z.number().finite(),
+  xStartRel: z.number().finite().min(0).max(1).default(0),
+  xEndRel: z.number().finite().min(0).max(1).default(1),
+});
+
+export const FunctionLoadDistributionReservedSchema = z.object({
+  type: z.literal('function'),
+  expression: z.string().min(1),
+  variables: z.record(z.string(), z.number().finite()).optional(),
+  comment: z.string().optional(),
+});
+
+export const MemberDistributedLoadSchema = LoadBaseSchema.extend({
+  type: z.literal('member_distributed'),
+  target: z.object({
+    type: z.literal('member'),
+    memberId: IdSchema,
+  }),
+  distribution: z.discriminatedUnion('type', [
+    LinearLoadDistributionSchema,
+    FunctionLoadDistributionReservedSchema,
+  ]),
+});
+
+export const LoadSchema = z.discriminatedUnion('type', [
+  NodalConcentratedLoadSchema,
+  MemberDistributedLoadSchema,
+]);
+
 export const LoadCaseSchema = z.object({
   id: IdSchema,
   name: z.string().min(1),
-  loads: z.array(ConcentratedLoadSchema),
+  comment: z.string().optional(),
+  loads: z.array(LoadSchema),
   wind: WindLoadDefinitionSchema,
 });
 
@@ -177,7 +237,7 @@ export const AnalysisResultsSchema = z.object({
 });
 
 export const GridEngModelSchema = z.object({
-  schemaVersion: z.literal('0.1'),
+  schemaVersion: z.literal('0.2'),
   name: z.string().min(1),
   units: UnitSystemSchema,
   settings: ModelSettingsSchema,

@@ -44,7 +44,7 @@ export const DEFAULT_PROFILE: Profile = Object.freeze({
 
 export function createEmptyModel(name = 'Untitled GridEng model'): GridEngModel {
   return {
-    schemaVersion: '0.1',
+    schemaVersion: '0.2',
     name,
     units: DEFAULT_UNITS,
     settings: {

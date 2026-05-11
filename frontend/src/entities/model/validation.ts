@@ -1,5 +1,6 @@
 import { GridEngModelSchema } from './schema';
-import type { GridEngModel, Id, Member, Node } from './types';
+import { isZeroVector } from './geometry';
+import type { GridEngModel, Id, Load, Member, Node } from './types';
 
 const ZERO_LENGTH_MEMBER_TOLERANCE_MM = 1e-6;
 
@@ -13,7 +14,12 @@ export interface ModelValidationIssue {
     | 'zero_length_member'
     | 'hanging_member'
     | 'isolated_node'
-    | 'empty_model';
+    | 'empty_model'
+    | 'invalid_direction'
+    | 'unsupported_coordinate_system'
+    | 'invalid_distribution_range'
+    | 'unsupported_load_placeholder'
+    | 'zero_magnitude_load';
   severity: ModelValidationSeverity;
   message: string;
   entityType?: 'node' | 'member' | 'profile' | 'material' | 'restraint' | 'loadCase' | 'load';
@@ -54,7 +60,7 @@ export function validateGridEngModel(raw: unknown): ModelValidationResult {
 }
 
 export function validateGridEngModelIntegrity(model: GridEngModel): ModelValidationResult {
-  return validateGridEngModel(model);
+  return validateParsedModel(model);
 }
 
 export const validateModelTopology = validateGridEngModelIntegrity;
@@ -135,12 +141,7 @@ function validateParsedModel(model: GridEngModel): ModelValidationResult {
 
   for (const loadCase of model.loadCases) {
     for (const load of loadCase.loads) {
-      if (load.target.type === 'node' && !nodeIds.has(load.target.nodeId)) {
-        errors.push(missingReference('load', load.id, `Node ${load.target.nodeId} is missing.`));
-      }
-      if (load.target.type === 'member' && !memberIds.has(load.target.memberId)) {
-        errors.push(missingReference('load', load.id, `Member ${load.target.memberId} is missing.`));
-      }
+      validateLoad(load, nodeIds, memberIds, errors, warnings);
     }
   }
 
@@ -167,6 +168,103 @@ function validateParsedModel(model: GridEngModel): ModelValidationResult {
   }
 
   return buildValidationResult({ errors, warnings });
+}
+
+function validateLoad(
+  load: Load,
+  nodeIds: Set<Id>,
+  memberIds: Set<Id>,
+  errors: ModelValidationIssue[],
+  warnings: ModelValidationIssue[],
+): void {
+  if (load.coordinateSystem !== 'global') {
+    errors.push({
+      code: 'unsupported_coordinate_system',
+      severity: 'error',
+      message: `Load ${load.id} uses unsupported coordinate system '${load.coordinateSystem}'.`,
+      entityType: 'load',
+      entityId: load.id,
+    });
+  }
+
+  if (load.type === 'nodal_concentrated') {
+    if (!nodeIds.has(load.target.nodeId)) {
+      errors.push(missingReference('load', load.id, `Node ${load.target.nodeId} is missing.`));
+    }
+
+    if (load.magnitude !== 0 && isZeroVector(load.direction)) {
+      errors.push(invalidDirection(load.id));
+    }
+
+    if (load.magnitude === 0) {
+      warnings.push({
+        code: 'zero_magnitude_load',
+        severity: 'warning',
+        message: `Load ${load.id} has zero magnitude and should be reviewed.`,
+        entityType: 'load',
+        entityId: load.id,
+      });
+    }
+
+    return;
+  }
+
+  if (!memberIds.has(load.target.memberId)) {
+    errors.push(missingReference('load', load.id, `Member ${load.target.memberId} is missing.`));
+  }
+
+  if (load.distribution.type === 'linear') {
+    const xStartRel = load.distribution.xStartRel ?? 0;
+    const xEndRel = load.distribution.xEndRel ?? 1;
+
+    if ((load.distribution.qStart !== 0 || load.distribution.qEnd !== 0) && isZeroVector(load.direction)) {
+      errors.push(invalidDirection(load.id));
+    }
+
+    if (xStartRel < 0 || xStartRel > 1 || xEndRel < 0 || xEndRel > 1 || xStartRel >= xEndRel) {
+      errors.push({
+        code: 'invalid_distribution_range',
+        severity: 'error',
+        message: `Load ${load.id} has invalid linear distribution range ${xStartRel}..${xEndRel}.`,
+        entityType: 'load',
+        entityId: load.id,
+      });
+    }
+
+    if (load.distribution.qStart === 0 && load.distribution.qEnd === 0) {
+      warnings.push({
+        code: 'zero_magnitude_load',
+        severity: 'warning',
+        message: `Load ${load.id} has zero distributed magnitude and should be reviewed.`,
+        entityType: 'load',
+        entityId: load.id,
+      });
+    }
+
+    return;
+  }
+
+  if (isZeroVector(load.direction)) {
+    errors.push(invalidDirection(load.id));
+  }
+
+  warnings.push({
+    code: 'unsupported_load_placeholder',
+    severity: 'warning',
+    message: `Load ${load.id} uses reserved function distribution and is treated as unsupported placeholder.`,
+    entityType: 'load',
+    entityId: load.id,
+  });
+}
+
+function invalidDirection(loadId: Id): ModelValidationIssue {
+  return {
+    code: 'invalid_direction',
+    severity: 'error',
+    message: `Load ${loadId} has an invalid zero direction vector.`,
+    entityType: 'load',
+    entityId: loadId,
+  };
 }
 
 function buildValidationResult({

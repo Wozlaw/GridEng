@@ -13,6 +13,8 @@ interface NodePointsProps {
 
 export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedLoad = useModelStore((state) => state.getSelectedLoad());
+  const selectedRestraint = useModelStore((state) => state.getSelectedRestraint());
   const selectEntity = useModelStore((state) => state.selectEntity);
 
   if (!visible) {
@@ -22,7 +24,12 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
   return (
     <>
       {nodes.map((node) => {
-        const isSelected = selectedEntity.type === 'node' && selectedEntity.id === node.id;
+        const isSelected = (selectedEntity.type === 'node' && selectedEntity.id === node.id)
+          || selectedRestraint?.nodeId === node.id
+          || (
+            selectedLoad?.type === 'nodal_concentrated'
+            && selectedLoad.target.nodeId === node.id
+          );
         const scenePosition = modelPositionToScene(node.position);
 
         return (

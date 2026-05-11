@@ -1,8 +1,8 @@
 import {
   calculateBoundingBox,
   type BoundingBox3D,
-  type ConcentratedLoad,
   type GridEngModel,
+  type Load,
   type Vec3,
 } from '../../entities/model';
 
@@ -36,7 +36,7 @@ export function modelPositionToScene(position: Vec3): ScenePoint3 {
 }
 
 export function getLoadAnchorPosition(
-  load: ConcentratedLoad,
+  load: Load,
   nodesById: Map<string, GridEngModel['nodes'][number]>,
   membersById: Map<string, GridEngModel['members'][number]>,
 ): Vec3 | null {

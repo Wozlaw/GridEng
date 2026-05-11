@@ -1,5 +1,6 @@
 import { Box, Chip, Paper, Typography } from '@mui/material';
 
+import { getSelectedEntityLabel } from '../../features/selection';
 import { useModelStore } from '../store';
 
 export function BottomStatusBar() {
@@ -16,6 +17,7 @@ export function BottomStatusBar() {
     : warningCount > 0
       ? `${warningCount} validation warnings`
       : 'Validation OK';
+  const selectedEntityLabel = getSelectedEntityLabel(selectedEntity);
 
   return (
     <Paper
@@ -60,7 +62,7 @@ export function BottomStatusBar() {
             View: {viewMode}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Selection: {selectedEntity.type ? `${selectedEntity.type} ${selectedEntity.id}` : 'none'}
+            Selection: {selectedEntityLabel ?? 'none'}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             DXF tolerance: {dxfImportSettings.toleranceMm} mm

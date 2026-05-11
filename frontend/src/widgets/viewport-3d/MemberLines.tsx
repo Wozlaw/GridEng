@@ -21,6 +21,7 @@ export function MemberLines({
   visible,
 }: MemberLinesProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedLoad = useModelStore((state) => state.getSelectedLoad());
   const selectEntity = useModelStore((state) => state.selectEntity);
 
   if (!visible) {
@@ -38,7 +39,11 @@ export function MemberLines({
         }
 
         const profile = profilesById.get(member.profileId);
-        const isSelected = selectedEntity.type === 'member' && selectedEntity.id === member.id;
+        const isSelected = (selectedEntity.type === 'member' && selectedEntity.id === member.id)
+          || (
+            selectedLoad?.type === 'member_distributed'
+            && selectedLoad.target.memberId === member.id
+          );
         const memberColor = isSelected
           ? SELECTED_MEMBER_COLOR
           : profile?.color ?? DEFAULT_MEMBER_COLOR;

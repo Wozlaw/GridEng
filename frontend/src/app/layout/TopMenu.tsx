@@ -13,6 +13,7 @@ import {
 import { ExportJsonButton } from '../../features/export-json';
 import { ImportDxfButton } from '../../features/import-dxf';
 import { ImportJsonButton } from '../../features/import-json';
+import { getSelectedEntityLabel } from '../../features/selection';
 import { useModelStore } from '../store';
 import { VIEW_MODE_OPTIONS } from '../../features/view-modes';
 
@@ -38,6 +39,7 @@ export function TopMenu() {
     : warningCount > 0
       ? `${warningCount} warnings`
       : 'Model valid';
+  const selectedEntityLabel = getSelectedEntityLabel(selectedEntity);
 
   return (
     <AppBar position="sticky" color="transparent" elevation={0}>
@@ -130,8 +132,8 @@ export function TopMenu() {
             />
             <Chip
               label={
-                selectedEntity.type
-                  ? `Selected: ${selectedEntity.type} ${selectedEntity.id}`
+                selectedEntityLabel != null
+                  ? `Selected: ${selectedEntityLabel}`
                   : 'Selected: none'
               }
               variant="outlined"

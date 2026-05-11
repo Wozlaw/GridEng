@@ -1,7 +1,8 @@
 import { ZodError } from 'zod';
 
 import {
-  parseGridEngModel,
+  migrateGridEngModelToCurrent,
+  migrateGridEngModelToCurrentDetailed,
   validateGridEngModelIntegrity,
   type GridEngModel,
   type ModelValidationResult,
@@ -18,7 +19,7 @@ export interface GridEngJsonImportResult {
 }
 
 export function parseGridEngJson(raw: unknown): GridEngModel {
-  return parseGridEngModel(raw);
+  return migrateGridEngModelToCurrent(raw);
 }
 
 export function parseGridEngJsonText(text: string): GridEngModel {
@@ -31,7 +32,7 @@ export async function loadModelFromJsonFile(file: File): Promise<GridEngModel> {
   return parseGridEngJsonText(text);
 }
 
-export function importGridEngJsonModel(model: GridEngModel): GridEngJsonImportResult {
+export function importGridEngJsonModel(model: GridEngModel, migrationWarnings: string[] = []): GridEngJsonImportResult {
   const validationReport = validateGridEngModelIntegrity(model);
 
   if (validationReport.errors.length > 0) {
@@ -39,7 +40,10 @@ export function importGridEngJsonModel(model: GridEngModel): GridEngJsonImportRe
       status: 'error',
       validationReport,
       message: 'JSON model contains validation errors. Current model was not replaced.',
-      details: validationReport.errors.map(formatValidationIssue),
+      details: [
+        ...migrationWarnings,
+        ...validationReport.errors.map(formatValidationIssue),
+      ],
     };
   }
 
@@ -49,23 +53,29 @@ export function importGridEngJsonModel(model: GridEngModel): GridEngJsonImportRe
       model,
       validationReport,
       message: 'JSON model imported with validation warnings.',
-      details: validationReport.warnings.map(formatValidationIssue),
+      details: [
+        ...migrationWarnings,
+        ...validationReport.warnings.map(formatValidationIssue),
+      ],
     };
   }
 
   return {
-    status: 'success',
+    status: migrationWarnings.length > 0 ? 'warning' : 'success',
     model,
     validationReport,
-    message: 'JSON model imported successfully.',
-    details: [],
+    message: migrationWarnings.length > 0
+      ? 'JSON model imported successfully after migration to GridEngModel v0.2.'
+      : 'JSON model imported successfully.',
+    details: migrationWarnings,
   };
 }
 
 export function importGridEngJsonText(text: string): GridEngJsonImportResult {
   try {
-    const model = parseGridEngJsonText(text);
-    return importGridEngJsonModel(model);
+    const raw = JSON.parse(text) as unknown;
+    const migrationResult = migrateGridEngModelToCurrentDetailed(raw);
+    return importGridEngJsonModel(migrationResult.model, migrationResult.warnings);
   } catch (error) {
     return {
       status: 'error',

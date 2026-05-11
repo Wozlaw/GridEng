@@ -1,10 +1,12 @@
 import { Line } from '@react-three/drei';
 
+import { useModelStore } from '../../app/store';
 import type { GridEngModel, Restraint } from '../../entities/model';
 import { modelPositionToScene, type ScenePoint3 } from './modelToScene';
 
 const FULL_RESTRAINT_COLOR = '#7fd6ff';
 const PARTIAL_RESTRAINT_COLOR = '#f6c36d';
+const SELECTED_RESTRAINT_COLOR = '#f4bf61';
 
 interface RestraintMarkersProps {
   restraints: GridEngModel['restraints'];
@@ -19,6 +21,9 @@ export function RestraintMarkers({
   visible,
   nodeRadius,
 }: RestraintMarkersProps) {
+  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectRestraint = useModelStore((state) => state.selectRestraint);
+
   if (!visible || restraints.length === 0) {
     return null;
   }
@@ -42,12 +47,25 @@ export function RestraintMarkers({
           nodePosition[2] - stemLength,
         ];
         const isFullyFixed = isFullyFixedRestraint(restraint);
+        const isSelected = (selectedEntity.type === 'restraint' && selectedEntity.restraintId === restraint.id)
+          || (selectedEntity.type === 'node' && selectedEntity.id === restraint.nodeId);
+        const markerColor = isSelected
+          ? SELECTED_RESTRAINT_COLOR
+          : isFullyFixed
+            ? FULL_RESTRAINT_COLOR
+            : PARTIAL_RESTRAINT_COLOR;
 
         return isFullyFixed ? (
-          <group key={restraint.id}>
+          <group
+            key={restraint.id}
+            onClick={(event) => {
+              event.stopPropagation();
+              selectRestraint(restraint.id);
+            }}
+          >
             <Line
               points={[nodePosition, stemEnd]}
-              color={FULL_RESTRAINT_COLOR}
+              color={markerColor}
               lineWidth={2.4}
             />
             <mesh
@@ -59,9 +77,9 @@ export function RestraintMarkers({
             >
               <boxGeometry args={[markerSize, markerSize, fullPlateThickness]} />
               <meshStandardMaterial
-                color={FULL_RESTRAINT_COLOR}
-                emissive={FULL_RESTRAINT_COLOR}
-                emissiveIntensity={0.16}
+                color={markerColor}
+                emissive={markerColor}
+                emissiveIntensity={isSelected ? 0.28 : 0.16}
                 roughness={0.42}
               />
             </mesh>
@@ -73,6 +91,8 @@ export function RestraintMarkers({
             nodePosition={nodePosition}
             markerSize={markerSize}
             stemLength={stemLength}
+            markerColor={markerColor}
+            onClick={() => selectRestraint(restraint.id)}
           />
         );
       })}
@@ -85,6 +105,8 @@ interface PartialRestraintMarkerProps {
   nodePosition: ScenePoint3;
   markerSize: number;
   stemLength: number;
+  markerColor: string;
+  onClick: () => void;
 }
 
 function PartialRestraintMarker({
@@ -92,6 +114,8 @@ function PartialRestraintMarker({
   nodePosition,
   markerSize,
   stemLength,
+  markerColor,
+  onClick,
 }: PartialRestraintMarkerProps) {
   const baseZ = nodePosition[2] - stemLength;
   const half = markerSize * 0.5;
@@ -100,13 +124,18 @@ function PartialRestraintMarker({
   const rotationalCrossZ = baseZ - markerSize * 0.22;
 
   return (
-    <group>
+    <group
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+    >
       <Line
         points={[
           nodePosition,
           [nodePosition[0], nodePosition[1], baseZ],
         ]}
-        color={PARTIAL_RESTRAINT_COLOR}
+        color={markerColor}
         lineWidth={2.2}
       />
       <Line
@@ -114,7 +143,7 @@ function PartialRestraintMarker({
           [nodePosition[0] - half, nodePosition[1] - half, baseZ],
           [nodePosition[0] + half, nodePosition[1] + half, baseZ],
         ]}
-        color={PARTIAL_RESTRAINT_COLOR}
+        color={markerColor}
         lineWidth={2.2}
       />
       <Line
@@ -122,7 +151,7 @@ function PartialRestraintMarker({
           [nodePosition[0] - half, nodePosition[1] + half, baseZ],
           [nodePosition[0] + half, nodePosition[1] - half, baseZ],
         ]}
-        color={PARTIAL_RESTRAINT_COLOR}
+        color={markerColor}
         lineWidth={2.2}
       />
 
@@ -132,7 +161,7 @@ function PartialRestraintMarker({
             [nodePosition[0] - translationalHalf, nodePosition[1], baseZ],
             [nodePosition[0] + translationalHalf, nodePosition[1], baseZ],
           ]}
-          color={PARTIAL_RESTRAINT_COLOR}
+          color={markerColor}
           lineWidth={2.2}
         />
       )}
@@ -143,7 +172,7 @@ function PartialRestraintMarker({
             [nodePosition[0], nodePosition[1] - translationalHalf, baseZ],
             [nodePosition[0], nodePosition[1] + translationalHalf, baseZ],
           ]}
-          color={PARTIAL_RESTRAINT_COLOR}
+          color={markerColor}
           lineWidth={2.2}
         />
       )}
@@ -154,7 +183,7 @@ function PartialRestraintMarker({
             [nodePosition[0], nodePosition[1], baseZ],
             [nodePosition[0], nodePosition[1], baseZ + translationalHalf],
           ]}
-          color={PARTIAL_RESTRAINT_COLOR}
+          color={markerColor}
           lineWidth={2.2}
         />
       )}
@@ -166,7 +195,7 @@ function PartialRestraintMarker({
               [nodePosition[0] - rotationalCrossHalf, nodePosition[1], rotationalCrossZ],
               [nodePosition[0] + rotationalCrossHalf, nodePosition[1], rotationalCrossZ],
             ]}
-            color={PARTIAL_RESTRAINT_COLOR}
+            color={markerColor}
             lineWidth={2}
           />
           <Line
@@ -174,7 +203,7 @@ function PartialRestraintMarker({
               [nodePosition[0], nodePosition[1] - rotationalCrossHalf, rotationalCrossZ],
               [nodePosition[0], nodePosition[1] + rotationalCrossHalf, rotationalCrossZ],
             ]}
-            color={PARTIAL_RESTRAINT_COLOR}
+            color={markerColor}
             lineWidth={2}
           />
         </>

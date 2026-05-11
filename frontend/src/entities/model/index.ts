@@ -4,3 +4,4 @@ export * from './defaults';
 export * from './geometry';
 export * from './validation';
 export * from './sample';
+export * from './migrations';

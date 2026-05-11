@@ -214,7 +214,7 @@ function createDxfModel({
   warnings: string[];
 }): GridEngModel {
   return {
-    schemaVersion: '0.1',
+    schemaVersion: '0.2',
     name: stripDxfExtension(fileName),
     units: { ...DEFAULT_UNITS },
     settings: {
