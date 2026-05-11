@@ -1,61 +1,54 @@
-# GridEng Codex Implementation Kit
+# GridEng — интегрированный пакет задач Codex после 9.2
 
-Комплект файлов для пошаговой реализации frontend части GridEng через Codex.
+Пакет исправляет конфликт нумерации: новые задачи интерфейсной итерации встроены после выполненной задачи **9.2**, а старые невыполненные задачи **10.1–12.2** перенесены в блоки **18–20**.
 
-## Назначение
-
-Проект: приложение для расчета стержневых металлоконструкций с прицелом на опоры ЛЭП свыше 35 кВ.
-
-Текущий фокус:
-- CAD-like frontend;
-- внутренняя модель `GridEngModel v0.1`;
-- импорт/экспорт JSON;
-- импорт DXF v0.1 только по `LINE`, координатам, `color` / `colorIndex` / `trueColor`, `layer`, `handle`;
-- 3D-сцена с wireframe / real / loads / restraints / stress-map;
-- подготовка контракта API характеристик сечений;
-- без БД на текущем этапе;
-- backend расчетное ядро не менять без отдельного задания.
-
-## Состав архива
+## Что внутри
 
 ```text
-grideng-codex-kit/
+grideng-codex-integrated-plan/
   README.md
-  IMPLEMENTATION_PLAN.md
-  TASKS.json
-  templates/
-    codex-task-template.md
-  prompts/
-    00-01-update-agents.md
-    01-01-install-frontend-dependencies.md
-    ...
-  docs/
-    grideng-model-v0.1.md
-    dxf-import-spec-v0.1.md
-  patches/
-    AGENTS.addendum.md
+  TASK_SEQUENCE.md
+  TASKS_AFTER_09_02_INTEGRATED.json
+  codex/
+    IMPLEMENTATION_PLAN.md
+    prompts/
+      10-01-...md  # новые задачи
+      ...
+      17-02-...md  # новые задачи
+      18-01-...md  # бывшая 10.1
+      ...
+      20-02-...md  # бывшая 12.2
+  reference/
+    MODEL_LOADS_V02_SPEC.md
+    UI_COMMANDS_AND_ALERTS_SPEC.md
+    Правки_проверено_с_комментариями.md
 ```
 
-## Как использовать
+## Как применять
 
-1. Открыть репозиторий GridEng в Codex.
-2. Начать с `prompts/00-01-update-agents.md`.
-3. Выполнять задачи строго по порядку из `IMPLEMENTATION_PLAN.md` или `TASKS.json`.
-4. После каждой задачи требовать:
-   - summary изменений;
-   - список измененных файлов;
-   - команды, которые запускались;
-   - результат build/lint;
-   - риски и технический долг.
+1. Распакуй архив в корень проекта.
+2. Скопируй содержимое папки `codex/` из архива в папку `codex/` проекта с заменой файлов.
+3. Проверь, что в проекте появился обновленный `codex/IMPLEMENTATION_PLAN.md`.
+4. Работай по `TASK_SEQUENCE.md` или по таблице в `codex/IMPLEMENTATION_PLAN.md`.
+5. Выполняй задачи строго последовательно, начиная с `codex/prompts/10-01-model-load-types-comments.md`.
 
-## Базовые проверки
+## Важное по перенумерации
 
-Для frontend-задач:
+Старые prompt-файлы 10–12 в проекте будут замещены новыми задачами. Их содержимое сохранено в архиве под новой нумерацией:
+
+| Старый номер | Новый номер |
+|---|---|
+| 10.1 | 18.1 |
+| 10.2 | 18.2 |
+| 10.3 | 18.3 |
+| 11.1 | 19.1 |
+| 11.2 | 19.2 |
+| 12.1 | 20.1 |
+| 12.2 | 20.2 |
+
+## Проверка после каждого блока
 
 ```bash
-cd frontend
-npm run build
-npm run lint
+cd frontend && npm run build
+cd frontend && npm run lint
 ```
-
-Если `lint` отсутствует или не настроен, Codex должен явно написать это в отчете.

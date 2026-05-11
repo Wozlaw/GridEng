@@ -1,0 +1,270 @@
+{
+  "project": "GridEng",
+  "kit": "codex-after-09-02-integrated-renumbered",
+  "created_at": "2026-05-11",
+  "base_state": "tasks completed through 09-02-restraints-rendering; old 10.1-12.2 are not completed and moved to 18.1-20.2",
+  "renumbering": {
+    "10.1": "18.1",
+    "10.2": "18.2",
+    "10.3": "18.3",
+    "11.1": "19.1",
+    "11.2": "19.2",
+    "12.1": "20.1",
+    "12.2": "20.2"
+  },
+  "tasks": [
+    {
+      "number": "10.1",
+      "id": "10-01-model-load-types-comments",
+      "title": "GridEngModel v0.2: типы нагрузок, distributed loads, комментарии",
+      "prompt_file": "prompts/10-01-model-load-types-comments.md",
+      "block": "Блок 10 — модель данных нагрузок v0.2",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "10.2",
+      "id": "10-02-schema-validation-migration-sample",
+      "title": "Zod/schema/validation/sample: миграция v0.1 → v0.2",
+      "prompt_file": "prompts/10-02-schema-validation-migration-sample.md",
+      "block": "Блок 10 — модель данных нагрузок v0.2",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "11.1",
+      "id": "11-01-store-selection-actions",
+      "title": "Store/selection: отдельный выбор load и restraint",
+      "prompt_file": "prompts/11-01-store-selection-actions.md",
+      "block": "Блок 11 — store, selection, редактирование",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "11.2",
+      "id": "11-02-edit-actions-loads-restraints-members-nodes",
+      "title": "Store actions: редактирование узлов, элементов, закреплений, нагрузок",
+      "prompt_file": "prompts/11-02-edit-actions-loads-restraints-members-nodes.md",
+      "block": "Блок 11 — store, selection, редактирование",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "12.1",
+      "id": "12-01-i18n-console-language-setting",
+      "title": "Локализация ru/en и переключение языка через консоль",
+      "prompt_file": "prompts/12-01-i18n-console-language-setting.md",
+      "block": "Блок 12 — локализация и Alert",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "12.2",
+      "id": "12-02-notification-center-mui-alerts",
+      "title": "Единый MUI Alert/Snackbar снизу по центру",
+      "prompt_file": "prompts/12-02-notification-center-mui-alerts.md",
+      "block": "Блок 12 — локализация и Alert",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "13.1",
+      "id": "13-01-command-registry-ribbon-theme",
+      "title": "Command registry, ribbon TopMenu, black & white theme",
+      "prompt_file": "prompts/13-01-command-registry-ribbon-theme.md",
+      "block": "Блок 13 — ribbon/layout/status/visibility",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "13.2",
+      "id": "13-02-resizable-panels-statusbar-visibility-fit",
+      "title": "Resizable/collapsible panels, status bar, visibility, Fit",
+      "prompt_file": "prompts/13-02-resizable-panels-statusbar-visibility-fit.md",
+      "block": "Блок 13 — ribbon/layout/status/visibility",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "14.1",
+      "id": "14-01-project-tree-loads-members-nodes",
+      "title": "Дерево проекта: нагрузки, элементы, ноды",
+      "prompt_file": "prompts/14-01-project-tree-loads-members-nodes.md",
+      "block": "Блок 14 — дерево и properties",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "14.2",
+      "id": "14-02-properties-editors-dialogs",
+      "title": "Properties: редакторы node/member/restraint/load + диалоги",
+      "prompt_file": "prompts/14-02-properties-editors-dialogs.md",
+      "block": "Блок 14 — дерево и properties",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "15.1",
+      "id": "15-01-scene-picking-static-camera",
+      "title": "Сцена: picking слой, статичная камера при выборе",
+      "prompt_file": "prompts/15-01-scene-picking-static-camera.md",
+      "block": "Блок 15 — сцена и визуализация",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "15.2",
+      "id": "15-02-loads-restraints-visual-language",
+      "title": "Визуализация нагрузок и закреплений: ГСК, distributed, 6 DOF",
+      "prompt_file": "prompts/15-02-loads-restraints-visual-language.md",
+      "block": "Блок 15 — сцена и визуализация",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "16.1",
+      "id": "16-01-console-core-and-help",
+      "title": "Консоль: ядро, help, выполнение command registry",
+      "prompt_file": "prompts/16-01-console-core-and-help.md",
+      "block": "Блок 16 — консоль",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "16.2",
+      "id": "16-02-console-debug-settings-service-commands",
+      "title": "Консоль: debug/settings/source info/service commands",
+      "prompt_file": "prompts/16-02-console-debug-settings-service-commands.md",
+      "block": "Блок 16 — консоль",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "17.1",
+      "id": "17-01-catalogs-wind-placeholders",
+      "title": "Диалоги каталогов, ручной ветер, placeholders отчетов/конструкций",
+      "prompt_file": "prompts/17-01-catalogs-wind-placeholders.md",
+      "block": "Блок 17 — каталоги, ветер, финализация UI-итерации",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "17.2",
+      "id": "17-02-final-docs-tests-checklist",
+      "title": "Документация и финальная проверка UI/loads/console итерации",
+      "prompt_file": "prompts/17-02-final-docs-tests-checklist.md",
+      "block": "Блок 17 — каталоги, ветер, финализация UI-итерации",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "18.1",
+      "id": "18-01-local-frame-math",
+      "title": "Локальный базис стержня",
+      "prompt_file": "prompts/18-01-local-frame-math.md",
+      "block": "Блок 18 — перенесенные старые задачи 10.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "18.2",
+      "id": "18-02-section-outlines",
+      "title": "Контуры сечений",
+      "prompt_file": "prompts/18-02-section-outlines.md",
+      "block": "Блок 18 — перенесенные старые задачи 10.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "18.3",
+      "id": "18-03-real-view-rendering",
+      "title": "Real view rendering",
+      "prompt_file": "prompts/18-03-real-view-rendering.md",
+      "block": "Блок 18 — перенесенные старые задачи 10.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "19.1",
+      "id": "19-01-analysis-result-types",
+      "title": "Типы результатов расчета",
+      "prompt_file": "prompts/19-01-analysis-result-types.md",
+      "block": "Блок 19 — перенесенные старые задачи 11.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "19.2",
+      "id": "19-02-stress-map-mode",
+      "title": "Stress-map mode",
+      "prompt_file": "prompts/19-02-stress-map-mode.md",
+      "block": "Блок 19 — перенесенные старые задачи 11.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "20.1",
+      "id": "20-01-model-docs",
+      "title": "Документация GridEngModel v0.2",
+      "prompt_file": "prompts/20-01-model-docs.md",
+      "block": "Блок 20 — перенесенные старые задачи 12.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "number": "20.2",
+      "id": "20-02-dxf-docs",
+      "title": "Документация DXF импорта",
+      "prompt_file": "prompts/20-02-dxf-docs.md",
+      "block": "Блок 20 — перенесенные старые задачи 12.x",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    }
+  ]
+}
