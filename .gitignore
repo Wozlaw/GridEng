@@ -33,3 +33,5 @@ Thumbs.db
 Materials/
 /patches/
 sandBox.ipynb
+
+.vscode/terminal-history/

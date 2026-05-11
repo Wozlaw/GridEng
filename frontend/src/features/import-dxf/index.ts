@@ -3,6 +3,7 @@ export * from './parseDxfLines';
 export * from './mergeDxfNodes';
 export * from './normalizeDxfCoordinates';
 export * from './dxfToGridEngModel';
+export * from './assignDxfProfiles';
 export * from './DxfImportDialog';
 export * from './ImportDxfButton';
 export { DxfImportPreviewPanel } from './DxfImportPreview';

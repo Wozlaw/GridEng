@@ -9,7 +9,10 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 import { useModelStore } from '../../app/store';
 import { MemberLines } from './MemberLines';
+import { LoadVectors } from './LoadVectors';
+import { MomentVectors } from './MomentVectors';
 import { NodePoints } from './NodePoints';
+import { RestraintMarkers } from './RestraintMarkers';
 import { SceneAxes } from './SceneAxes';
 import { SceneGrid } from './SceneGrid';
 import {
@@ -30,15 +33,27 @@ export function Viewport3D() {
 
   const sceneMetrics = useMemo(() => getViewportSceneMetrics(model.nodes), [model.nodes]);
   const modelCenter = sceneMetrics.modelBounds?.center ?? { x: 0, y: 0, z: 0 };
-  const nodeById = new Map(model.nodes.map((node) => [node.id, node] as const));
-  const profilesById = new Map(model.profiles.map((profile) => [profile.id, profile] as const));
+  const activeLoadCase = model.loadCases[0];
+  const nodeById = useMemo(
+    () => new Map(model.nodes.map((node) => [node.id, node] as const)),
+    [model.nodes],
+  );
+  const membersById = useMemo(
+    () => new Map(model.members.map((member) => [member.id, member] as const)),
+    [model.members],
+  );
+  const profilesById = useMemo(
+    () => new Map(model.profiles.map((profile) => [profile.id, profile] as const)),
+    [model.profiles],
+  );
 
   return (
     <Paper
       variant="outlined"
       sx={{
         position: 'relative',
-        minHeight: { xs: 360, lg: 0 },
+        minHeight: 0,
+        height: '100%',
         overflow: 'hidden',
       }}
     >
@@ -93,6 +108,26 @@ export function Viewport3D() {
           nodeRadius={sceneMetrics.sceneNodeRadius}
           visible={visibility.nodes}
         />
+        <RestraintMarkers
+          restraints={model.restraints}
+          nodesById={nodeById}
+          visible={visibility.restraints}
+          nodeRadius={sceneMetrics.sceneNodeRadius}
+        />
+        <LoadVectors
+          loadCase={activeLoadCase}
+          nodesById={nodeById}
+          membersById={membersById}
+          visible={visibility.loads}
+          sceneLongestSide={sceneMetrics.sceneLongestSide}
+        />
+        <MomentVectors
+          loadCase={activeLoadCase}
+          nodesById={nodeById}
+          membersById={membersById}
+          visible={visibility.moments}
+          sceneLongestSide={sceneMetrics.sceneLongestSide}
+        />
       </Canvas>
 
       <Stack
@@ -121,7 +156,7 @@ export function Viewport3D() {
           </Typography>
           <Typography variant="subtitle1">Z-up scene scaffold</Typography>
           <Typography variant="body2" color="text.secondary">
-            Current mode: {viewMode}. Members and nodes already use the canonical GridEng model state.
+            Current mode: {viewMode}. Loads, moments, and restraints use the canonical model state.
           </Typography>
         </Box>
 

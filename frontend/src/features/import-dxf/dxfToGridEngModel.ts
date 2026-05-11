@@ -272,6 +272,7 @@ function getOrCreateColorGroup(
     ...seed,
     membersCount: 0,
     profileId: createProfileId(seed.key),
+    temporaryProfileName: createTemporaryProfileName(seed.key),
   };
   colorGroups.set(seed.key, next);
   return next;
@@ -313,7 +314,7 @@ function createColorGroupSeed(line: DxfLineEntity): ColorGroupSeed {
 function createTemporaryProfile(group: DxfColorGroup): Profile {
   return {
     id: group.profileId ?? createProfileId(group.key),
-    name: `DXF ${group.key}`,
+    name: group.temporaryProfileName ?? createTemporaryProfileName(group.key),
     kind: 'custom',
     params: {},
     defaultLocalAxisRotationDeg: 0,
@@ -358,6 +359,10 @@ function formatValidationIssue(issue: ModelValidationIssue): string {
 
 function createProfileId(groupKey: string): string {
   return `P_COLOR_${groupKey}`;
+}
+
+function createTemporaryProfileName(groupKey: string): string {
+  return `DXF ${groupKey}`;
 }
 
 function sanitizeGroupToken(token: string): string {

@@ -1,5 +1,7 @@
 import type { DxfColorValue, GridEngModel, Id, Vec3 } from '../../entities/model';
 
+export const KEEP_DXF_CUSTOM_PROFILE_ID = '__custom__';
+
 export interface DxfImportSettings {
   toleranceMm: number;
   centerOnXY: boolean;
@@ -24,6 +26,7 @@ export interface DxfColorGroup {
   layer?: string;
   membersCount: number;
   profileId?: Id;
+  temporaryProfileName?: string;
 }
 
 export interface DxfImportPreview {
@@ -46,6 +49,8 @@ export interface DxfToGridEngModelOptions extends DxfImportSettings {
 
 export type DxfLineInput = DxfLineEntity;
 export type DxfImportOptions = DxfToGridEngModelOptions;
+export type DxfAssignedProfileId = Id | typeof KEEP_DXF_CUSTOM_PROFILE_ID;
+export type DxfProfileAssignments = Record<string, DxfAssignedProfileId>;
 
 export interface DxfToGridEngModelResult {
   model: GridEngModel | null;

@@ -19,9 +19,10 @@ export function CadShell() {
   return (
     <Box
       sx={{
-        minHeight: '100dvh',
+        height: '100%',
         display: 'grid',
         gridTemplateRows: 'auto 1fr auto',
+        overflow: 'hidden',
       }}
     >
       <TopMenu />
@@ -31,6 +32,7 @@ export function CadShell() {
         sx={{
           minHeight: 0,
           display: 'grid',
+          overflow: 'hidden',
           gap: 1.5,
           px: { xs: 1.25, md: 1.5 },
           py: 1.5,
@@ -39,7 +41,7 @@ export function CadShell() {
             lg: '280px minmax(0, 1fr) 360px',
           },
           gridTemplateRows: {
-            xs: 'minmax(280px, auto) minmax(360px, 1fr) minmax(280px, auto)',
+            xs: 'minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr)',
             lg: '1fr',
           },
         }}
@@ -61,7 +63,8 @@ function ViewportLoadingFallback() {
     <Paper
       variant="outlined"
       sx={{
-        minHeight: { xs: 360, lg: 0 },
+        minHeight: 0,
+        height: '100%',
         display: 'grid',
         placeItems: 'center',
         overflow: 'hidden',

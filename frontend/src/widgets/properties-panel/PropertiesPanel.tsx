@@ -94,7 +94,7 @@ export function PropertiesPanel() {
         </Box>
       </Stack>
 
-      <Stack sx={{ minHeight: 0, overflowY: 'auto', p: 2 }} spacing={2}>
+      <Stack sx={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', p: 2 }} spacing={2}>
         {!selectedEntity.type && (
           <>
             <PropertySection title="Model">

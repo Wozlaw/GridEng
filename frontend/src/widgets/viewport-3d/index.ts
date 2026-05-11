@@ -3,4 +3,7 @@ export * from './SceneAxes';
 export * from './SceneGrid';
 export * from './MemberLines';
 export * from './NodePoints';
+export * from './LoadVectors';
+export * from './MomentVectors';
+export * from './RestraintMarkers';
 export * from './modelToScene';

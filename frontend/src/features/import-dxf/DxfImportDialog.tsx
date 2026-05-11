@@ -11,17 +11,34 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  MenuItem,
+  Paper,
+  Select,
   Snackbar,
   Stack,
   Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
+import { getProfileCatalog } from '../../entities/section';
+import { applyDxfProfileAssignments } from './assignDxfProfiles';
 import { convertDxfToGridEngModel } from './dxfToGridEngModel';
 import { DxfImportPreviewPanel } from './DxfImportPreview';
-import type { DxfToGridEngModelResult } from './types';
+import {
+  KEEP_DXF_CUSTOM_PROFILE_ID,
+  type DxfAssignedProfileId,
+  type DxfColorGroup,
+  type DxfProfileAssignments,
+  type DxfToGridEngModelResult,
+} from './types';
 
 interface DxfImportDialogProps {
   open: boolean;
@@ -35,6 +52,7 @@ interface ImportFeedback {
 }
 
 const MAX_FEEDBACK_DETAILS = 3;
+const PROFILE_CATALOG = getProfileCatalog();
 
 export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const dxfImportSettings = useModelStore((state) => state.dxfImportSettings);
@@ -46,6 +64,7 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const [fileReadError, setFileReadError] = useState<string | null>(null);
   const [isReadingFile, setIsReadingFile] = useState(false);
   const [feedback, setFeedback] = useState<ImportFeedback | null>(null);
+  const [profileAssignments, setProfileAssignments] = useState<DxfProfileAssignments>({});
 
   const previewResult = getPreviewResult({
     open,
@@ -54,6 +73,7 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     fileReadError,
     settings: dxfImportSettings,
   });
+  const previewGroups = previewResult?.preview.colorGroups ?? [];
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -66,6 +86,7 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     setIsReadingFile(true);
     setSelectedFileName(file.name);
     setFileReadError(null);
+    setProfileAssignments({});
 
     try {
       const text = await file.text();
@@ -93,7 +114,19 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
       return;
     }
 
-    setModel(previewResult.model);
+    let nextModel;
+    try {
+      nextModel = applyDxfProfileAssignments(previewResult.model, profileAssignments);
+    } catch (error) {
+      setFeedback({
+        severity: 'error',
+        title: `Failed to import: ${selectedFileName}`,
+        details: [error instanceof Error ? error.message : 'Profile assignment failed.'],
+      });
+      return;
+    }
+
+    setModel(nextModel);
     setFeedback({
       severity: previewResult.preview.warnings.length > 0 ? 'warning' : 'success',
       title: previewResult.preview.warnings.length > 0
@@ -111,6 +144,7 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     setDxfText(null);
     setFileReadError(null);
     setIsReadingFile(false);
+    setProfileAssignments({});
     onClose();
   }
 
@@ -199,6 +233,17 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
               preview={previewResult?.preview ?? null}
               isBusy={isReadingFile}
             />
+
+            <DxfProfileAssignmentTable
+              colorGroups={previewGroups}
+              assignments={profileAssignments}
+              onAssignmentChange={(groupKey, profileId) => {
+                setProfileAssignments((current) => ({
+                  ...current,
+                  [groupKey]: profileId,
+                }));
+              }}
+            />
           </Stack>
         </DialogContent>
 
@@ -242,6 +287,92 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
         </Alert>
       </Snackbar>
     </>
+  );
+}
+
+interface DxfProfileAssignmentTableProps {
+  colorGroups: DxfColorGroup[];
+  assignments: DxfProfileAssignments;
+  onAssignmentChange: (groupKey: string, profileId: DxfAssignedProfileId) => void;
+}
+
+function DxfProfileAssignmentTable({
+  colorGroups,
+  assignments,
+  onAssignmentChange,
+}: DxfProfileAssignmentTableProps) {
+  if (colorGroups.length === 0) {
+    return null;
+  }
+
+  return (
+    <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
+      <Box sx={{ p: 2, pb: 1 }}>
+        <Typography variant="subtitle2">Profile assignment</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Replace temporary DXF profiles with entries from the local profile catalog, or keep a custom group profile.
+        </Typography>
+      </Box>
+
+      <TableContainer sx={{ maxHeight: 320 }}>
+        <Table stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Group</TableCell>
+              <TableCell align="right">Members</TableCell>
+              <TableCell>Temporary profile</TableCell>
+              <TableCell sx={{ minWidth: 240 }}>Assigned profile</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {colorGroups.map((group) => (
+              <TableRow key={group.key} hover>
+                <TableCell>
+                  <Stack spacing={0.25}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {group.key}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Layer: {group.layer?.trim() || '-'}
+                    </Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell align="right">{group.membersCount}</TableCell>
+                <TableCell>
+                  <Stack spacing={0.25}>
+                    <Typography variant="body2">
+                      {group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {group.profileId ?? '-'}
+                    </Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    fullWidth
+                    size="small"
+                    value={assignments[group.key] ?? KEEP_DXF_CUSTOM_PROFILE_ID}
+                    onChange={(event) => {
+                      onAssignmentChange(group.key, event.target.value as DxfAssignedProfileId);
+                    }}
+                  >
+                    <MenuItem value={KEEP_DXF_CUSTOM_PROFILE_ID}>
+                      Keep custom ({group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`})
+                    </MenuItem>
+                    {PROFILE_CATALOG.map((profile) => (
+                      <MenuItem key={profile.id} value={profile.id}>
+                        {profile.name} ({profile.kind})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 }
 

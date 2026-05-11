@@ -43,7 +43,7 @@ export function ProjectTreePanel() {
         </Box>
       </Stack>
 
-      <Stack sx={{ minHeight: 0, overflowY: 'auto' }}>
+      <Stack sx={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
         <ProjectSection title="Profiles" count={model.profiles.length}>
           <List disablePadding dense>
             {model.profiles.map((profile) => (

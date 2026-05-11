@@ -1,4 +1,10 @@
-import { calculateBoundingBox, type BoundingBox3D, type GridEngModel, type Vec3 } from '../../entities/model';
+import {
+  calculateBoundingBox,
+  type BoundingBox3D,
+  type ConcentratedLoad,
+  type GridEngModel,
+  type Vec3,
+} from '../../entities/model';
 
 export const MODEL_TO_SCENE_SCALE = 0.001;
 
@@ -27,6 +33,33 @@ export function modelPositionToScene(position: Vec3): ScenePoint3 {
     scaleModelLengthMm(position.y),
     scaleModelLengthMm(position.z),
   ];
+}
+
+export function getLoadAnchorPosition(
+  load: ConcentratedLoad,
+  nodesById: Map<string, GridEngModel['nodes'][number]>,
+  membersById: Map<string, GridEngModel['members'][number]>,
+): Vec3 | null {
+  if (load.target.type === 'node') {
+    return nodesById.get(load.target.nodeId)?.position ?? null;
+  }
+
+  const member = membersById.get(load.target.memberId);
+  if (member == null) {
+    return null;
+  }
+
+  const startNode = nodesById.get(member.startNodeId);
+  const endNode = nodesById.get(member.endNodeId);
+  if (startNode == null || endNode == null) {
+    return null;
+  }
+
+  return {
+    x: (startNode.position.x + endNode.position.x) / 2,
+    y: (startNode.position.y + endNode.position.y) / 2,
+    z: (startNode.position.z + endNode.position.z) / 2,
+  };
 }
 
 export function getSceneBoundingRadius(bounds: BoundingBox3D | null): number {
