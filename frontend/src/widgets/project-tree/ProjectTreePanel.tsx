@@ -1,28 +1,50 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
-  Chip,
-  Divider,
   List,
-  ListItem,
   ListItemButton,
-  ListItemText,
   Paper,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
+import { getLoadUnits, type Load, type Member, type Node, type Profile, type UnitSystem } from '../../entities/model';
 import { useModelStore } from '../../app/store';
-import { isSelectedEntity, isSelectedLoad, isSelectedRestraint } from '../../features/selection';
+import { isSelectedEntity, isSelectedLoad } from '../../features/selection';
+import { useI18n } from '../../shared/i18n';
+import { formatNumber, formatOptionalText } from '../../shared/utils';
+
+type ProjectTreeSectionKey = 'loads' | 'members' | 'nodes';
 
 export function ProjectTreePanel() {
+  const { t } = useI18n();
   const model = useModelStore((state) => state.model);
   const selectedEntity = useModelStore((state) => state.selectedEntity);
   const selectEntity = useModelStore((state) => state.selectEntity);
   const selectLoad = useModelStore((state) => state.selectLoad);
-  const selectRestraint = useModelStore((state) => state.selectRestraint);
+  const [expandedSections, setExpandedSections] = useState<Record<ProjectTreeSectionKey, boolean>>({
+    loads: true,
+    members: true,
+    nodes: true,
+  });
+
   const totalLoads = model.loadCases.reduce((sum, loadCase) => sum + loadCase.loads.length, 0);
+  const profilesById = new Map(model.profiles.map((profile) => [profile.id, profile] as const));
+  const nodesById = new Map(model.nodes.map((node) => [node.id, node] as const));
+
+  function toggleSection(section: ProjectTreeSectionKey) {
+    setExpandedSections((current) => ({
+      ...current,
+      [section]: !current[section],
+    }));
+  }
 
   return (
     <Paper
@@ -35,189 +57,263 @@ export function ProjectTreePanel() {
         overflow: 'hidden',
       }}
     >
-      <Stack spacing={1} sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="overline" color="text.secondary">
-          Project Tree
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        <Typography variant="h6" align="center">
+          {t('projectTree.panelTitle')}
         </Typography>
-        <Typography variant="h6">Model Structure</Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Chip size="small" label={`${model.nodes.length} nodes`} variant="outlined" />
-          <Chip size="small" label={`${model.members.length} members`} variant="outlined" />
-          <Chip size="small" label={`${totalLoads} loads`} variant="outlined" />
-          <Chip size="small" label={`${model.profiles.length} profiles`} variant="outlined" />
-        </Box>
-      </Stack>
+      </Box>
 
       <Stack sx={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
-        <ProjectSection title="Profiles" count={model.profiles.length}>
-          <List disablePadding dense>
-            {model.profiles.map((profile) => (
-              <ListItemButton
-                key={profile.id}
-                selected={isSelectedEntity(selectedEntity, 'profile', profile.id)}
-                onClick={() => selectEntity({ type: 'profile', id: profile.id })}
-              >
-                <ListItemText primary={profile.name} secondary={`${profile.kind} | ${profile.id}`} />
-              </ListItemButton>
-            ))}
-          </List>
-        </ProjectSection>
-
-        <Divider />
-
-        <ProjectSection title="Materials" count={model.materials.length}>
-          <List disablePadding dense>
-            {model.materials.map((material) => (
-              <ListItemButton
-                key={material.id}
-                selected={isSelectedEntity(selectedEntity, 'material', material.id)}
-                onClick={() => selectEntity({ type: 'material', id: material.id })}
-              >
-                <ListItemText primary={material.name} secondary={material.id} />
-              </ListItemButton>
-            ))}
-          </List>
-        </ProjectSection>
-
-        <Divider />
-
-        <ProjectSection title="Load Cases" count={model.loadCases.length}>
+        <ProjectAccordionSection
+          expanded={expandedSections.loads}
+          title={t('projectTree.section.loads')}
+          count={totalLoads}
+          onToggle={() => toggleSection('loads')}
+        >
           <List disablePadding dense>
             {model.loadCases.map((loadCase) => (
-              <ListItem key={loadCase.id} disablePadding sx={{ display: 'block' }}>
+              <Box key={loadCase.id} sx={{ pb: 0.5 }}>
                 <ListItemButton
                   selected={isSelectedEntity(selectedEntity, 'loadCase', loadCase.id)}
                   onClick={() => selectEntity({ type: 'loadCase', id: loadCase.id })}
+                  sx={{ px: 1.5 }}
                 >
-                  <ListItemText primary={loadCase.name} secondary={`${loadCase.loads.length} loads`} />
+                  <Stack spacing={0.15} sx={{ minWidth: 0 }}>
+                    <Typography variant="body2">{loadCase.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {t('projectTree.loadCase.loadsCount', { count: loadCase.loads.length })}
+                    </Typography>
+                  </Stack>
                 </ListItemButton>
 
                 {loadCase.loads.length > 0 && (
                   <List disablePadding dense sx={{ pl: 1.5 }}>
                     {loadCase.loads.map((load) => (
-                      <ListItemButton
+                      <Tooltip
                         key={load.id}
-                        selected={isSelectedLoad(selectedEntity, loadCase.id, load.id)}
-                        onClick={() => selectLoad(loadCase.id, load.id)}
-                        sx={{ pl: 2.5 }}
+                        title={formatLoadTooltip(load, nodesById, model.members, t)}
+                        placement="right"
                       >
-                        <ListItemText
-                          primary={load.name}
-                          secondary={formatLoadTarget(load)}
-                        />
-                      </ListItemButton>
+                        <ListItemButton
+                          selected={isSelectedLoad(selectedEntity, loadCase.id, load.id)}
+                          onClick={() => selectLoad(loadCase.id, load.id)}
+                          sx={{ px: 1.5 }}
+                        >
+                          <Stack spacing={0.15} sx={{ minWidth: 0 }}>
+                            <Typography variant="body2" noWrap>
+                              {load.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" noWrap>
+                              {formatLoadSummary(load, model.units, t)}
+                            </Typography>
+                          </Stack>
+                        </ListItemButton>
+                      </Tooltip>
                     ))}
                   </List>
                 )}
-              </ListItem>
+              </Box>
             ))}
           </List>
-        </ProjectSection>
+        </ProjectAccordionSection>
 
-        <Divider />
-
-        <ProjectSection title="Restraints" count={model.restraints.length}>
+        <ProjectAccordionSection
+          expanded={expandedSections.members}
+          title={t('projectTree.section.members')}
+          count={model.members.length}
+          onToggle={() => toggleSection('members')}
+        >
           <List disablePadding dense>
-            {model.restraints.map((restraint) => {
-              const node = model.nodes.find((candidate) => candidate.id === restraint.nodeId);
+            {model.members.map((member, index) => {
+              const profile = profilesById.get(member.profileId);
 
               return (
-                <ListItemButton
-                  key={restraint.id}
-                  selected={isSelectedRestraint(selectedEntity, restraint.id)}
-                  onClick={() => selectRestraint(restraint.id)}
+                <Tooltip
+                  key={member.id}
+                  title={formatMemberTooltip(member, nodesById, t)}
+                  placement="right"
                 >
-                  <ListItemText
-                    primary={node?.label ?? restraint.nodeId}
-                    secondary={`${restraint.id} | ${formatRestraintSummary(restraint)}`}
-                  />
-                </ListItemButton>
+                  <ListItemButton
+                    selected={isSelectedEntity(selectedEntity, 'member', member.id)}
+                    onClick={() => selectEntity({ type: 'member', id: member.id })}
+                    sx={{ px: 1.5 }}
+                  >
+                    <Stack direction="row" spacing={1} sx={{ minWidth: 0, alignItems: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          flexShrink: 0,
+                          bgcolor: profile?.color ?? 'profile.main',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                        }}
+                      />
+                      <Typography variant="body2" noWrap>
+                        {formatMemberPrimaryText(member, index, profile)}
+                      </Typography>
+                    </Stack>
+                  </ListItemButton>
+                </Tooltip>
               );
             })}
           </List>
-        </ProjectSection>
+        </ProjectAccordionSection>
 
-        <Divider />
-
-        <ProjectSection title="Members" count={model.members.length}>
+        <ProjectAccordionSection
+          expanded={expandedSections.nodes}
+          title={t('projectTree.section.nodes')}
+          count={model.nodes.length}
+          onToggle={() => toggleSection('nodes')}
+        >
           <List disablePadding dense>
-            {model.members.map((member) => (
-              <ListItemButton
-                key={member.id}
-                selected={isSelectedEntity(selectedEntity, 'member', member.id)}
-                onClick={() => selectEntity({ type: 'member', id: member.id })}
-              >
-                <ListItemText primary={member.id} secondary={`${member.startNodeId} -> ${member.endNodeId}`} />
-              </ListItemButton>
-            ))}
-          </List>
-        </ProjectSection>
-
-        <Divider />
-
-        <ProjectSection title="Nodes" count={model.nodes.length}>
-          <List disablePadding dense>
-            {model.nodes.map((node) => (
-              <ListItemButton
+            {model.nodes.map((node, index) => (
+              <Tooltip
                 key={node.id}
-                selected={isSelectedEntity(selectedEntity, 'node', node.id)}
-                onClick={() => selectEntity({ type: 'node', id: node.id })}
+                title={node.id}
+                placement="right"
               >
-                <ListItemText
-                  primary={node.label ?? node.id}
-                  secondary={`${node.position.x}, ${node.position.y}, ${node.position.z}`}
-                />
-              </ListItemButton>
+                <ListItemButton
+                  selected={isSelectedEntity(selectedEntity, 'node', node.id)}
+                  onClick={() => selectEntity({ type: 'node', id: node.id })}
+                  sx={{ px: 1.5 }}
+                >
+                  <Typography variant="body2" noWrap>
+                    {node.label?.trim() || t('projectTree.nodeFallback', { index: index + 1 })}
+                  </Typography>
+                </ListItemButton>
+              </Tooltip>
             ))}
           </List>
-        </ProjectSection>
+        </ProjectAccordionSection>
       </Stack>
     </Paper>
   );
 }
 
-interface ProjectSectionProps {
+interface ProjectAccordionSectionProps {
+  expanded: boolean;
   title: string;
   count: number;
+  onToggle: () => void;
   children: ReactNode;
 }
 
-function ProjectSection({ title, count, children }: ProjectSectionProps) {
+function ProjectAccordionSection({
+  expanded,
+  title,
+  count,
+  onToggle,
+  children,
+}: ProjectAccordionSectionProps) {
   return (
-    <Stack spacing={0.5} sx={{ px: 1.25, py: 1.25 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="subtitle2">{title}</Typography>
-        <Typography variant="caption" color="text.secondary">
-          {count}
-        </Typography>
-      </Box>
-      {children}
-    </Stack>
+    <Accordion
+      expanded={expanded}
+      onChange={onToggle}
+      disableGutters
+      elevation={0}
+      square
+      sx={{
+        bgcolor: 'transparent',
+        '&::before': {
+          display: 'none',
+        },
+      }}
+    >
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon fontSize="small" />}
+        sx={{
+          minHeight: 40,
+          px: 1.5,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          '& .MuiAccordionSummary-content': {
+            my: 0.75,
+          },
+        }}
+      >
+        <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
+          <Typography variant="subtitle2">{title}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            {count}
+          </Typography>
+        </Box>
+      </AccordionSummary>
+      <AccordionDetails sx={{ px: 0, py: 0.5 }}>
+        {children}
+      </AccordionDetails>
+    </Accordion>
   );
 }
 
-function formatLoadTarget(load: { type: 'nodal_concentrated' | 'member_distributed'; target: { nodeId?: string; memberId?: string } }) {
-  return load.type === 'nodal_concentrated'
-    ? `Node ${load.target.nodeId}`
-    : `Member ${load.target.memberId}`;
+function formatLoadSummary(
+  load: Load,
+  units: UnitSystem,
+  t: ReturnType<typeof useI18n>['t'],
+): string {
+  if (load.type === 'nodal_concentrated') {
+    const typeLabel = load.kind === 'force'
+      ? t('projectTree.loadType.force')
+      : t('projectTree.loadType.moment');
+
+    return `${typeLabel} · ${formatNumber(load.magnitude, 2)} ${getLoadUnits(load, units)}`;
+  }
+
+  if (load.distribution.type === 'linear') {
+    return `${t('projectTree.loadType.distributed')} · ${formatNumber(load.distribution.qStart, 2)}…${formatNumber(load.distribution.qEnd, 2)} ${getLoadUnits(load, units)}`;
+  }
+
+  return t('projectTree.loadType.distributed');
 }
 
-function formatRestraintSummary(restraint: {
-  ux: boolean;
-  uy: boolean;
-  uz: boolean;
-  rx: boolean;
-  ry: boolean;
-  rz: boolean;
-}) {
-  const locked = [
-    restraint.ux && 'UX',
-    restraint.uy && 'UY',
-    restraint.uz && 'UZ',
-    restraint.rx && 'RX',
-    restraint.ry && 'RY',
-    restraint.rz && 'RZ',
-  ].filter(Boolean);
+function formatLoadTooltip(
+  load: Load,
+  nodesById: Map<string, Node>,
+  members: Member[],
+  t: ReturnType<typeof useI18n>['t'],
+): string {
+  if (load.type === 'nodal_concentrated') {
+    const node = nodesById.get(load.target.nodeId);
 
-  return locked.length > 0 ? locked.join(', ') : 'free';
+    return `${load.name} · ${node?.label?.trim() || load.target.nodeId}`;
+  }
+
+  const memberIndex = members.findIndex((member) => member.id === load.target.memberId);
+  const member = memberIndex >= 0 ? members[memberIndex] : undefined;
+  const memberLabel = member?.label?.trim() || t('projectTree.memberFallback', { index: memberIndex + 1 || '?' });
+
+  return `${load.name} · ${memberLabel}`;
+}
+
+function formatMemberPrimaryText(
+  member: Member,
+  index: number,
+  profile: Profile | undefined,
+): string {
+  const displayLabel = member.label?.trim() || `M-${index + 1}`;
+  return `${displayLabel} — ${profile?.name ?? formatOptionalText(member.profileId)}`;
+}
+
+function formatMemberTooltip(
+  member: Member,
+  nodesById: Map<string, Node>,
+  t: ReturnType<typeof useI18n>['t'],
+): string {
+  const startNode = nodesById.get(member.startNodeId);
+  const endNode = nodesById.get(member.endNodeId);
+  const startLabel = startNode?.label?.trim() || member.startNodeId;
+  const endLabel = endNode?.label?.trim() || member.endNodeId;
+
+  return t('projectTree.memberTooltip', {
+    start: startLabel,
+    end: endLabel,
+    id: member.id,
+  });
 }

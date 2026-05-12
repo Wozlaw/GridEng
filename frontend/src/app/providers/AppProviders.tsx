@@ -1,43 +1,74 @@
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 
 import { CssBaseline } from '@mui/material';
 import { alpha, createTheme, ThemeProvider } from '@mui/material/styles';
+
+import { useUiStore } from '../store';
+import { AppNotifications } from '../../shared/ui';
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#2ac7a8',
+      main: '#f5f5f5',
     },
     secondary: {
-      main: '#f4bf61',
+      main: '#b7b7b7',
+    },
+    success: {
+      main: '#79d7a7',
+    },
+    warning: {
+      main: '#e2c06a',
+    },
+    error: {
+      main: '#e47c7c',
+    },
+    info: {
+      main: '#8fb1e8',
+    },
+    selected: {
+      main: '#8fb1e8',
+    },
+    profile: {
+      main: '#d5c181',
+    },
+    restraint: {
+      main: '#d39a72',
+    },
+    loadForce: {
+      main: '#89c7ff',
+    },
+    loadMoment: {
+      main: '#d999ff',
     },
     background: {
-      default: '#081019',
-      paper: 'rgba(12, 18, 26, 0.86)',
+      default: '#060606',
+      paper: '#101010',
     },
-    divider: alpha('#b6c7d8', 0.16),
+    divider: alpha('#ffffff', 0.12),
     text: {
-      primary: '#eef5fb',
-      secondary: '#95a5b6',
+      primary: '#f2f2f2',
+      secondary: '#9c9c9c',
     },
   },
   shape: {
-    borderRadius: 14,
+    borderRadius: 0,
   },
   typography: {
     fontFamily: '"IBM Plex Sans", "Segoe UI", sans-serif',
     h6: {
       fontWeight: 600,
-      letterSpacing: 0.2,
+      letterSpacing: 0.12,
     },
     button: {
       fontWeight: 600,
-      letterSpacing: 0.15,
+      letterSpacing: 0.1,
       textTransform: 'none',
     },
     overline: {
-      letterSpacing: '0.18em',
+      letterSpacing: '0.16em',
       fontWeight: 700,
     },
   },
@@ -48,12 +79,7 @@ const theme = createTheme({
           colorScheme: 'dark',
         },
         body: {
-          backgroundImage: `
-            radial-gradient(circle at top left, rgba(42, 199, 168, 0.16), transparent 32%),
-            radial-gradient(circle at top right, rgba(244, 191, 97, 0.12), transparent 24%),
-            linear-gradient(180deg, #09131d 0%, #070d14 100%)
-          `,
-          backgroundAttachment: 'fixed',
+          backgroundColor: '#060606',
         },
       },
     },
@@ -61,8 +87,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backdropFilter: 'blur(18px)',
-          borderBottom: `1px solid ${alpha('#b6c7d8', 0.12)}`,
+          backgroundColor: '#060606',
+          borderBottom: `1px solid ${alpha('#ffffff', 0.12)}`,
         },
       },
     },
@@ -70,8 +96,21 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          borderColor: alpha('#b6c7d8', 0.16),
-          backdropFilter: 'blur(14px)',
+          borderColor: alpha('#ffffff', 0.12),
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
         },
       },
     },
@@ -83,14 +122,14 @@ const theme = createTheme({
     MuiToggleButton: {
       styleOverrides: {
         root: {
-          borderColor: alpha('#dfe8f0', 0.16),
+          borderColor: alpha('#ffffff', 0.12),
         },
       },
     },
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
+          borderRadius: 0,
         },
       },
     },
@@ -102,10 +141,17 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
+  const language = useUiStore((state) => state.language);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {children}
+      <AppNotifications />
     </ThemeProvider>
   );
 }

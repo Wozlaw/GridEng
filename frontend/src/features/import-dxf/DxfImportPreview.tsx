@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 
+import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText } from '../../shared/utils/format';
 import type { DxfImportPreview as DxfImportPreviewData } from './types';
 
@@ -19,12 +20,14 @@ interface DxfImportPreviewProps {
 }
 
 export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: DxfImportPreviewProps) {
+  const { t } = useI18n();
+
   if (!fileName) {
     return (
       <Paper variant="outlined" sx={{ p: 2.5, borderStyle: 'dashed' }}>
-        <Typography variant="subtitle2">DXF preview</Typography>
+        <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Select a `.dxf` file to generate an import preview.
+          {t('dxf.preview.emptyHint')}
         </Typography>
       </Paper>
     );
@@ -33,9 +36,9 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
   if (isBusy || !preview) {
     return (
       <Paper variant="outlined" sx={{ p: 2.5, borderStyle: 'dashed' }}>
-        <Typography variant="subtitle2">Preparing preview</Typography>
+        <Typography variant="subtitle2">{t('dxf.preview.preparingTitle')}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Reading and analyzing `{fileName}`...
+          {t('dxf.preview.preparingHint', { fileName })}
         </Typography>
       </Paper>
     );
@@ -54,7 +57,7 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
             }}
           >
             <Box>
-              <Typography variant="subtitle2">DXF preview</Typography>
+              <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography>
               <Typography variant="body2" color="text.secondary">
                 {fileName}
               </Typography>
@@ -63,25 +66,33 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
               <Chip
                 color={preview.errors.length > 0 ? 'error' : preview.warnings.length > 0 ? 'warning' : 'success'}
-                label={preview.errors.length > 0 ? 'Errors present' : preview.warnings.length > 0 ? 'Warnings only' : 'Ready to import'}
+                label={preview.errors.length > 0
+                  ? t('dxf.preview.errorsPresent')
+                  : preview.warnings.length > 0
+                    ? t('dxf.preview.warningsOnly')
+                    : t('dxf.preview.readyToImport')}
                 size="small"
                 variant="outlined"
               />
-              <Chip label={preview.is3D ? '3D' : '2D'} size="small" variant="outlined" />
+              <Chip
+                label={preview.is3D ? t('dxf.preview.dimension3d') : t('dxf.preview.dimension2d')}
+                size="small"
+                variant="outlined"
+              />
             </Stack>
           </Stack>
 
           <Divider />
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ flexWrap: 'wrap' }} useFlexGap>
-            <PreviewMetric label="LINE entities" value={String(preview.linesCount)} />
-            <PreviewMetric label="Ignored entities" value={String(preview.ignoredEntitiesCount)} />
-            <PreviewMetric label="Nodes" value={String(preview.nodesCount)} />
-            <PreviewMetric label="Members" value={String(preview.membersCount)} />
-            <PreviewMetric label="Merged nodes" value={String(preview.mergedNodesCount)} />
-            <PreviewMetric label="Dangling members" value={String(preview.danglingMembersCount)} />
+            <PreviewMetric label={t('dxf.preview.lineEntities')} value={String(preview.linesCount)} />
+            <PreviewMetric label={t('dxf.preview.ignoredEntities')} value={String(preview.ignoredEntitiesCount)} />
+            <PreviewMetric label={t('dxf.preview.nodes')} value={String(preview.nodesCount)} />
+            <PreviewMetric label={t('dxf.preview.members')} value={String(preview.membersCount)} />
+            <PreviewMetric label={t('dxf.preview.mergedNodes')} value={String(preview.mergedNodesCount)} />
+            <PreviewMetric label={t('dxf.preview.danglingMembers')} value={String(preview.danglingMembersCount)} />
             <PreviewMetric
-              label="Z range"
+              label={t('dxf.preview.zRange')}
               value={preview.zRange ? `${formatNumber(preview.zRange.min, 2)} .. ${formatNumber(preview.zRange.max, 2)} mm` : '-'}
             />
           </Stack>
@@ -90,11 +101,11 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
 
       <Paper variant="outlined" sx={{ p: 2 }}>
         <Typography variant="subtitle2" gutterBottom>
-          Color groups
+          {t('dxf.preview.colorGroups')}
         </Typography>
         {preview.colorGroups.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No member groups available yet.
+            {t('dxf.preview.noGroups')}
           </Typography>
         ) : (
           <Stack spacing={1}>
@@ -112,13 +123,13 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
                   <strong>{group.key}</strong>
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Members: {group.membersCount}
+                  {t('dxf.preview.membersLabel', { count: group.membersCount })}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Layer: {formatOptionalText(group.layer)}
+                  {t('dxf.preview.layerLabel', { value: formatOptionalText(group.layer) })}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Profile: {formatOptionalText(group.profileId)}
+                  {t('dxf.preview.profileLabel', { value: formatOptionalText(group.profileId) })}
                 </Typography>
               </Box>
             ))}
@@ -128,7 +139,7 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
 
       {preview.errors.length > 0 && (
         <Alert severity="error" variant="outlined">
-          <AlertTitle>Import errors</AlertTitle>
+          <AlertTitle>{t('dxf.preview.importErrors')}</AlertTitle>
           <Stack spacing={0.5}>
             {preview.errors.map((error) => (
               <Typography key={error} variant="body2">
@@ -141,7 +152,7 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
 
       {preview.warnings.length > 0 && (
         <Alert severity="warning" variant="outlined">
-          <AlertTitle>Import warnings</AlertTitle>
+          <AlertTitle>{t('dxf.preview.importWarnings')}</AlertTitle>
           <Stack spacing={0.5}>
             {preview.warnings.map((warning) => (
               <Typography key={warning} variant="body2">

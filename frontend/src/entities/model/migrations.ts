@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import {
-  AnalysisResultsSchema,
+  AnalysisResultsCollectionSchema,
   ConcentratedLoadSchema,
   DxfImportMetaSchema,
   GridEngModelSchema,
@@ -47,7 +47,7 @@ const GridEngModelV01Schema = z.object({
     source: z.enum(['dxf', 'json', 'manual']),
     dxf: DxfImportMetaSchema.optional(),
   }).optional(),
-  results: AnalysisResultsSchema.optional(),
+  results: AnalysisResultsCollectionSchema.optional(),
 });
 
 type GridEngModelV01 = z.infer<typeof GridEngModelV01Schema>;

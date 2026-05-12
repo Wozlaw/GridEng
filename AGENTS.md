@@ -133,3 +133,4 @@ After each completed task, show:
 3. Commands run.
 4. Build/lint or other relevant check results.
 5. Risks and technical debt.
+6. Отмечать реализованный этап в IMPLEMENTATION_PLAN.md

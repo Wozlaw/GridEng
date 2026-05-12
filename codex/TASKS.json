@@ -244,60 +244,150 @@
       ]
     },
     {
-      "id": "10-01-local-frame-math",
-      "title": "Task 10.1 — Local member frame math",
-      "prompt_file": "prompts/10-01-local-frame-math.md",
+      "id": "13-01-command-registry-ribbon-theme",
+      "title": "Task 13.1 — Command registry, ribbon TopMenu, theme",
+      "prompt_file": "prompts/13-01-command-registry-ribbon-theme.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"
       ]
     },
     {
-      "id": "10-02-section-outlines",
-      "title": "Task 10.2 — Section outlines",
-      "prompt_file": "prompts/10-02-section-outlines.md",
+      "id": "13-02-resizable-panels-statusbar-visibility-fit",
+      "title": "Task 13.2 — Resizable panels, status bar, visibility, Fit",
+      "prompt_file": "prompts/13-02-resizable-panels-statusbar-visibility-fit.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"
       ]
     },
     {
-      "id": "10-03-real-view-rendering",
-      "title": "Task 10.3 — Real view rendering",
-      "prompt_file": "prompts/10-03-real-view-rendering.md",
+      "id": "14-01-project-tree-loads-members-nodes",
+      "title": "Task 14.1 — Project tree: loads, members, nodes",
+      "prompt_file": "prompts/14-01-project-tree-loads-members-nodes.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"
       ]
     },
     {
-      "id": "11-01-analysis-result-types",
-      "title": "Task 11.1 — Analysis result types",
-      "prompt_file": "prompts/11-01-analysis-result-types.md",
+      "id": "14-02-properties-editors-dialogs",
+      "title": "Task 14.2 — Properties editors and dialogs",
+      "prompt_file": "prompts/14-02-properties-editors-dialogs.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"
       ]
     },
     {
-      "id": "11-02-stress-map-mode",
-      "title": "Task 11.2 — Stress map mode",
-      "prompt_file": "prompts/11-02-stress-map-mode.md",
+      "id": "15-01-scene-picking-static-camera",
+      "title": "Task 15.1 — Scene picking and static camera",
+      "prompt_file": "prompts/15-01-scene-picking-static-camera.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"
       ]
     },
     {
-      "id": "12-01-model-docs",
-      "title": "Task 12.1 — GridEngModel documentation",
-      "prompt_file": "prompts/12-01-model-docs.md",
+      "id": "15-02-loads-restraints-visual-language",
+      "title": "Task 15.2 — Loads and restraints visual language",
+      "prompt_file": "prompts/15-02-loads-restraints-visual-language.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "16-01-console-core-and-help",
+      "title": "Task 16.1 — Console core and help",
+      "prompt_file": "prompts/16-01-console-core-and-help.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "16-02-console-debug-settings-service-commands",
+      "title": "Task 16.2 — Console debug, settings, service commands",
+      "prompt_file": "prompts/16-02-console-debug-settings-service-commands.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "17-01-catalogs-wind-placeholders",
+      "title": "Task 17.1 — Catalog dialogs, wind editor, placeholders",
+      "prompt_file": "prompts/17-01-catalogs-wind-placeholders.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "17-02-final-docs-tests-checklist",
+      "title": "Task 17.2 — Docs, tests, checklist",
+      "prompt_file": "prompts/17-02-final-docs-tests-checklist.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "18-01-local-frame-math",
+      "title": "Task 18.1 — Local member frame math",
+      "prompt_file": "prompts/18-01-local-frame-math.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "18-02-section-outlines",
+      "title": "Task 18.2 — Section outlines",
+      "prompt_file": "prompts/18-02-section-outlines.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "18-03-real-view-rendering",
+      "title": "Task 18.3 — Real view rendering",
+      "prompt_file": "prompts/18-03-real-view-rendering.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "19-01-analysis-result-types",
+      "title": "Task 19.1 — Analysis result types",
+      "prompt_file": "prompts/19-01-analysis-result-types.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "19-02-stress-map-mode",
+      "title": "Task 19.2 — Stress map mode",
+      "prompt_file": "prompts/19-02-stress-map-mode.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "20-01-model-docs",
+      "title": "Task 20.1 — GridEngModel documentation",
+      "prompt_file": "prompts/20-01-model-docs.md",
       "default_checks": []
     },
     {
-      "id": "12-02-dxf-docs",
-      "title": "Task 12.2 — DXF import specification documentation",
-      "prompt_file": "prompts/12-02-dxf-docs.md",
+      "id": "20-02-dxf-docs",
+      "title": "Task 20.2 — DXF import specification documentation",
+      "prompt_file": "prompts/20-02-dxf-docs.md",
       "default_checks": []
     }
   ]

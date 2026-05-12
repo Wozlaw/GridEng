@@ -1,4 +1,5 @@
 import { DEFAULT_STEEL, NO_WIND, createEmptyModel } from './defaults';
+import type { AnalysisResults } from './results';
 import type { GridEngModel, Profile } from './types';
 
 const SAMPLE_PROFILES: Profile[] = [
@@ -181,6 +182,33 @@ export function createSampleTowerSegmentModel(): GridEngModel {
     },
   ];
 
+  const mockAnalysisResults: AnalysisResults = {
+    loadCaseId: 'lc-1',
+    nodeDisplacements: {
+      'n-5': { ux: 1.2, uy: -0.6, uz: -3.1, rx: 0.0008, ry: -0.0011, rz: 0.0004 },
+      'n-6': { ux: 1.5, uy: -0.4, uz: -3.4, rx: 0.0007, ry: -0.001, rz: 0.0005 },
+      'n-7': { ux: 1.8, uy: -0.9, uz: -4.2, rx: 0.0012, ry: -0.0014, rz: 0.0007 },
+      'n-8': { ux: 1.1, uy: -1.2, uz: -3.6, rx: 0.001, ry: -0.0012, rz: 0.0006 },
+    },
+    memberForces: {
+      'm-9': { n: -118000, qy: 3200, qz: 700, my: 4200000, mz: 860000 },
+      'm-10': { n: -109500, qy: 2800, qz: 900, my: 3970000, mz: 920000 },
+      'm-13': { n: 46200, qy: -1900, qz: 600, mx: 210000, my: 760000 },
+      'm-19': { n: 43800, qy: -1500, qz: 540, mx: 195000, my: 702000 },
+    },
+    memberStresses: {
+      'm-9': { sigmaMaxMPa: 132, utilization: 0.54 },
+      'm-10': { sigmaMaxMPa: 148, utilization: 0.6 },
+      'm-11': { sigmaMaxMPa: 157, utilization: 0.64 },
+      'm-12': { sigmaMaxMPa: 141, utilization: 0.58 },
+      'm-13': { sigmaMaxMPa: 96, utilization: 0.39 },
+      'm-15': { sigmaMaxMPa: 118, utilization: 0.48 },
+      'm-17': { sigmaMaxMPa: 173, utilization: 0.71 },
+      'm-19': { sigmaMaxMPa: 162, utilization: 0.66 },
+    },
+  };
+
+  model.results = [mockAnalysisResults];
   model.importMeta = { source: 'manual' };
 
   return model;

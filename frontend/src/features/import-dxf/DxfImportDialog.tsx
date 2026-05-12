@@ -1,9 +1,7 @@
-import type { ChangeEvent, SyntheticEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
 import {
-  Alert,
-  AlertTitle,
   Box,
   Button,
   Dialog,
@@ -14,7 +12,6 @@ import {
   MenuItem,
   Paper,
   Select,
-  Snackbar,
   Stack,
   Switch,
   Table,
@@ -28,6 +25,8 @@ import {
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
+import { useI18n } from '../../shared/i18n';
+import { notifyError, notifySuccess, notifyWarning } from '../../shared/ui';
 import { getProfileCatalog } from '../../entities/section';
 import { applyDxfProfileAssignments } from './assignDxfProfiles';
 import { convertDxfToGridEngModel } from './dxfToGridEngModel';
@@ -45,16 +44,10 @@ interface DxfImportDialogProps {
   onClose: () => void;
 }
 
-interface ImportFeedback {
-  severity: 'success' | 'warning' | 'error';
-  title: string;
-  details: string[];
-}
-
-const MAX_FEEDBACK_DETAILS = 3;
 const PROFILE_CATALOG = getProfileCatalog();
 
 export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
+  const { t } = useI18n();
   const dxfImportSettings = useModelStore((state) => state.dxfImportSettings);
   const updateDxfImportSettings = useModelStore((state) => state.updateDxfImportSettings);
   const setModel = useModelStore((state) => state.setModel);
@@ -63,7 +56,6 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const [dxfText, setDxfText] = useState<string | null>(null);
   const [fileReadError, setFileReadError] = useState<string | null>(null);
   const [isReadingFile, setIsReadingFile] = useState(false);
-  const [feedback, setFeedback] = useState<ImportFeedback | null>(null);
   const [profileAssignments, setProfileAssignments] = useState<DxfProfileAssignments>({});
 
   const previewResult = getPreviewResult({
@@ -118,24 +110,30 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     try {
       nextModel = applyDxfProfileAssignments(previewResult.model, profileAssignments);
     } catch (error) {
-      setFeedback({
-        severity: 'error',
-        title: `Failed to import: ${selectedFileName}`,
-        details: [error instanceof Error ? error.message : 'Profile assignment failed.'],
+      notifyError({
+        title: t('dxf.notifications.errorTitle', { fileName: selectedFileName }),
+        details: [
+          t('dxf.notifications.profileAssignmentFailed'),
+          error instanceof Error ? error.message : t('dxf.notifications.unknownError'),
+        ],
       });
       return;
     }
 
     setModel(nextModel);
-    setFeedback({
-      severity: previewResult.preview.warnings.length > 0 ? 'warning' : 'success',
-      title: previewResult.preview.warnings.length > 0
-        ? `Imported with warnings: ${selectedFileName}`
-        : `Imported: ${selectedFileName}`,
-      details: previewResult.preview.warnings.length > 0
-        ? previewResult.preview.warnings
-        : ['DXF model was imported into the current GridEng session.'],
-    });
+
+    if (previewResult.preview.warnings.length > 0) {
+      notifyWarning({
+        title: t('dxf.notifications.warningTitle', { fileName: selectedFileName }),
+        details: previewResult.preview.warnings,
+      });
+    } else {
+      notifySuccess({
+        title: t('dxf.notifications.successTitle', { fileName: selectedFileName }),
+        details: [t('dxf.notifications.successDetail')],
+      });
+    }
+
     closeDialog();
   }
 
@@ -148,145 +146,105 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     onClose();
   }
 
-  function handleFeedbackClose(_event?: Event | SyntheticEvent, reason?: string) {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setFeedback(null);
-  }
-
   const canImport = previewResult?.model != null && previewResult.preview.errors.length === 0;
-  const visibleDetails = feedback?.details.slice(0, MAX_FEEDBACK_DETAILS) ?? [];
-  const hiddenDetailsCount = feedback ? Math.max(0, feedback.details.length - MAX_FEEDBACK_DETAILS) : 0;
 
   return (
-    <>
-      <Dialog open={open} onClose={() => closeDialog()} fullWidth maxWidth="lg">
-        <DialogTitle>Import DXF</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2}>
-            <Stack
-              direction={{ xs: 'column', md: 'row' }}
-              spacing={1.5}
-              sx={{
-                alignItems: { xs: 'stretch', md: 'center' },
-                justifyContent: 'space-between',
-              }}
-            >
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  DXF import v0.1 supports `LINE` only. Other entity types are ignored.
-                </Typography>
-              </Box>
+    <Dialog open={open} onClose={() => closeDialog()} fullWidth maxWidth="lg">
+      <DialogTitle>{t('dxf.dialog.title')}</DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={2}>
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={1.5}
+            sx={{
+              alignItems: { xs: 'stretch', md: 'center' },
+              justifyContent: 'space-between',
+            }}
+          >
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                {t('dxf.dialog.supportNote')}
+              </Typography>
+            </Box>
 
-              <Button component="label" variant="outlined" disabled={isReadingFile}>
-                {isReadingFile ? 'Reading DXF...' : selectedFileName ? 'Replace DXF file' : 'Choose DXF file'}
-                <input
-                  hidden
-                  type="file"
-                  accept=".dxf"
-                  onChange={(event) => {
-                    void handleFileChange(event);
+            <Button component="label" variant="outlined" disabled={isReadingFile}>
+              {isReadingFile
+                ? t('dxf.dialog.reading')
+                : selectedFileName
+                  ? t('dxf.dialog.replaceFile')
+                  : t('dxf.dialog.chooseFile')}
+              <input
+                hidden
+                type="file"
+                accept=".dxf"
+                onChange={(event) => {
+                  void handleFileChange(event);
+                }}
+              />
+            </Button>
+          </Stack>
+
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <TextField
+              label={t('dxf.dialog.tolerance')}
+              type="number"
+              value={dxfImportSettings.toleranceMm}
+              onChange={(event) => handleToleranceChange(event.target.value)}
+              slotProps={{ htmlInput: { min: 0.001, step: 0.1 } }}
+              sx={{ minWidth: { xs: '100%', md: 180 } }}
+            />
+
+            <FormControlLabel
+              control={(
+                <Switch
+                  checked={dxfImportSettings.centerOnXY}
+                  onChange={(_event, checked) => {
+                    updateDxfImportSettings({ centerOnXY: checked });
                   }}
                 />
-              </Button>
-            </Stack>
-
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <TextField
-                label="Tolerance, mm"
-                type="number"
-                value={dxfImportSettings.toleranceMm}
-                onChange={(event) => handleToleranceChange(event.target.value)}
-                slotProps={{ htmlInput: { min: 0.001, step: 0.1 } }}
-                sx={{ minWidth: { xs: '100%', md: 180 } }}
-              />
-
-              <FormControlLabel
-                control={(
-                  <Switch
-                    checked={dxfImportSettings.centerOnXY}
-                    onChange={(_event, checked) => {
-                      updateDxfImportSettings({ centerOnXY: checked });
-                    }}
-                  />
-                )}
-                label="Center on XY"
-              />
-
-              <FormControlLabel
-                control={(
-                  <Switch
-                    checked={dxfImportSettings.force2DToXY}
-                    onChange={(_event, checked) => {
-                      updateDxfImportSettings({ force2DToXY: checked });
-                    }}
-                  />
-                )}
-                label="Force 2D to XY"
-              />
-            </Stack>
-
-            <DxfImportPreviewPanel
-              fileName={selectedFileName}
-              preview={previewResult?.preview ?? null}
-              isBusy={isReadingFile}
+              )}
+              label={t('dxf.dialog.centerOnXY')}
             />
 
-            <DxfProfileAssignmentTable
-              colorGroups={previewGroups}
-              assignments={profileAssignments}
-              onAssignmentChange={(groupKey, profileId) => {
-                setProfileAssignments((current) => ({
-                  ...current,
-                  [groupKey]: profileId,
-                }));
-              }}
+            <FormControlLabel
+              control={(
+                <Switch
+                  checked={dxfImportSettings.force2DToXY}
+                  onChange={(_event, checked) => {
+                    updateDxfImportSettings({ force2DToXY: checked });
+                  }}
+                />
+              )}
+              label={t('dxf.dialog.force2DToXY')}
             />
           </Stack>
-        </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={closeDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleImport} disabled={!canImport}>
-            Import
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <DxfImportPreviewPanel
+            fileName={selectedFileName}
+            preview={previewResult?.preview ?? null}
+            isBusy={isReadingFile}
+          />
 
-      <Snackbar
-        open={feedback != null}
-        autoHideDuration={feedback?.severity === 'warning' ? 8000 : 6000}
-        onClose={handleFeedbackClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
-          severity={feedback?.severity ?? 'success'}
-          variant="filled"
-          onClose={handleFeedbackClose}
-          sx={{ width: '100%', maxWidth: 560 }}
-        >
-          {feedback && (
-            <>
-              <AlertTitle>{feedback.title}</AlertTitle>
-              <Stack spacing={0.5}>
-                {visibleDetails.map((detail) => (
-                  <Typography key={detail} variant="body2">
-                    {detail}
-                  </Typography>
-                ))}
-                {hiddenDetailsCount > 0 && (
-                  <Typography variant="body2">
-                    ... and {hiddenDetailsCount} more.
-                  </Typography>
-                )}
-              </Stack>
-            </>
-          )}
-        </Alert>
-      </Snackbar>
-    </>
+          <DxfProfileAssignmentTable
+            colorGroups={previewGroups}
+            assignments={profileAssignments}
+            onAssignmentChange={(groupKey, profileId) => {
+              setProfileAssignments((current) => ({
+                ...current,
+                [groupKey]: profileId,
+              }));
+            }}
+          />
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        <Button onClick={closeDialog}>{t('dxf.dialog.cancel')}</Button>
+        <Button variant="contained" onClick={handleImport} disabled={!canImport}>
+          {t('dxf.dialog.import')}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
@@ -301,6 +259,8 @@ function DxfProfileAssignmentTable({
   assignments,
   onAssignmentChange,
 }: DxfProfileAssignmentTableProps) {
+  const { t } = useI18n();
+
   if (colorGroups.length === 0) {
     return null;
   }
@@ -308,9 +268,9 @@ function DxfProfileAssignmentTable({
   return (
     <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
       <Box sx={{ p: 2, pb: 1 }}>
-        <Typography variant="subtitle2">Profile assignment</Typography>
+        <Typography variant="subtitle2">{t('dxf.dialog.profileAssignmentTitle')}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Replace temporary DXF profiles with entries from the local profile catalog, or keep a custom group profile.
+          {t('dxf.dialog.profileAssignmentHint')}
         </Typography>
       </Box>
 
@@ -318,10 +278,10 @@ function DxfProfileAssignmentTable({
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Group</TableCell>
-              <TableCell align="right">Members</TableCell>
-              <TableCell>Temporary profile</TableCell>
-              <TableCell sx={{ minWidth: 240 }}>Assigned profile</TableCell>
+              <TableCell>{t('dxf.dialog.table.group')}</TableCell>
+              <TableCell align="right">{t('dxf.dialog.table.members')}</TableCell>
+              <TableCell>{t('dxf.dialog.table.temporaryProfile')}</TableCell>
+              <TableCell sx={{ minWidth: 240 }}>{t('dxf.dialog.table.assignedProfile')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -333,7 +293,7 @@ function DxfProfileAssignmentTable({
                       {group.key}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Layer: {group.layer?.trim() || '-'}
+                      {t('dxf.preview.layerLabel', { value: group.layer?.trim() || '-' })}
                     </Typography>
                   </Stack>
                 </TableCell>
@@ -358,7 +318,9 @@ function DxfProfileAssignmentTable({
                     }}
                   >
                     <MenuItem value={KEEP_DXF_CUSTOM_PROFILE_ID}>
-                      Keep custom ({group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`})
+                      {t('dxf.dialog.keepCustom', {
+                        name: group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`,
+                      })}
                     </MenuItem>
                     {PROFILE_CATALOG.map((profile) => (
                       <MenuItem key={profile.id} value={profile.id}>

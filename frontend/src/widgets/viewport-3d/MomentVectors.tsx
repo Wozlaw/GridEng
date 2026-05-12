@@ -1,15 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { Line } from '@react-three/drei';
 import { Quaternion, Vector3 } from 'three';
 
-import { useModelStore } from '../../app/store';
-import {
-  resolveRepresentativeLoadVector,
-  vec3Length,
-  type GridEngModel,
-} from '../../entities/model';
+import { useModelStore, useUiStore } from '../../app/store';
+import { type GridEngModel, type NodalConcentratedLoad } from '../../entities/model';
 import { isSelectedLoad } from '../../features/selection';
+import { translate } from '../../shared/i18n';
+import { notifyWarning } from '../../shared/ui';
 import {
   getLoadAnchorPosition,
   modelPositionToScene,
@@ -18,6 +16,7 @@ import {
 
 const MOMENT_COLOR = '#ff7ab6';
 const SELECTED_MOMENT_COLOR = '#f4bf61';
+const MOMENT_HALO_COLOR = '#ffffff';
 const ARROW_UP = new Vector3(0, 1, 0);
 const ARC_SEGMENTS = 28;
 const ARC_SWEEP_RAD = Math.PI * 1.55;
@@ -51,10 +50,40 @@ export function MomentVectors({
 }: MomentVectorsProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
   const selectLoad = useModelStore((state) => state.selectLoad);
+  const language = useUiStore((state) => state.language);
+  const warningRef = useRef<Set<string>>(new Set());
   const glyphs = useMemo(
     () => buildMomentGlyphs(loadCase, nodesById, membersById, sceneLongestSide),
     [loadCase, membersById, nodesById, sceneLongestSide],
   );
+  const unsupportedDistributedMoments = useMemo(
+    () => (loadCase?.loads ?? []).filter(
+      (load) => load.type === 'member_distributed' && load.kind === 'moment',
+    ),
+    [loadCase],
+  );
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    for (const load of unsupportedDistributedMoments) {
+      if (warningRef.current.has(load.id)) {
+        continue;
+      }
+
+      warningRef.current.add(load.id);
+      notifyWarning({
+        title: translate(language, 'notifications.viewport.unsupportedLoad.title'),
+        details: [
+          translate(language, 'notifications.viewport.distributedMoment.detail', {
+            loadId: load.id,
+          }),
+        ],
+      });
+    }
+  }, [language, unsupportedDistributedMoments, visible]);
 
   if (!visible || glyphs.length === 0) {
     return null;
@@ -63,9 +92,8 @@ export function MomentVectors({
   return (
     <>
       {glyphs.map((glyph) => {
-        const color = isSelectedLoad(selectedEntity, glyph.loadCaseId, glyph.id)
-          ? SELECTED_MOMENT_COLOR
-          : MOMENT_COLOR;
+        const isSelected = isSelectedLoad(selectedEntity, glyph.loadCaseId, glyph.id);
+        const color = isSelected ? SELECTED_MOMENT_COLOR : MOMENT_COLOR;
 
         return (
           <group
@@ -75,10 +103,18 @@ export function MomentVectors({
               selectLoad(glyph.loadCaseId, glyph.id);
             }}
           >
-            <Line points={glyph.arcPoints} color={color} lineWidth={2.8} />
+            {isSelected && (
+              <Line
+                points={glyph.arcPoints}
+                color={MOMENT_HALO_COLOR}
+                lineWidth={5.8}
+                renderOrder={40}
+              />
+            )}
+            <Line points={glyph.arcPoints} color={color} lineWidth={3} renderOrder={41} />
             <mesh position={glyph.headPosition} quaternion={glyph.headQuaternion}>
-            <coneGeometry args={[glyph.headRadius, glyph.headLength, 14]} />
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} />
+              <coneGeometry args={[glyph.headRadius, glyph.headLength, 14]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} />
             </mesh>
           </group>
         );
@@ -93,57 +129,62 @@ function buildMomentGlyphs(
   membersById: Map<string, GridEngModel['members'][number]>,
   sceneLongestSide: number,
 ): MomentGlyph[] {
-  const loads = loadCase?.loads ?? [];
-  const candidateLoads = loads
-    .map((load) => {
-      const vector = load.kind === 'moment' ? resolveRepresentativeLoadVector(load) : null;
-      const magnitude = vector == null ? 0 : vec3Length(vector);
-      const anchor = getLoadAnchorPosition(load, nodesById, membersById);
+  const loads = (loadCase?.loads ?? []).filter(
+    (load): load is NodalConcentratedLoad =>
+      load.type === 'nodal_concentrated' && load.kind === 'moment',
+  );
 
-      return magnitude > 0 && anchor != null && vector != null
-        ? { load, magnitude, anchor, vector }
-        : null;
-    })
-    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate != null);
-
-  if (candidateLoads.length === 0) {
+  if (loads.length === 0) {
     return [];
   }
 
-  const maxMagnitude = Math.max(...candidateLoads.map((candidate) => candidate.magnitude));
+  const maxMagnitude = Math.max(...loads.map((load) => Math.abs(load.magnitude)));
   const maxRadius = Math.max(sceneLongestSide * 0.14, 0.34);
 
-  return candidateLoads.map(({ load, magnitude, anchor, vector }) => {
-    const axis = new Vector3(vector.x, vector.y, vector.z).normalize();
-    const normalizedMagnitude = maxMagnitude > 0 ? magnitude / maxMagnitude : 0;
-    const radius = maxRadius * Math.max(normalizedMagnitude, MIN_MOMENT_RATIO);
-    const headLength = Math.min(Math.max(radius * 0.48, 0.08), maxRadius * 0.56);
-    const headRadius = Math.max(headLength * 0.28, 0.03);
+  return loads
+    .map((load) => {
+      const anchor = getLoadAnchorPosition(load, nodesById, membersById);
 
-    const origin = new Vector3(...modelPositionToScene(anchor));
-    const radial = getPerpendicularUnitVector(axis);
-    const tangent = new Vector3().crossVectors(axis, radial).normalize();
+      if (anchor == null || Math.abs(load.magnitude) <= 1e-9) {
+        return null;
+      }
 
-    const arcPoints = createArcPoints(origin, radial, tangent, radius);
-    const endAngle = ARC_START_RAD + ARC_SWEEP_RAD;
-    const endPoint = pointOnArc(origin, radial, tangent, radius, endAngle);
-    const tangentDirection = radial
-      .clone()
-      .multiplyScalar(-Math.sin(endAngle))
-      .add(tangent.clone().multiplyScalar(Math.cos(endAngle)))
-      .normalize();
-    const headCenter = endPoint.clone().addScaledVector(tangentDirection, -headLength / 2);
+      const sign = load.magnitude >= 0 ? 1 : -1;
+      const axis = new Vector3(
+        load.direction.x * sign,
+        load.direction.y * sign,
+        load.direction.z * sign,
+      ).normalize();
+      const normalizedMagnitude = maxMagnitude > 0 ? Math.abs(load.magnitude) / maxMagnitude : 0;
+      const radius = maxRadius * Math.max(normalizedMagnitude, MIN_MOMENT_RATIO);
+      const headLength = Math.min(Math.max(radius * 0.48, 0.08), maxRadius * 0.56);
+      const headRadius = Math.max(headLength * 0.28, 0.03);
 
-    return {
-      id: load.id,
-      loadCaseId: loadCase?.id ?? '',
-      arcPoints,
-      headPosition: [headCenter.x, headCenter.y, headCenter.z],
-      headQuaternion: new Quaternion().setFromUnitVectors(ARROW_UP, tangentDirection),
-      headRadius,
-      headLength,
-    };
-  });
+      const origin = new Vector3(...modelPositionToScene(anchor));
+      const radial = getPerpendicularUnitVector(axis);
+      const tangent = new Vector3().crossVectors(axis, radial).normalize();
+
+      const arcPoints = createArcPoints(origin, radial, tangent, radius);
+      const endAngle = ARC_START_RAD + ARC_SWEEP_RAD;
+      const endPoint = pointOnArc(origin, radial, tangent, radius, endAngle);
+      const tangentDirection = radial
+        .clone()
+        .multiplyScalar(-Math.sin(endAngle))
+        .add(tangent.clone().multiplyScalar(Math.cos(endAngle)))
+        .normalize();
+      const headCenter = endPoint.clone().addScaledVector(tangentDirection, -headLength / 2);
+
+      return {
+        id: load.id,
+        loadCaseId: loadCase?.id ?? '',
+        arcPoints,
+        headPosition: [headCenter.x, headCenter.y, headCenter.z],
+        headQuaternion: new Quaternion().setFromUnitVectors(ARROW_UP, tangentDirection),
+        headRadius,
+        headLength,
+      };
+    })
+    .filter((glyph): glyph is MomentGlyph => glyph != null);
 }
 
 function createArcPoints(

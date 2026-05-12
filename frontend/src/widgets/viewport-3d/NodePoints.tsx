@@ -4,6 +4,7 @@ import { modelPositionToScene } from './modelToScene';
 
 const DEFAULT_NODE_COLOR = '#89d3ff';
 const SELECTED_NODE_COLOR = '#f4bf61';
+const SELECTED_NODE_HALO_COLOR = '#ffffff';
 
 interface NodePointsProps {
   nodes: GridEngModel['nodes'];
@@ -21,6 +22,8 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
     return null;
   }
 
+  const pickRadius = nodeRadius * 2.4;
+
   return (
     <>
       {nodes.map((node) => {
@@ -33,17 +36,41 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
         const scenePosition = modelPositionToScene(node.position);
 
         return (
-          <mesh
-            key={node.id}
-            position={scenePosition}
-            onClick={(event) => {
-              event.stopPropagation();
-              selectEntity({ type: 'node', id: node.id });
-            }}
-          >
-            <sphereGeometry args={[isSelected ? nodeRadius * 1.3 : nodeRadius, 14, 14]} />
-            <meshStandardMaterial color={isSelected ? SELECTED_NODE_COLOR : DEFAULT_NODE_COLOR} />
-          </mesh>
+          <group key={node.id}>
+            <mesh
+              position={scenePosition}
+              onClick={(event) => {
+                event.stopPropagation();
+                selectEntity({ type: 'node', id: node.id });
+              }}
+            >
+              <sphereGeometry args={[pickRadius, 12, 12]} />
+              <meshBasicMaterial transparent opacity={0.01} depthWrite={false} />
+            </mesh>
+
+            {isSelected && (
+              <mesh position={scenePosition} renderOrder={30}>
+                <sphereGeometry args={[nodeRadius * 2.05, 18, 18]} />
+                <meshBasicMaterial
+                  color={SELECTED_NODE_HALO_COLOR}
+                  transparent
+                  opacity={0.22}
+                  depthWrite={false}
+                />
+              </mesh>
+            )}
+
+            <mesh
+              position={scenePosition}
+              onClick={(event) => {
+                event.stopPropagation();
+                selectEntity({ type: 'node', id: node.id });
+              }}
+            >
+              <sphereGeometry args={[isSelected ? nodeRadius * 1.35 : nodeRadius, 16, 16]} />
+              <meshStandardMaterial color={isSelected ? SELECTED_NODE_COLOR : DEFAULT_NODE_COLOR} />
+            </mesh>
+          </group>
         );
       })}
     </>

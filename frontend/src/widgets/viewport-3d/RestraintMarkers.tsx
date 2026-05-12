@@ -1,12 +1,15 @@
-import { Line } from '@react-three/drei';
+import { Suspense, useState } from 'react';
+
+import { Line, Text } from '@react-three/drei';
 
 import { useModelStore } from '../../app/store';
 import type { GridEngModel, Restraint } from '../../entities/model';
 import { modelPositionToScene, type ScenePoint3 } from './modelToScene';
 
-const FULL_RESTRAINT_COLOR = '#7fd6ff';
-const PARTIAL_RESTRAINT_COLOR = '#f6c36d';
+const RESTRAINT_COLOR = '#7fd6ff';
 const SELECTED_RESTRAINT_COLOR = '#f4bf61';
+const HOVER_RESTRAINT_COLOR = '#d4efff';
+const LABEL_OFFSET_FACTOR = 1.5;
 
 interface RestraintMarkersProps {
   restraints: GridEngModel['restraints'];
@@ -22,77 +25,30 @@ export function RestraintMarkers({
   nodeRadius,
 }: RestraintMarkersProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
-  const selectRestraint = useModelStore((state) => state.selectRestraint);
 
   if (!visible || restraints.length === 0) {
     return null;
   }
 
-  const markerSize = Math.max(nodeRadius * 2.6, 0.1);
-  const stemLength = markerSize * 0.78;
-  const fullPlateThickness = markerSize * 0.4;
-
   return (
     <>
       {restraints.map((restraint) => {
         const node = nodesById.get(restraint.nodeId);
+
         if (node == null) {
           return null;
         }
 
-        const nodePosition = modelPositionToScene(node.position);
-        const stemEnd: ScenePoint3 = [
-          nodePosition[0],
-          nodePosition[1],
-          nodePosition[2] - stemLength,
-        ];
-        const isFullyFixed = isFullyFixedRestraint(restraint);
         const isSelected = (selectedEntity.type === 'restraint' && selectedEntity.restraintId === restraint.id)
           || (selectedEntity.type === 'node' && selectedEntity.id === restraint.nodeId);
-        const markerColor = isSelected
-          ? SELECTED_RESTRAINT_COLOR
-          : isFullyFixed
-            ? FULL_RESTRAINT_COLOR
-            : PARTIAL_RESTRAINT_COLOR;
 
-        return isFullyFixed ? (
-          <group
-            key={restraint.id}
-            onClick={(event) => {
-              event.stopPropagation();
-              selectRestraint(restraint.id);
-            }}
-          >
-            <Line
-              points={[nodePosition, stemEnd]}
-              color={markerColor}
-              lineWidth={2.4}
-            />
-            <mesh
-              position={[
-                stemEnd[0],
-                stemEnd[1],
-                stemEnd[2] - fullPlateThickness / 2,
-              ]}
-            >
-              <boxGeometry args={[markerSize, markerSize, fullPlateThickness]} />
-              <meshStandardMaterial
-                color={markerColor}
-                emissive={markerColor}
-                emissiveIntensity={isSelected ? 0.28 : 0.16}
-                roughness={0.42}
-              />
-            </mesh>
-          </group>
-        ) : (
-          <PartialRestraintMarker
+        return (
+          <RestraintMarkerGroup
             key={restraint.id}
             restraint={restraint}
-            nodePosition={nodePosition}
-            markerSize={markerSize}
-            stemLength={stemLength}
-            markerColor={markerColor}
-            onClick={() => selectRestraint(restraint.id)}
+            nodePosition={modelPositionToScene(node.position)}
+            nodeRadius={nodeRadius}
+            isSelected={isSelected}
           />
         );
       })}
@@ -100,123 +56,169 @@ export function RestraintMarkers({
   );
 }
 
-interface PartialRestraintMarkerProps {
+interface RestraintMarkerGroupProps {
   restraint: Restraint;
   nodePosition: ScenePoint3;
-  markerSize: number;
-  stemLength: number;
-  markerColor: string;
-  onClick: () => void;
+  nodeRadius: number;
+  isSelected: boolean;
 }
 
-function PartialRestraintMarker({
+function RestraintMarkerGroup({
   restraint,
   nodePosition,
-  markerSize,
-  stemLength,
-  markerColor,
-  onClick,
-}: PartialRestraintMarkerProps) {
-  const baseZ = nodePosition[2] - stemLength;
-  const half = markerSize * 0.5;
-  const translationalHalf = markerSize * 0.3;
-  const rotationalCrossHalf = markerSize * 0.2;
-  const rotationalCrossZ = baseZ - markerSize * 0.22;
+  nodeRadius,
+  isSelected,
+}: RestraintMarkerGroupProps) {
+  const selectRestraint = useModelStore((state) => state.selectRestraint);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const markerSize = Math.max(nodeRadius * 3.1, 0.12);
+  const basePosition: ScenePoint3 = [
+    nodePosition[0],
+    nodePosition[1],
+    nodePosition[2] - markerSize * 0.9,
+  ];
+  const translationalHalf = markerSize * 0.34;
+  const ringRadius = markerSize * 0.26;
+  const color = isSelected
+    ? SELECTED_RESTRAINT_COLOR
+    : isHovered
+      ? HOVER_RESTRAINT_COLOR
+      : RESTRAINT_COLOR;
+  const activeDofsLabel = formatActiveRestraintLabel(restraint);
+  const showLabel = isSelected || isHovered;
+  const labelPosition: ScenePoint3 = [
+    nodePosition[0],
+    nodePosition[1],
+    nodePosition[2] + markerSize * LABEL_OFFSET_FACTOR,
+  ];
+  const rotationMarkers = buildRotationMarkers(basePosition, ringRadius);
 
   return (
     <group
       onClick={(event) => {
         event.stopPropagation();
-        onClick();
+        selectRestraint(restraint.id);
+      }}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+        setIsHovered(true);
+      }}
+      onPointerOut={(event) => {
+        event.stopPropagation();
+        setIsHovered(false);
       }}
     >
-      <Line
-        points={[
-          nodePosition,
-          [nodePosition[0], nodePosition[1], baseZ],
-        ]}
-        color={markerColor}
-        lineWidth={2.2}
-      />
-      <Line
-        points={[
-          [nodePosition[0] - half, nodePosition[1] - half, baseZ],
-          [nodePosition[0] + half, nodePosition[1] + half, baseZ],
-        ]}
-        color={markerColor}
-        lineWidth={2.2}
-      />
-      <Line
-        points={[
-          [nodePosition[0] - half, nodePosition[1] + half, baseZ],
-          [nodePosition[0] + half, nodePosition[1] - half, baseZ],
-        ]}
-        color={markerColor}
-        lineWidth={2.2}
-      />
+      <mesh position={basePosition}>
+        <sphereGeometry args={[markerSize * 0.8, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0.01} depthWrite={false} />
+      </mesh>
+
+      <Line points={[nodePosition, basePosition]} color={color} lineWidth={2.2} />
 
       {restraint.ux && (
         <Line
           points={[
-            [nodePosition[0] - translationalHalf, nodePosition[1], baseZ],
-            [nodePosition[0] + translationalHalf, nodePosition[1], baseZ],
+            [basePosition[0] - translationalHalf, basePosition[1], basePosition[2]],
+            [basePosition[0] + translationalHalf, basePosition[1], basePosition[2]],
           ]}
-          color={markerColor}
-          lineWidth={2.2}
+          color={color}
+          lineWidth={2.4}
         />
       )}
-
       {restraint.uy && (
         <Line
           points={[
-            [nodePosition[0], nodePosition[1] - translationalHalf, baseZ],
-            [nodePosition[0], nodePosition[1] + translationalHalf, baseZ],
+            [basePosition[0], basePosition[1] - translationalHalf, basePosition[2]],
+            [basePosition[0], basePosition[1] + translationalHalf, basePosition[2]],
           ]}
-          color={markerColor}
-          lineWidth={2.2}
+          color={color}
+          lineWidth={2.4}
         />
       )}
-
       {restraint.uz && (
         <Line
           points={[
-            [nodePosition[0], nodePosition[1], baseZ],
-            [nodePosition[0], nodePosition[1], baseZ + translationalHalf],
+            [basePosition[0], basePosition[1], basePosition[2] - translationalHalf],
+            [basePosition[0], basePosition[1], basePosition[2] + translationalHalf],
           ]}
-          color={markerColor}
-          lineWidth={2.2}
+          color={color}
+          lineWidth={2.4}
         />
       )}
 
-      {(restraint.rx || restraint.ry || restraint.rz) && (
-        <>
-          <Line
-            points={[
-              [nodePosition[0] - rotationalCrossHalf, nodePosition[1], rotationalCrossZ],
-              [nodePosition[0] + rotationalCrossHalf, nodePosition[1], rotationalCrossZ],
-            ]}
-            color={markerColor}
-            lineWidth={2}
-          />
-          <Line
-            points={[
-              [nodePosition[0], nodePosition[1] - rotationalCrossHalf, rotationalCrossZ],
-              [nodePosition[0], nodePosition[1] + rotationalCrossHalf, rotationalCrossZ],
-            ]}
-            color={markerColor}
-            lineWidth={2}
-          />
-        </>
+      {restraint.rx && <Line points={rotationMarkers.rx} color={color} lineWidth={2.1} />}
+      {restraint.ry && <Line points={rotationMarkers.ry} color={color} lineWidth={2.1} />}
+      {restraint.rz && <Line points={rotationMarkers.rz} color={color} lineWidth={2.1} />}
+
+      {showLabel && (
+        <Suspense fallback={null}>
+          <Text
+            position={labelPosition}
+            fontSize={Math.max(markerSize * 0.28, 0.08)}
+            color={color}
+            anchorX="center"
+            anchorY="middle"
+          >
+            {activeDofsLabel}
+          </Text>
+        </Suspense>
       )}
     </group>
   );
 }
 
-function isFullyFixedRestraint(restraint: Restraint): boolean {
-  return restraint.ux
-    && restraint.uy
-    && restraint.uz
-    && restraint.rx
-    && restraint.ry
-    && restraint.rz;
+function buildRotationMarkers(
+  basePosition: ScenePoint3,
+  radius: number,
+): Record<'rx' | 'ry' | 'rz', ScenePoint3[]> {
+  return {
+    rx: createCirclePoints(basePosition, radius, 'yz'),
+    ry: createCirclePoints(basePosition, radius, 'xz'),
+    rz: createCirclePoints(basePosition, radius, 'xy'),
+  };
+}
+
+function createCirclePoints(
+  center: ScenePoint3,
+  radius: number,
+  plane: 'xy' | 'yz' | 'xz',
+  segments = 24,
+): ScenePoint3[] {
+  const points: ScenePoint3[] = [];
+
+  for (let step = 0; step <= segments; step += 1) {
+    const angle = (Math.PI * 2 * step) / segments;
+    const cos = Math.cos(angle) * radius;
+    const sin = Math.sin(angle) * radius;
+
+    switch (plane) {
+      case 'xy':
+        points.push([center[0] + cos, center[1] + sin, center[2]]);
+        break;
+      case 'yz':
+        points.push([center[0], center[1] + cos, center[2] + sin]);
+        break;
+      case 'xz':
+        points.push([center[0] + cos, center[1], center[2] + sin]);
+        break;
+      default:
+        break;
+    }
+  }
+
+  return points;
+}
+
+function formatActiveRestraintLabel(restraint: Restraint): string {
+  const active = [
+    restraint.ux && 'UX',
+    restraint.uy && 'UY',
+    restraint.uz && 'UZ',
+    restraint.rx && 'RX',
+    restraint.ry && 'RY',
+    restraint.rz && 'RZ',
+  ].filter(Boolean);
+
+  return active.length > 0 ? active.join(' ') : 'FREE';
 }

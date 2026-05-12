@@ -30,7 +30,7 @@ Thumbs.db
 .codex/
 *.tmp
 # Прочее
-Materials/
+materials/
 /patches/
 sandBox.ipynb
 

@@ -1,23 +1,20 @@
-import { Box, Chip, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 
-import { getSelectedEntityLabel } from '../../features/selection';
 import { useModelStore } from '../store';
+import { formatSelectedEntityLabel, useI18n } from '../../shared/i18n';
 
 export function BottomStatusBar() {
+  const { t } = useI18n();
   const model = useModelStore((state) => state.model);
   const validationReport = useModelStore((state) => state.validationReport);
   const selectedEntity = useModelStore((state) => state.selectedEntity);
-  const viewMode = useModelStore((state) => state.viewMode);
-  const dxfImportSettings = useModelStore((state) => state.dxfImportSettings);
-  const errorCount = validationReport.errors.length;
-  const warningCount = validationReport.warnings.length;
-  const validationColor = errorCount > 0 ? 'error.main' : warningCount > 0 ? 'warning.main' : 'success.main';
-  const validationText = errorCount > 0
-    ? `${errorCount} validation errors${warningCount > 0 ? ` / ${warningCount} warnings` : ''}`
-    : warningCount > 0
-      ? `${warningCount} validation warnings`
-      : 'Validation OK';
-  const selectedEntityLabel = getSelectedEntityLabel(selectedEntity);
+  const totalLoads = model.loadCases.reduce((sum, loadCase) => sum + loadCase.loads.length, 0);
+  const selectedEntityLabel = formatSelectedEntityLabel(selectedEntity, t);
+  const statusText = validationReport.errors.length > 0
+    ? t('status.errors', { count: validationReport.errors.length })
+    : validationReport.warnings.length > 0
+      ? t('status.warnings', { count: validationReport.warnings.length })
+      : t('status.valid');
 
   return (
     <Paper
@@ -27,50 +24,53 @@ export function BottomStatusBar() {
         borderLeft: 'none',
         borderRight: 'none',
         borderBottom: 'none',
-        px: 2,
-        py: 1,
+        px: 1.5,
+        py: 0.75,
       }}
     >
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: 1,
-          alignItems: { xs: 'flex-start', md: 'center' },
+          gap: 2,
+          alignItems: 'center',
           justifyContent: 'space-between',
+          overflow: 'hidden',
         }}
       >
-        <Box
+        <Typography
+          variant="caption"
+          color="text.secondary"
           sx={{
-            display: 'flex',
-            gap: 1,
-            alignItems: 'center',
-            flexWrap: 'wrap',
+            minWidth: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
-          <Typography variant="caption" color="text.secondary">
-            Status
-          </Typography>
-          <Chip size="small" label={`Nodes ${model.nodes.length}`} variant="outlined" />
-          <Chip size="small" label={`Members ${model.members.length}`} variant="outlined" />
-          <Chip size="small" label={`Profiles ${model.profiles.length}`} variant="outlined" />
-          <Chip size="small" label={`Load cases ${model.loadCases.length}`} variant="outlined" />
-        </Box>
+          {t('status.summary', {
+            name: model.name,
+            nodes: model.nodes.length,
+            members: model.members.length,
+            loads: totalLoads,
+            restraints: model.restraints.length,
+            profiles: model.profiles.length,
+            materials: model.materials.length,
+            status: statusText,
+          })}
+        </Typography>
 
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Typography variant="caption" color="text.secondary">
-            View: {viewMode}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Selection: {selectedEntityLabel ?? 'none'}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            DXF tolerance: {dxfImportSettings.toleranceMm} mm
-          </Typography>
-          <Typography variant="caption" color={validationColor}>
-            {validationText}
-          </Typography>
-        </Box>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {t('status.selected', {
+            value: selectedEntityLabel ?? t('common.none'),
+          })}
+        </Typography>
       </Box>
     </Paper>
   );

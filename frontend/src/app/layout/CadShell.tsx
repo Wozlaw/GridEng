@@ -1,7 +1,22 @@
-import { lazy, Suspense } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
-import { Box, Paper, Stack, Typography } from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { Box, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 
+import {
+  PROPERTIES_WIDTH_MAX,
+  PROPERTIES_WIDTH_MIN,
+  PROJECT_TREE_WIDTH_MAX,
+  PROJECT_TREE_WIDTH_MIN,
+  useLayoutStore,
+  useModelStore,
+} from '../store';
+import { useI18n } from '../../shared/i18n';
+import { CommandConsole } from '../../features/console';
+import { ProjectMaterialsDialog, ProjectProfilesDialog } from '../../features/project-catalogs';
+import { WindEditorDialog } from '../../features/wind-editor';
 import { ProjectTreePanel } from '../../widgets/project-tree';
 import { PropertiesPanel } from '../../widgets/properties-panel';
 import { BottomStatusBar } from './BottomStatusBar';
@@ -15,7 +30,91 @@ const Viewport3D = lazy(async () => {
   };
 });
 
+type DragSide = 'left' | 'right';
+
+interface DragState {
+  side: DragSide;
+  startX: number;
+  startWidth: number;
+}
+
 export function CadShell() {
+  const { t } = useI18n();
+  const fitRequestNonce = useModelStore((state) => state.fitRequestNonce);
+  const projectTreeWidth = useLayoutStore((state) => state.projectTreeWidth);
+  const projectTreeCollapsed = useLayoutStore((state) => state.projectTreeCollapsed);
+  const propertiesWidth = useLayoutStore((state) => state.propertiesWidth);
+  const propertiesCollapsed = useLayoutStore((state) => state.propertiesCollapsed);
+  const setProjectTreeWidth = useLayoutStore((state) => state.setProjectTreeWidth);
+  const toggleProjectTreeCollapsed = useLayoutStore((state) => state.toggleProjectTreeCollapsed);
+  const setPropertiesWidth = useLayoutStore((state) => state.setPropertiesWidth);
+  const togglePropertiesCollapsed = useLayoutStore((state) => state.togglePropertiesCollapsed);
+  const [dragState, setDragState] = useState<DragState | null>(null);
+
+  useEffect(() => {
+    if (dragState == null) {
+      return;
+    }
+
+    const activeDrag = dragState;
+
+    function handlePointerMove(event: PointerEvent) {
+      if (activeDrag.side === 'left') {
+        setProjectTreeWidth(
+          clampWidth(
+            activeDrag.startWidth + (event.clientX - activeDrag.startX),
+            PROJECT_TREE_WIDTH_MIN,
+            PROJECT_TREE_WIDTH_MAX,
+          ),
+        );
+        return;
+      }
+
+      setPropertiesWidth(
+        clampWidth(
+          activeDrag.startWidth - (event.clientX - activeDrag.startX),
+          PROPERTIES_WIDTH_MIN,
+          PROPERTIES_WIDTH_MAX,
+        ),
+      );
+    }
+
+    function stopDragging() {
+      setDragState(null);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', stopDragging);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', stopDragging);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [dragState, setProjectTreeWidth, setPropertiesWidth]);
+
+  function beginResize(side: DragSide, event: ReactPointerEvent<HTMLDivElement>) {
+    if ((side === 'left' && projectTreeCollapsed) || (side === 'right' && propertiesCollapsed)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    setDragState({
+      side,
+      startX: event.clientX,
+      startWidth: side === 'left' ? projectTreeWidth : propertiesWidth,
+    });
+  }
+
+  const desktopColumns = `${projectTreeCollapsed ? 0 : projectTreeWidth}px 14px minmax(0, 1fr) 14px ${propertiesCollapsed ? 0 : propertiesWidth}px`;
+
   return (
     <Box
       sx={{
@@ -31,34 +130,148 @@ export function CadShell() {
         component="main"
         sx={{
           minHeight: 0,
-          display: 'grid',
           overflow: 'hidden',
-          gap: 1.5,
-          px: { xs: 1.25, md: 1.5 },
-          py: 1.5,
-          gridTemplateColumns: {
-            xs: '1fr',
-            lg: '280px minmax(0, 1fr) 360px',
-          },
-          gridTemplateRows: {
-            xs: 'minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr)',
-            lg: '1fr',
-          },
+          px: { xs: 1, md: 1.25 },
+          py: 1,
         }}
       >
-        <ProjectTreePanel />
-        <Suspense fallback={<ViewportLoadingFallback />}>
-          <Viewport3D />
-        </Suspense>
-        <PropertiesPanel />
+        <Box
+          sx={{
+            display: { xs: 'grid', lg: 'none' },
+            height: '100%',
+            minHeight: 0,
+            gap: 1,
+            gridTemplateRows: 'minmax(0, 0.9fr) minmax(0, 1.35fr) minmax(0, 1fr)',
+          }}
+        >
+          <ProjectTreePanel />
+          <Suspense fallback={<ViewportLoadingFallback />}>
+            <Viewport3D />
+          </Suspense>
+          <PropertiesPanel />
+        </Box>
+
+        <Box
+          data-fit-request={fitRequestNonce}
+          sx={{
+            display: { xs: 'none', lg: 'grid' },
+            height: '100%',
+            minHeight: 0,
+            gridTemplateColumns: desktopColumns,
+          }}
+        >
+          <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+            {!projectTreeCollapsed && <ProjectTreePanel />}
+          </Box>
+
+          <PanelHandle
+            side="left"
+            collapsed={projectTreeCollapsed}
+            label={projectTreeCollapsed ? t('layout.projectTree.show') : t('layout.projectTree.hide')}
+            onResizeStart={(event) => beginResize('left', event)}
+            onToggle={() => toggleProjectTreeCollapsed()}
+          />
+
+          <Suspense fallback={<ViewportLoadingFallback />}>
+            <Viewport3D />
+          </Suspense>
+
+          <PanelHandle
+            side="right"
+            collapsed={propertiesCollapsed}
+            label={propertiesCollapsed ? t('layout.properties.show') : t('layout.properties.hide')}
+            onResizeStart={(event) => beginResize('right', event)}
+            onToggle={() => togglePropertiesCollapsed()}
+          />
+
+          <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+            {!propertiesCollapsed && <PropertiesPanel />}
+          </Box>
+        </Box>
       </Box>
 
       <BottomStatusBar />
+      <CommandConsole />
+      <ProjectProfilesDialog />
+      <ProjectMaterialsDialog />
+      <WindEditorDialog />
+    </Box>
+  );
+}
+
+interface PanelHandleProps {
+  side: DragSide;
+  collapsed: boolean;
+  label: string;
+  onResizeStart: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onToggle: () => void;
+}
+
+function PanelHandle({
+  side,
+  collapsed,
+  label,
+  onResizeStart,
+  onToggle,
+}: PanelHandleProps) {
+  const ToggleIcon = side === 'left'
+    ? collapsed
+      ? ChevronRightIcon
+      : ChevronLeftIcon
+    : collapsed
+      ? ChevronLeftIcon
+      : ChevronRightIcon;
+
+  return (
+    <Box
+      onPointerDown={onResizeStart}
+      sx={{
+        position: 'relative',
+        minHeight: 0,
+        cursor: collapsed ? 'default' : 'col-resize',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: '50%',
+          width: '1px',
+          bgcolor: 'divider',
+          transform: 'translateX(-50%)',
+        },
+      }}
+    >
+      <Tooltip title={label}>
+        <IconButton
+          aria-label={label}
+          size="small"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggle();
+          }}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            zIndex: 1,
+            width: 20,
+            height: 40,
+            border: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <ToggleIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 }
 
 function ViewportLoadingFallback() {
+  const { t } = useI18n();
+
   return (
     <Paper
       variant="outlined"
@@ -68,18 +281,22 @@ function ViewportLoadingFallback() {
         display: 'grid',
         placeItems: 'center',
         overflow: 'hidden',
-        background: 'linear-gradient(180deg, rgba(8, 16, 25, 0.96) 0%, rgba(6, 12, 19, 0.92) 100%)',
+        bgcolor: 'background.paper',
       }}
     >
       <Stack spacing={1} sx={{ px: 3, py: 4, textAlign: 'center' }}>
         <Typography variant="overline" color="text.secondary">
-          Viewport
+          {t('viewport.title')}
         </Typography>
-        <Typography variant="h6">Loading 3D Scene</Typography>
+        <Typography variant="h6">{t('viewport.loadingTitle')}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Three.js and scene widgets are being loaded on demand.
+          {t('viewport.loadingBody')}
         </Typography>
       </Stack>
     </Paper>
   );
+}
+
+function clampWidth(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, Math.round(value)));
 }

@@ -231,10 +231,15 @@ export const AnalysisResultsSchema = z.object({
     mz: z.number().finite().optional(),
   })),
   memberStresses: z.record(IdSchema, z.object({
-    sigmaMaxMPa: z.number().finite(),
+    sigmaMaxMPa: z.number().finite().optional(),
     utilization: z.number().finite().optional(),
   })),
 });
+
+export const AnalysisResultsCollectionSchema = z.union([
+  z.array(AnalysisResultsSchema),
+  AnalysisResultsSchema,
+]).transform((value) => (Array.isArray(value) ? value : [value]));
 
 export const GridEngModelSchema = z.object({
   schemaVersion: z.literal('0.2'),
@@ -251,7 +256,7 @@ export const GridEngModelSchema = z.object({
     source: z.enum(['dxf', 'json', 'manual']),
     dxf: DxfImportMetaSchema.optional(),
   }).optional(),
-  results: AnalysisResultsSchema.optional(),
+  results: AnalysisResultsCollectionSchema.optional(),
 });
 
 export type GridEngModelFromSchema = z.infer<typeof GridEngModelSchema>;

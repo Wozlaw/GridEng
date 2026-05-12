@@ -1,39 +1,51 @@
 import type { RefObject } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
-import { Box, Button, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Paper } from '@mui/material';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Color, PerspectiveCamera, Vector3 } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 import { useModelStore } from '../../app/store';
+import type { GridEngModel } from '../../entities/model';
+import { useI18n } from '../../shared/i18n';
+import { notifyWarning } from '../../shared/ui';
 import { MemberLines } from './MemberLines';
+import { MemberRealMeshes } from './MemberRealMeshes';
 import { LoadVectors } from './LoadVectors';
 import { MomentVectors } from './MomentVectors';
 import { NodePoints } from './NodePoints';
 import { RestraintMarkers } from './RestraintMarkers';
 import { SceneAxes } from './SceneAxes';
 import { SceneGrid } from './SceneGrid';
+import { StressMapLegend } from './StressMapLegend';
 import {
   getFitCameraDistance,
   getViewportSceneMetrics,
   type ViewportSceneMetrics,
 } from './modelToScene';
+import { getMemberStressColor, resolveStressMapState } from './stressMap';
 
 const DEFAULT_CAMERA_DIRECTION = new Vector3(1, -1, 0.82).normalize();
 
 export function Viewport3D() {
+  const { t } = useI18n();
   const model = useModelStore((state) => state.model);
   const viewMode = useModelStore((state) => state.viewMode);
   const visibility = useModelStore((state) => state.visibility);
+  const fitRequestNonce = useModelStore((state) => state.fitRequestNonce);
   const clearSelection = useModelStore((state) => state.clearSelection);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
-  const [fitRequestVersion, setFitRequestVersion] = useState(0);
+  const stressMapNotificationKeyRef = useRef<string | null>(null);
 
   const sceneMetrics = useMemo(() => getViewportSceneMetrics(model.nodes), [model.nodes]);
-  const modelCenter = sceneMetrics.modelBounds?.center ?? { x: 0, y: 0, z: 0 };
   const activeLoadCase = model.loadCases[0];
+  const activeStressMapState = useMemo(
+    () => (activeLoadCase == null ? null : resolveStressMapState(model.results, activeLoadCase.id)),
+    [activeLoadCase, model.results],
+  );
+  const isStressMapMode = viewMode === 'stress-map';
   const nodeById = useMemo(
     () => new Map(model.nodes.map((node) => [node.id, node] as const)),
     [model.nodes],
@@ -46,6 +58,43 @@ export function Viewport3D() {
     () => new Map(model.profiles.map((profile) => [profile.id, profile] as const)),
     [model.profiles],
   );
+  const resolveStressMemberColor = useMemo(
+    () => (
+      !isStressMapMode
+        ? undefined
+        : (member: GridEngModel['members'][number]) => getMemberStressColor(member, activeStressMapState) ?? undefined
+    ),
+    [activeStressMapState, isStressMapMode],
+  );
+
+  useEffect(() => {
+    if (!isStressMapMode) {
+      stressMapNotificationKeyRef.current = null;
+      return;
+    }
+
+    if (activeStressMapState != null) {
+      stressMapNotificationKeyRef.current = 'has-results';
+      return;
+    }
+
+    const loadCaseKey = activeLoadCase?.id ?? '__no-load-case__';
+
+    if (stressMapNotificationKeyRef.current === loadCaseKey) {
+      return;
+    }
+
+    stressMapNotificationKeyRef.current = loadCaseKey;
+
+    notifyWarning({
+      title: t('notifications.stressMap.noResults.title'),
+      details: [
+        t('notifications.stressMap.noResults.detail', {
+          loadCase: activeLoadCase?.name ?? activeLoadCase?.id ?? t('common.none'),
+        }),
+      ],
+    });
+  }, [activeLoadCase?.id, activeLoadCase?.name, activeStressMapState, isStressMapMode, t]);
 
   return (
     <Paper
@@ -76,20 +125,22 @@ export function Viewport3D() {
             sceneMetrics.sceneCenter[1],
             sceneMetrics.sceneCenter[2],
           );
-          scene.background = new Color('#071019');
+          scene.background = new Color('#090909');
         }}
         onPointerMissed={() => clearSelection()}
       >
         <ViewportFitController
           controlsRef={controlsRef}
-          fitRequestVersion={fitRequestVersion}
+          fitRequestNonce={fitRequestNonce}
           sceneMetrics={sceneMetrics}
         />
         <ambientLight intensity={0.65} />
-        <directionalLight position={[1, -1, 2]} intensity={1.4} />
-        <directionalLight position={[-1, 1, 0.5]} intensity={0.5} color="#7ecce5" />
-        <SceneGrid size={sceneMetrics.sceneGridSize} />
-        <SceneAxes size={sceneMetrics.sceneAxesSize} />
+        <directionalLight position={[1, -1, 2]} intensity={1.2} />
+        <directionalLight position={[-1, 1, 0.5]} intensity={0.4} color="#9fb6d3" />
+
+        {visibility.grid && <SceneGrid size={sceneMetrics.sceneGridSize} />}
+        {visibility.axes && <SceneAxes size={sceneMetrics.sceneAxesSize} />}
+
         <OrbitControls
           ref={controlsRef}
           makeDefault
@@ -101,7 +152,16 @@ export function Viewport3D() {
           members={model.members}
           nodesById={nodeById}
           profilesById={profilesById}
-          visible={visibility.members}
+          visible={visibility.members && viewMode !== 'real' && viewMode !== 'stress-map'}
+          pickRadius={Math.max(sceneMetrics.sceneNodeRadius * 1.35, sceneMetrics.sceneLongestSide * 0.012)}
+        />
+        <MemberRealMeshes
+          members={model.members}
+          nodesById={nodeById}
+          profilesById={profilesById}
+          visible={visibility.members && (viewMode === 'real' || viewMode === 'stress-map')}
+          pickRadius={Math.max(sceneMetrics.sceneNodeRadius * 1.35, sceneMetrics.sceneLongestSide * 0.012)}
+          resolveMemberColor={resolveStressMemberColor}
         />
         <NodePoints
           nodes={model.nodes}
@@ -120,84 +180,49 @@ export function Viewport3D() {
           membersById={membersById}
           visible={visibility.loads}
           sceneLongestSide={sceneMetrics.sceneLongestSide}
+          units={model.units}
         />
         <MomentVectors
           loadCase={activeLoadCase}
           nodesById={nodeById}
           membersById={membersById}
-          visible={visibility.moments}
+          visible={visibility.loads && visibility.moments}
           sceneLongestSide={sceneMetrics.sceneLongestSide}
         />
       </Canvas>
-
-      <Stack
-        spacing={1}
-        sx={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
-          maxWidth: 360,
-          pointerEvents: 'none',
-        }}
-      >
-        <Box
-          sx={{
-            px: 1.5,
-            py: 1.25,
-            borderRadius: 2,
-            border: '1px solid',
-            borderColor: 'divider',
-            bgcolor: 'rgba(8, 12, 18, 0.74)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <Typography variant="overline" color="text.secondary">
-            Viewport
-          </Typography>
-          <Typography variant="subtitle1">Z-up scene scaffold</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Current mode: {viewMode}. Loads, moments, and restraints use the canonical model state.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Chip size="small" label={`Center: ${Math.round(modelCenter.x)}, ${Math.round(modelCenter.y)}, ${Math.round(modelCenter.z)}`} />
-          <Chip size="small" label={`Span: ${Math.round(sceneMetrics.modelLongestSideMm)} mm`} />
-          <Chip size="small" label="Scale: 0.001" />
-          <Chip size="small" label="Axis: Z up" />
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, pointerEvents: 'auto' }}>
-          <Button
-            size="small"
-            variant="contained"
-            disabled={sceneMetrics.modelBounds == null}
-            onClick={() => {
-              setFitRequestVersion((version) => version + 1);
-            }}
-          >
-            Fit
-          </Button>
-        </Box>
-      </Stack>
+      {isStressMapMode && activeStressMapState != null && (
+        <StressMapLegend
+          visible
+          metricKind={activeStressMapState.range.kind}
+          min={activeStressMapState.range.min}
+          max={activeStressMapState.range.max}
+        />
+      )}
     </Paper>
   );
 }
 
 interface ViewportFitControllerProps {
   controlsRef: RefObject<OrbitControlsImpl | null>;
-  fitRequestVersion: number;
+  fitRequestNonce: number;
   sceneMetrics: ViewportSceneMetrics;
 }
 
 function ViewportFitController({
   controlsRef,
-  fitRequestVersion,
+  fitRequestNonce,
   sceneMetrics,
 }: ViewportFitControllerProps) {
   const size = useThree((state) => state.size);
+  const lastAppliedFitNonceRef = useRef<number>(fitRequestNonce);
 
   useEffect(() => {
+    if (fitRequestNonce === lastAppliedFitNonceRef.current) {
+      return;
+    }
+
+    lastAppliedFitNonceRef.current = fitRequestNonce;
+
     const controls = controlsRef.current;
 
     if (!sceneMetrics.modelBounds || !controls) {
@@ -231,13 +256,7 @@ function ViewportFitController({
 
     controls.target.copy(target);
     controls.update();
-  }, [
-    controlsRef,
-    fitRequestVersion,
-    sceneMetrics,
-    size.height,
-    size.width,
-  ]);
+  }, [controlsRef, fitRequestNonce, sceneMetrics, size.height, size.width]);
 
   return null;
 }

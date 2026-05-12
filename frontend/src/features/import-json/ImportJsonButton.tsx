@@ -1,9 +1,11 @@
-import type { ChangeEvent, SyntheticEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
-import { Alert, AlertTitle, Button, Snackbar, Stack, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
+import { useI18n, type I18nKey, type TFunction } from '../../shared/i18n';
+import { notify } from '../../shared/ui';
 import { importGridEngJsonFile, type GridEngJsonImportStatus } from './importGridEngJson';
 
 interface ImportFeedback {
@@ -12,11 +14,9 @@ interface ImportFeedback {
   details: string[];
 }
 
-const MAX_DETAILS_IN_ALERT = 3;
-
 export function ImportJsonButton() {
+  const { t } = useI18n();
   const setModel = useModelStore((state) => state.setModel);
-  const [feedback, setFeedback] = useState<ImportFeedback | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -36,84 +36,68 @@ export function ImportJsonButton() {
         setModel(result.model);
       }
 
-      setFeedback({
-        severity: result.status,
-        title: buildFeedbackTitle(result.status, file.name),
+      const feedback = buildFeedback({
+        t,
+        fileName: file.name,
+        status: result.status,
         details: result.details.length > 0 ? result.details : [result.message],
+      });
+
+      notify({
+        severity: feedback.severity,
+        title: feedback.title,
+        details: feedback.details,
       });
     } finally {
       setIsImporting(false);
     }
   }
 
-  function handleClose(_event?: Event | SyntheticEvent, reason?: string) {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setFeedback(null);
-  }
-
-  const visibleDetails = feedback?.details.slice(0, MAX_DETAILS_IN_ALERT) ?? [];
-  const hiddenDetailsCount = feedback ? Math.max(0, feedback.details.length - MAX_DETAILS_IN_ALERT) : 0;
-
   return (
-    <>
-      <Button component="label" variant="outlined" disabled={isImporting}>
-        {isImporting ? 'Importing...' : 'Import JSON'}
-        <input
-          hidden
-          type="file"
-          accept=".json,application/json"
-          onChange={(event) => {
-            void handleFileChange(event);
-          }}
-        />
-      </Button>
-
-      <Snackbar
-        open={feedback != null}
-        autoHideDuration={feedback?.severity === 'error' ? 9000 : 7000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
-          severity={feedback?.severity ?? 'success'}
-          variant="filled"
-          onClose={handleClose}
-          sx={{ width: '100%', maxWidth: 560 }}
-        >
-          {feedback && (
-            <>
-              <AlertTitle>{feedback.title}</AlertTitle>
-              <Stack spacing={0.5}>
-                {visibleDetails.map((detail) => (
-                  <Typography key={detail} variant="body2">
-                    {detail}
-                  </Typography>
-                ))}
-                {hiddenDetailsCount > 0 && (
-                  <Typography variant="body2">
-                    ... and {hiddenDetailsCount} more.
-                  </Typography>
-                )}
-              </Stack>
-            </>
-          )}
-        </Alert>
-      </Snackbar>
-    </>
+    <Button component="label" variant="outlined" disabled={isImporting}>
+      {isImporting ? t('importJson.importing') : t('importJson.button')}
+      <input
+        hidden
+        type="file"
+        accept=".json,application/json"
+        onChange={(event) => {
+          void handleFileChange(event);
+        }}
+      />
+    </Button>
   );
 }
 
-function buildFeedbackTitle(status: GridEngJsonImportStatus, fileName: string): string {
+function buildFeedback({
+  t,
+  fileName,
+  status,
+  details,
+}: {
+  t: TFunction<I18nKey>;
+  fileName: string;
+  status: GridEngJsonImportStatus;
+  details: string[];
+}): ImportFeedback {
   if (status === 'error') {
-    return `Import failed: ${fileName}`;
+    return {
+      severity: 'error',
+      title: t('importJson.feedback.errorTitle', { fileName }),
+      details,
+    };
   }
 
   if (status === 'warning') {
-    return `Imported with warnings: ${fileName}`;
+    return {
+      severity: 'warning',
+      title: t('importJson.feedback.warningTitle', { fileName }),
+      details,
+    };
   }
 
-  return `Imported: ${fileName}`;
+  return {
+    severity: 'success',
+    title: t('importJson.feedback.successTitle', { fileName }),
+    details: details.length > 0 ? details : [t('importJson.feedback.successDetail')],
+  };
 }

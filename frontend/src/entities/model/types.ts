@@ -1,3 +1,5 @@
+import type { AnalysisResults } from './results';
+
 export type Id = string;
 
 export type LengthUnit = 'mm' | 'm';
@@ -257,30 +259,6 @@ export interface DxfImportMeta {
   warnings: string[];
 }
 
-export interface AnalysisResults {
-  loadCaseId: Id;
-  nodeDisplacements: Record<Id, {
-    ux: number;
-    uy: number;
-    uz: number;
-    rx: number;
-    ry: number;
-    rz: number;
-  }>;
-  memberForces: Record<Id, {
-    n?: number;
-    qy?: number;
-    qz?: number;
-    mx?: number;
-    my?: number;
-    mz?: number;
-  }>;
-  memberStresses: Record<Id, {
-    sigmaMaxMPa: number;
-    utilization?: number;
-  }>;
-}
-
 export interface GridEngModel {
   schemaVersion: '0.2';
   name: string;
@@ -299,5 +277,5 @@ export interface GridEngModel {
     dxf?: DxfImportMeta;
   };
 
-  results?: AnalysisResults;
+  results?: AnalysisResults[];
 }

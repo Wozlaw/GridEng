@@ -2,301 +2,58 @@ import { create } from 'zustand';
 
 import {
   createSampleTowerSegmentModel,
-  normalizeVec3,
-  validateGridEngModelIntegrity,
   type GridEngModel,
-  type Id,
   type Load,
-  type LoadCase,
   type Member,
   type MemberDistributedLoad,
-  type ModelValidationResult,
   type NodalConcentratedLoad,
   type Restraint,
-  type Vec3,
-  type WindLoadDefinition,
 } from '../../entities/model';
+import { EMPTY_SELECTION } from '../../features/selection';
+import { DEFAULT_VISIBILITY, normalizeViewMode } from '../../features/view-modes';
 import {
-  EMPTY_SELECTION,
-  type LoadSelection,
-  type RestraintSelection,
-  type SelectedEntity,
-} from '../../features/selection';
-import { DEFAULT_VISIBILITY, type ViewMode, type VisibilityState } from '../../features/view-modes';
-
-export interface DxfImportSettingsState {
-  toleranceMm: number;
-  centerOnXY: boolean;
-  force2DToXY: boolean;
-}
-
-export type RestraintPreset = 'free' | 'hinge' | 'fixed' | 'custom';
-
-export type StoreActionResult =
-  | { ok: true }
-  | { ok: false; error: string };
-
-export type RestraintPatch = Partial<Omit<Restraint, 'id' | 'nodeId'>>;
-export type MemberGeometryOverridesPatch = Partial<
-  Pick<Member, 'localAxisRotationDeg' | 'offsetYmm' | 'offsetZmm'>
->;
-export type LoadCasePatch = Partial<Pick<LoadCase, 'name' | 'comment'>>;
-export type LoadUpdatePatch = Partial<{
-  name: string;
-  comment: string | undefined;
-  kind: Load['kind'];
-  coordinateSystem: Load['coordinateSystem'];
-  direction: Vec3;
-  magnitude: number;
-  target: Load['target'];
-  distribution: MemberDistributedLoad['distribution'];
-}>;
-export type WindLoadPatch = Partial<WindLoadDefinition>;
-
-export interface NodalConcentratedLoadInput {
-  id?: Id;
-  name: string;
-  comment?: string;
-  kind: NodalConcentratedLoad['kind'];
-  coordinateSystem?: NodalConcentratedLoad['coordinateSystem'];
-  direction: Vec3;
-  targetNodeId: Id;
-  magnitude: number;
-}
-
-export interface MemberDistributedLoadInput {
-  id?: Id;
-  name: string;
-  comment?: string;
-  kind: MemberDistributedLoad['kind'];
-  coordinateSystem?: MemberDistributedLoad['coordinateSystem'];
-  direction: Vec3;
-  targetMemberId: Id;
-  distribution: MemberDistributedLoad['distribution'];
-}
-
-export interface ModelStoreState {
-  model: GridEngModel;
-  validationReport: ModelValidationResult;
-  selectedEntity: SelectedEntity;
-  viewMode: ViewMode;
-  visibility: VisibilityState;
-  dxfImportSettings: DxfImportSettingsState;
-  setModel: (model: GridEngModel) => void;
-  validateModel: () => void;
-  selectEntity: (selectedEntity: SelectedEntity) => void;
-  selectLoad: (loadCaseId: Id, loadId: Id) => void;
-  selectRestraint: (restraintId: Id) => void;
-  clearSelection: () => void;
-  getSelectedNode: () => GridEngModel['nodes'][number] | undefined;
-  getSelectedMember: () => GridEngModel['members'][number] | undefined;
-  getSelectedLoadCase: () => GridEngModel['loadCases'][number] | undefined;
-  getSelectedLoad: () => Load | undefined;
-  getSelectedRestraint: () => Restraint | undefined;
-  getSelectedRestraintNode: () => GridEngModel['nodes'][number] | undefined;
-  setViewMode: (viewMode: ViewMode) => void;
-  setVisibility: (visibility: Partial<VisibilityState>) => void;
-  updateDxfImportSettings: (settings: Partial<DxfImportSettingsState>) => void;
-  updateNodeLabel: (nodeId: Id, label: string | undefined) => StoreActionResult;
-  updateNodePosition: (nodeId: Id, position: Vec3) => StoreActionResult;
-  updateNodeComment: (nodeId: Id, comment: string | undefined) => StoreActionResult;
-  updateMemberProfile: (memberId: Id, profileId: Id) => StoreActionResult;
-  updateMemberMaterial: (memberId: Id, materialId: Id) => StoreActionResult;
-  updateMemberGeometryOverrides: (
-    memberId: Id,
-    patch: MemberGeometryOverridesPatch,
-  ) => StoreActionResult;
-  updateMemberComment: (memberId: Id, comment: string | undefined) => StoreActionResult;
-  upsertNodeRestraint: (nodeId: Id, patch: RestraintPatch) => StoreActionResult;
-  deleteNodeRestraint: (nodeId: Id) => StoreActionResult;
-  applyRestraintPreset: (nodeId: Id, preset: RestraintPreset) => StoreActionResult;
-  addNodalConcentratedLoad: (
-    loadCaseId: Id,
-    payload: NodalConcentratedLoadInput,
-  ) => StoreActionResult;
-  addMemberDistributedLoad: (
-    loadCaseId: Id,
-    payload: MemberDistributedLoadInput,
-  ) => StoreActionResult;
-  updateLoad: (loadCaseId: Id, loadId: Id, patch: LoadUpdatePatch) => StoreActionResult;
-  deleteLoad: (loadCaseId: Id, loadId: Id) => StoreActionResult;
-  updateLoadCase: (loadCaseId: Id, patch: LoadCasePatch) => StoreActionResult;
-  updateLoadComment: (loadCaseId: Id, loadId: Id, comment: string | undefined) => StoreActionResult;
-  updateLoadCaseWind: (loadCaseId: Id, windPatch: WindLoadPatch) => StoreActionResult;
-  resetToSampleModel: () => void;
-}
-
-const ACTION_SUCCESS: StoreActionResult = { ok: true };
-
-function createValidationReport(model: GridEngModel): ModelValidationResult {
-  return validateGridEngModelIntegrity(model);
-}
-
-function createDxfImportSettings(model: GridEngModel): DxfImportSettingsState {
-  return {
-    toleranceMm: model.settings.nodeMergeToleranceMm,
-    centerOnXY: model.settings.centerModelByXYProjection,
-    force2DToXY: true,
-  };
-}
-
-function normalizeOptionalText(value: string | undefined): string | undefined {
-  const trimmed = value?.trim();
-  return trimmed && trimmed.length > 0 ? trimmed : undefined;
-}
-
-function normalizeRequiredText(value: string, fieldName: string): string | StoreActionResult {
-  const trimmed = value.trim();
-
-  if (trimmed.length === 0) {
-    return actionFailure(`${fieldName} should not be empty.`);
-  }
-
-  return trimmed;
-}
-
-function actionFailure(message: string): StoreActionResult {
-  console.warn(`[modelStore] ${message}`);
-  return { ok: false, error: message };
-}
-
-function findNode(model: GridEngModel, nodeId: Id) {
-  return model.nodes.find((node) => node.id === nodeId);
-}
-
-function findMember(model: GridEngModel, memberId: Id) {
-  return model.members.find((member) => member.id === memberId);
-}
-
-function findProfile(model: GridEngModel, profileId: Id) {
-  return model.profiles.find((profile) => profile.id === profileId);
-}
-
-function findMaterial(model: GridEngModel, materialId: Id) {
-  return model.materials.find((material) => material.id === materialId);
-}
-
-function findLoadCase(model: GridEngModel, loadCaseId: Id) {
-  return model.loadCases.find((loadCase) => loadCase.id === loadCaseId);
-}
-
-function findLoadCaseIndex(model: GridEngModel, loadCaseId: Id): number {
-  return model.loadCases.findIndex((loadCase) => loadCase.id === loadCaseId);
-}
-
-function findLoadSelection(
-  model: GridEngModel,
-  loadCaseId: Id,
-  loadId: Id,
-): { loadCase: LoadCase; load: Load } | undefined {
-  const loadCase = findLoadCase(model, loadCaseId);
-  if (loadCase == null) {
-    return undefined;
-  }
-
-  const load = loadCase.loads.find((candidate) => candidate.id === loadId);
-  return load == null ? undefined : { loadCase, load };
-}
-
-function findRestraintById(model: GridEngModel, restraintId: Id) {
-  return model.restraints.find((restraint) => restraint.id === restraintId);
-}
-
-function findRestraintByNodeId(model: GridEngModel, nodeId: Id) {
-  return model.restraints.find((restraint) => restraint.nodeId === nodeId);
-}
-
-function normalizeRequiredDirection(direction: Vec3): Vec3 | StoreActionResult {
-  const normalized = normalizeVec3(direction);
-  return normalized ?? actionFailure('Load direction should be a non-zero vector.');
-}
-
-function normalizeWindDirection(direction: Vec3): Vec3 {
-  const normalized = normalizeVec3(direction);
-  return normalized ?? { x: 0, y: 0, z: 0 };
-}
-
-function sanitizeSelection(selectedEntity: SelectedEntity, model: GridEngModel): SelectedEntity {
-  switch (selectedEntity.type) {
-    case 'node':
-      return findNode(model, selectedEntity.id) != null ? selectedEntity : EMPTY_SELECTION;
-    case 'member':
-      return findMember(model, selectedEntity.id) != null ? selectedEntity : EMPTY_SELECTION;
-    case 'profile':
-      return findProfile(model, selectedEntity.id) != null ? selectedEntity : EMPTY_SELECTION;
-    case 'material':
-      return findMaterial(model, selectedEntity.id) != null ? selectedEntity : EMPTY_SELECTION;
-    case 'loadCase':
-      return findLoadCase(model, selectedEntity.id) != null ? selectedEntity : EMPTY_SELECTION;
-    case 'load':
-      return findLoadSelection(model, selectedEntity.loadCaseId, selectedEntity.loadId) != null
-        ? selectedEntity
-        : EMPTY_SELECTION;
-    case 'restraint': {
-      const restraint = findRestraintById(model, selectedEntity.restraintId);
-      return restraint == null
-        ? EMPTY_SELECTION
-        : {
-          type: 'restraint',
-          restraintId: restraint.id,
-          nodeId: restraint.nodeId,
-        };
-    }
-    default:
-      return EMPTY_SELECTION;
-  }
-}
-
-function createSequentialId(prefix: string, ids: Id[]): Id {
-  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(`^${escapedPrefix}(\\d+)$`);
-  let maxIndex = 0;
-
-  for (const id of ids) {
-    const match = pattern.exec(id);
-    if (match == null) {
-      continue;
-    }
-
-    const index = Number.parseInt(match[1], 10);
-    if (Number.isFinite(index)) {
-      maxIndex = Math.max(maxIndex, index);
-    }
-  }
-
-  return `${prefix}${maxIndex + 1}`;
-}
-
-function buildLoadSelection(model: GridEngModel, loadCaseId: Id, loadId: Id): LoadSelection | null {
-  return findLoadSelection(model, loadCaseId, loadId) == null
-    ? null
-    : {
-      type: 'load',
-      loadCaseId,
-      loadId,
-    };
-}
-
-function buildRestraintSelection(model: GridEngModel, restraintId: Id): RestraintSelection | null {
-  const restraint = findRestraintById(model, restraintId);
-
-  return restraint == null
-    ? null
-    : {
-      type: 'restraint',
-      restraintId: restraint.id,
-      nodeId: restraint.nodeId,
-    };
-}
+  ACTION_SUCCESS,
+  actionFailure,
+  buildLoadSelection,
+  buildRestraintSelection,
+  createDxfImportSettings,
+  createSequentialId,
+  createValidationReport,
+  findLoadCase,
+  findLoadCaseIndex,
+  findLoadSelection,
+  findMaterial,
+  findMember,
+  findNode,
+  findProfile,
+  findRestraintById,
+  findRestraintByNodeId,
+  normalizeOptionalText,
+  normalizeRequiredDirection,
+  normalizeRequiredText,
+  normalizeWindDirection,
+  sanitizeSelection,
+} from './modelStore.helpers';
+import type {
+  DxfImportSettingsState,
+  ModelStoreState,
+  StoreActionResult,
+} from './modelStore.types';
 
 export const useModelStore = create<ModelStoreState>((set, get) => {
   const initialModel = createSampleTowerSegmentModel();
 
-  const commitModel = (nextModel: GridEngModel): StoreActionResult => {
+  const commitModel = (
+    nextModel: GridEngModel,
+    options?: { dxfImportSettings?: DxfImportSettingsState },
+  ): StoreActionResult => {
     set((state) => ({
       model: nextModel,
       validationReport: createValidationReport(nextModel),
       selectedEntity: sanitizeSelection(state.selectedEntity, nextModel),
+      ...(options?.dxfImportSettings != null
+        ? { dxfImportSettings: options.dxfImportSettings }
+        : {}),
     }));
 
     return ACTION_SUCCESS;
@@ -308,6 +65,7 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
     selectedEntity: EMPTY_SELECTION,
     viewMode: 'wireframe',
     visibility: { ...DEFAULT_VISIBILITY },
+    fitRequestNonce: 0,
     dxfImportSettings: createDxfImportSettings(initialModel),
     setModel: (model) =>
       set({
@@ -329,7 +87,6 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
         const selection = buildLoadSelection(state.model, loadCaseId, loadId);
 
         if (selection == null) {
-          console.warn(`[modelStore] Load ${loadId} in load case ${loadCaseId} does not exist.`);
           return { selectedEntity: EMPTY_SELECTION };
         }
 
@@ -340,7 +97,6 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
         const selection = buildRestraintSelection(state.model, restraintId);
 
         if (selection == null) {
-          console.warn(`[modelStore] Restraint ${restraintId} does not exist.`);
           return { selectedEntity: EMPTY_SELECTION };
         }
 
@@ -388,13 +144,17 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
       const selectedRestraint = get().getSelectedRestraint();
       return selectedRestraint == null ? undefined : findNode(model, selectedRestraint.nodeId);
     },
-    setViewMode: (viewMode) => set({ viewMode }),
+    setViewMode: (viewMode) => set({ viewMode: normalizeViewMode(viewMode) }),
     setVisibility: (visibility) =>
       set((state) => ({
         visibility: {
           ...state.visibility,
           ...visibility,
         },
+      })),
+    requestFitToModel: () =>
+      set((state) => ({
+        fitRequestNonce: state.fitRequestNonce + 1,
       })),
     updateDxfImportSettings: (settings) =>
       set((state) => ({
@@ -403,6 +163,37 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
           ...settings,
         },
       })),
+    updateModelSettings: (patch) => {
+      const { model, dxfImportSettings } = get();
+
+      if ('nodeMergeToleranceMm' in patch) {
+        const toleranceMm = patch.nodeMergeToleranceMm;
+
+        if (toleranceMm == null || !Number.isFinite(toleranceMm) || toleranceMm <= 0) {
+          return actionFailure('nodeMergeToleranceMm should be a positive finite number.');
+        }
+      }
+
+      const nextModel: GridEngModel = {
+        ...model,
+        settings: {
+          ...model.settings,
+          ...patch,
+        },
+      };
+
+      return commitModel(nextModel, {
+        dxfImportSettings: {
+          ...dxfImportSettings,
+          ...('nodeMergeToleranceMm' in patch && patch.nodeMergeToleranceMm != null
+            ? { toleranceMm: patch.nodeMergeToleranceMm }
+            : {}),
+          ...('centerModelByXYProjection' in patch && patch.centerModelByXYProjection != null
+            ? { centerOnXY: patch.centerModelByXYProjection }
+            : {}),
+        },
+      });
+    },
     updateNodeLabel: (nodeId, label) => {
       const { model } = get();
       if (findNode(model, nodeId) == null) {
@@ -747,6 +538,68 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
 
       let nextLoad: Load = { ...selection.load };
 
+      if ('type' in patch && patch.type != null && patch.type !== selection.load.type) {
+        if (patch.type === 'nodal_concentrated') {
+          const targetNodeId = patch.target?.type === 'node'
+            ? patch.target.nodeId
+            : model.nodes[0]?.id;
+
+          if (targetNodeId == null || findNode(model, targetNodeId) == null) {
+            return actionFailure('Cannot switch load to nodal: target node is missing.');
+          }
+
+          nextLoad = {
+            id: selection.load.id,
+            type: 'nodal_concentrated',
+            name: selection.load.name,
+            comment: selection.load.comment,
+            kind: selection.load.kind,
+            coordinateSystem: selection.load.coordinateSystem,
+            direction: selection.load.direction,
+            target: {
+              type: 'node',
+              nodeId: targetNodeId,
+            },
+            magnitude: selection.load.type === 'nodal_concentrated'
+              ? selection.load.magnitude
+              : selection.load.distribution.type === 'linear'
+                ? selection.load.distribution.qStart
+                : 0,
+          };
+        } else {
+          const targetMemberId = patch.target?.type === 'member'
+            ? patch.target.memberId
+            : model.members[0]?.id;
+
+          if (targetMemberId == null || findMember(model, targetMemberId) == null) {
+            return actionFailure('Cannot switch load to distributed: target member is missing.');
+          }
+
+          nextLoad = {
+            id: selection.load.id,
+            type: 'member_distributed',
+            name: selection.load.name,
+            comment: selection.load.comment,
+            kind: selection.load.kind,
+            coordinateSystem: selection.load.coordinateSystem,
+            direction: selection.load.direction,
+            target: {
+              type: 'member',
+              memberId: targetMemberId,
+            },
+            distribution: selection.load.type === 'member_distributed'
+              ? selection.load.distribution
+              : {
+                type: 'linear',
+                qStart: selection.load.magnitude,
+                qEnd: selection.load.magnitude,
+                xStartRel: 0,
+                xEndRel: 1,
+              },
+          };
+        }
+      }
+
       if ('name' in patch && patch.name != null) {
         const normalizedName = normalizeRequiredText(patch.name, 'Load name');
         if (typeof normalizedName !== 'string') {
@@ -879,7 +732,7 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
         return actionFailure(`Load case ${loadCaseId} does not exist.`);
       }
 
-      const nextWind: WindLoadDefinition = {
+      const nextWind: GridEngModel['loadCases'][number]['wind'] = {
         ...existing.wind,
         ...windPatch,
         ...(windPatch.direction != null

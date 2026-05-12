@@ -42,7 +42,7 @@
    - console help/settings/lang/debug;
    - Alert для ошибок/служебных сообщений.
 4. Если в проекте есть tests — добавить минимальные тесты на migration/helpers/validation. Если тестовой инфраструктуры frontend нет, не внедрять тяжелую инфраструктуру без отдельного задания; вместо этого добавить clear manual checklist.
-5. Обновить `codex/IMPLEMENTATION_PLAN.md` или добавить `codex/docs/ITERATION_AFTER_09_02.md`, чтобы было видно, что старые 10.x real-view задачи отложены/перенумерованы после этой UI/model итерации.
+5. Обновить `codex/IMPLEMENTATION_PLAN.md`, чтобы было видно, что старые 10.x real-view задачи отложены/перенумерованы после этой UI/model итерации.
 
 ## Проверка
 

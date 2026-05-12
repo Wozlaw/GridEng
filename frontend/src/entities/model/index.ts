@@ -1,4 +1,5 @@
 export * from './types';
+export * from './results';
 export * from './schema';
 export * from './defaults';
 export * from './geometry';

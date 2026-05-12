@@ -3,12 +3,21 @@ import {
   type BoundingBox3D,
   type GridEngModel,
   type Load,
+  type Member,
   type Vec3,
 } from '../../entities/model';
 
 export const MODEL_TO_SCENE_SCALE = 0.001;
 
 export type ScenePoint3 = [number, number, number];
+
+export interface SceneSegment3 {
+  start: ScenePoint3;
+  end: ScenePoint3;
+  midpoint: ScenePoint3;
+  direction: ScenePoint3;
+  length: number;
+}
 
 export interface ViewportSceneMetrics {
   modelBounds: BoundingBox3D | null;
@@ -35,6 +44,61 @@ export function modelPositionToScene(position: Vec3): ScenePoint3 {
   ];
 }
 
+export function interpolateModelPosition(start: Vec3, end: Vec3, t: number): Vec3 {
+  return {
+    x: start.x + (end.x - start.x) * t,
+    y: start.y + (end.y - start.y) * t,
+    z: start.z + (end.z - start.z) * t,
+  };
+}
+
+export function interpolateScenePoint(start: ScenePoint3, end: ScenePoint3, t: number): ScenePoint3 {
+  return [
+    start[0] + (end[0] - start[0]) * t,
+    start[1] + (end[1] - start[1]) * t,
+    start[2] + (end[2] - start[2]) * t,
+  ];
+}
+
+export function clampRelativePosition(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.min(1, Math.max(0, value));
+}
+
+export function getMemberSceneSegment(
+  member: Member,
+  nodesById: Map<string, GridEngModel['nodes'][number]>,
+): SceneSegment3 | null {
+  const startNode = nodesById.get(member.startNodeId);
+  const endNode = nodesById.get(member.endNodeId);
+
+  if (startNode == null || endNode == null) {
+    return null;
+  }
+
+  const start = modelPositionToScene(startNode.position);
+  const end = modelPositionToScene(endNode.position);
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+  const dz = end[2] - start[2];
+  const length = Math.hypot(dx, dy, dz);
+
+  if (length <= 1e-9) {
+    return null;
+  }
+
+  return {
+    start,
+    end,
+    midpoint: interpolateScenePoint(start, end, 0.5),
+    direction: [dx / length, dy / length, dz / length],
+    length,
+  };
+}
+
 export function getLoadAnchorPosition(
   load: Load,
   nodesById: Map<string, GridEngModel['nodes'][number]>,
@@ -53,6 +117,14 @@ export function getLoadAnchorPosition(
   const endNode = nodesById.get(member.endNodeId);
   if (startNode == null || endNode == null) {
     return null;
+  }
+
+  if (load.type === 'member_distributed' && load.distribution.type === 'linear') {
+    const xStartRel = clampRelativePosition(load.distribution.xStartRel ?? 0);
+    const xEndRel = clampRelativePosition(load.distribution.xEndRel ?? 1);
+    const anchorRel = (xStartRel + xEndRel) / 2;
+
+    return interpolateModelPosition(startNode.position, endNode.position, anchorRel);
   }
 
   return {
