@@ -1,6 +1,6 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
-import { Line, Text } from '@react-three/drei';
+import { Line } from '@react-three/drei';
 import { Quaternion, Vector3 } from 'three';
 
 import { useModelStore, useUiStore } from '../../app/store';
@@ -14,16 +14,16 @@ import {
 import { isSelectedLoad } from '../../features/selection';
 import { translate } from '../../shared/i18n';
 import { notifyWarning } from '../../shared/ui';
-import { formatNumber } from '../../shared/utils';
+import { formatNumber } from '../../shared/utils/format';
 import {
   clampRelativePosition,
   getLoadAnchorPosition,
   getMemberSceneSegment,
   interpolateScenePoint,
   modelPositionToScene,
-  scaleModelLengthMm,
   type ScenePoint3,
 } from './modelToScene';
+import { SCENE_LABEL_FONT_SIZE, SceneUprightLabel } from './SceneUprightLabel';
 
 const FORCE_COLOR = '#ffd166';
 const SELECTED_FORCE_COLOR = '#f4bf61';
@@ -43,8 +43,9 @@ interface LoadVectorsProps {
   nodesById: Map<string, GridEngModel['nodes'][number]>;
   membersById: Map<string, GridEngModel['members'][number]>;
   visible: boolean;
-  sceneLongestSide: number;
+  showLabels: boolean;
   units: UnitSystem;
+  sceneLongestSide: number;
 }
 
 interface ForceArrowGlyph {
@@ -56,6 +57,8 @@ interface ForceArrowGlyph {
   headRadius: number;
   headLength: number;
   anchorPosition: ScenePoint3;
+  label: string;
+  labelPosition: ScenePoint3;
 }
 
 interface DistributedArrowGlyph {
@@ -85,19 +88,20 @@ export function LoadVectors({
   nodesById,
   membersById,
   visible,
-  sceneLongestSide,
+  showLabels,
   units,
+  sceneLongestSide,
 }: LoadVectorsProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
   const selectLoad = useModelStore((state) => state.selectLoad);
   const language = useUiStore((state) => state.language);
   const warningRef = useRef<Set<string>>(new Set());
   const nodalForceGlyphs = useMemo(
-    () => buildNodalForceGlyphs(loadCase, nodesById, membersById, sceneLongestSide),
-    [loadCase, membersById, nodesById, sceneLongestSide],
+    () => buildNodalForceGlyphs(loadCase, nodesById, membersById, units, sceneLongestSide),
+    [loadCase, membersById, nodesById, sceneLongestSide, units],
   );
   const distributedForceGlyphs = useMemo(
-    () => buildDistributedForceGlyphs(loadCase, nodesById, membersById, sceneLongestSide, units),
+    () => buildDistributedForceGlyphs(loadCase, nodesById, membersById, units, sceneLongestSide),
     [loadCase, membersById, nodesById, sceneLongestSide, units],
   );
   const unsupportedFunctionLoads = useMemo(
@@ -106,6 +110,7 @@ export function LoadVectors({
     ),
     [loadCase],
   );
+
   useEffect(() => {
     if (!visible) {
       return;
@@ -170,6 +175,14 @@ export function LoadVectors({
                 />
               </mesh>
             )}
+            {showLabels && (
+              <SceneUprightLabel
+                position={glyph.labelPosition}
+                text={glyph.label}
+                color={color}
+                fontSize={SCENE_LABEL_FONT_SIZE}
+              />
+            )}
           </group>
         );
       })}
@@ -229,26 +242,22 @@ export function LoadVectors({
               </group>
             ))}
 
-            <Suspense fallback={null}>
-              <Text
-                position={glyph.startLabelPosition}
-                fontSize={0.11}
-                color={color}
-                anchorX="center"
-                anchorY="middle"
-              >
-                {glyph.startLabel}
-              </Text>
-              <Text
-                position={glyph.endLabelPosition}
-                fontSize={0.11}
-                color={color}
-                anchorX="center"
-                anchorY="middle"
-              >
-                {glyph.endLabel}
-              </Text>
-            </Suspense>
+            {showLabels && (
+              <>
+                <SceneUprightLabel
+                  position={glyph.startLabelPosition}
+                  text={glyph.startLabel}
+                  color={color}
+                  fontSize={SCENE_LABEL_FONT_SIZE}
+                />
+                <SceneUprightLabel
+                  position={glyph.endLabelPosition}
+                  text={glyph.endLabel}
+                  color={color}
+                  fontSize={SCENE_LABEL_FONT_SIZE}
+                />
+              </>
+            )}
           </group>
         );
       })}
@@ -260,6 +269,7 @@ function buildNodalForceGlyphs(
   loadCase: GridEngModel['loadCases'][number] | undefined,
   nodesById: Map<string, GridEngModel['nodes'][number]>,
   membersById: Map<string, GridEngModel['members'][number]>,
+  units: UnitSystem,
   sceneLongestSide: number,
 ): ForceArrowGlyph[] {
   const loads = (loadCase?.loads ?? []).filter(
@@ -292,11 +302,14 @@ function buildNodalForceGlyphs(
       const arrowLength = maxArrowLength * Math.max(normalizedMagnitude, MIN_FORCE_RATIO);
       const headLength = Math.min(Math.max(arrowLength * 0.22, 0.08), maxArrowLength * 0.28);
       const headRadius = Math.max(headLength * 0.3, 0.03);
+      const unitsLabel = getLoadUnits(load, units);
 
       const origin = new Vector3(...modelPositionToScene(anchor));
       const tip = origin.clone().addScaledVector(direction, arrowLength);
       const shaftEnd = tip.clone().addScaledVector(direction, -headLength * 0.72);
       const headCenter = tip.clone().addScaledVector(direction, -headLength / 2);
+      const labelOffsetZ = SCENE_LABEL_FONT_SIZE * 0.8 * (direction.z >= -1e-6 ? 1 : -1);
+      const labelPosition = tip.clone().add(new Vector3(0, 0, labelOffsetZ));
 
       return {
         id: load.id,
@@ -310,6 +323,8 @@ function buildNodalForceGlyphs(
         headRadius,
         headLength,
         anchorPosition: [origin.x, origin.y, origin.z],
+        label: `${formatNumber(load.magnitude, 2)} ${unitsLabel}`,
+        labelPosition: [labelPosition.x, labelPosition.y, labelPosition.z],
       };
     })
     .filter((glyph): glyph is ForceArrowGlyph => glyph != null);
@@ -319,8 +334,8 @@ function buildDistributedForceGlyphs(
   loadCase: GridEngModel['loadCases'][number] | undefined,
   nodesById: Map<string, GridEngModel['nodes'][number]>,
   membersById: Map<string, GridEngModel['members'][number]>,
-  sceneLongestSide: number,
   units: UnitSystem,
+  sceneLongestSide: number,
 ): DistributedLoadGlyph[] {
   const loads = (loadCase?.loads ?? []).filter(
     (load): load is LinearDistributedForceLoad =>
@@ -407,30 +422,21 @@ function buildDistributedForceGlyphs(
           headLength,
         };
       }).filter((arrow): arrow is DistributedArrowGlyph => arrow != null);
-
-      const startLabelDirection = directionVector
-        .clone()
-        .multiplyScalar(load.distribution.qStart >= 0 ? 1 : -1);
-      const endLabelDirection = directionVector
-        .clone()
-        .multiplyScalar(load.distribution.qEnd >= 0 ? 1 : -1);
-      const startArrowLength = maxArrowLength * Math.max(
-        maxDistributedMagnitude > 0 ? Math.abs(load.distribution.qStart) / maxDistributedMagnitude : 0,
-        MIN_DISTRIBUTED_RATIO,
+      const startLabelPosition = resolveForceLabelPositionFromAnchor(
+        new Vector3(...segmentStart),
+        directionVector,
+        load.distribution.qStart,
+        maxDistributedMagnitude,
+        maxArrowLength,
       );
-      const endArrowLength = maxArrowLength * Math.max(
-        maxDistributedMagnitude > 0 ? Math.abs(load.distribution.qEnd) / maxDistributedMagnitude : 0,
-        MIN_DISTRIBUTED_RATIO,
+      const endLabelPosition = resolveForceLabelPositionFromAnchor(
+        new Vector3(...segmentEnd),
+        directionVector,
+        load.distribution.qEnd,
+        maxDistributedMagnitude,
+        maxArrowLength,
       );
-      const labelOffset = scaleModelLengthMm(90);
-      const startLabelAnchor = new Vector3(...segmentStart).addScaledVector(
-        startLabelDirection,
-        startArrowLength + labelOffset,
-      );
-      const endLabelAnchor = new Vector3(...segmentEnd).addScaledVector(
-        endLabelDirection,
-        endArrowLength + labelOffset,
-      );
+      const unitsLabel = getLoadUnits(load, units);
 
       return {
         id: load.id,
@@ -440,11 +446,30 @@ function buildDistributedForceGlyphs(
         pickQuaternion: new Quaternion().setFromUnitVectors(PICK_UP, segmentDirection),
         pickLength: segmentLength,
         arrows,
-        startLabel: `${formatNumber(load.distribution.qStart, 2)} ${getLoadUnits(load, units)}`,
-        endLabel: `${formatNumber(load.distribution.qEnd, 2)} ${getLoadUnits(load, units)}`,
-        startLabelPosition: [startLabelAnchor.x, startLabelAnchor.y, startLabelAnchor.z],
-        endLabelPosition: [endLabelAnchor.x, endLabelAnchor.y, endLabelAnchor.z],
+        startLabel: `${formatNumber(load.distribution.qStart, 2)} ${unitsLabel}`,
+        endLabel: `${formatNumber(load.distribution.qEnd, 2)} ${unitsLabel}`,
+        startLabelPosition: [startLabelPosition.x, startLabelPosition.y, startLabelPosition.z],
+        endLabelPosition: [endLabelPosition.x, endLabelPosition.y, endLabelPosition.z],
       };
     })
     .filter((glyph): glyph is DistributedLoadGlyph => glyph != null);
+}
+
+function resolveForceLabelPositionFromAnchor(
+  anchor: Vector3,
+  baseDirection: Vector3,
+  value: number,
+  maxMagnitude: number,
+  maxArrowLength: number,
+): Vector3 {
+  const sign = value >= 0 ? 1 : -1;
+  const direction = baseDirection.clone().multiplyScalar(sign);
+  const normalizedMagnitude = maxMagnitude > 0 ? Math.abs(value) / maxMagnitude : 0;
+  const arrowLength = Math.abs(value) <= 1e-9
+    ? 0
+    : maxArrowLength * Math.max(normalizedMagnitude, MIN_DISTRIBUTED_RATIO);
+  const tip = anchor.clone().addScaledVector(direction, arrowLength);
+  const labelOffsetZ = SCENE_LABEL_FONT_SIZE * 0.8 * (direction.z >= -1e-6 ? 1 : -1);
+
+  return tip.add(new Vector3(0, 0, labelOffsetZ));
 }

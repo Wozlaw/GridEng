@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { createSampleTowerSegmentModel } from '../../entities/model';
 import { useModelStore } from './modelStore';
 
 describe('modelStore', () => {
@@ -38,5 +39,61 @@ describe('modelStore', () => {
       y: 0,
       z: 0,
     });
+  });
+
+  it('tracks active load case and falls back to the first existing one on model replace', () => {
+    const model = createSampleTowerSegmentModel();
+    const secondLoadCase = {
+      ...model.loadCases[0],
+      id: 'lc-2',
+      name: 'Secondary',
+      loads: model.loadCases[0].loads.map((load, index) => ({
+        ...load,
+        id: `lc2-load-${index + 1}`,
+        name: `${load.name} LC2`,
+      })),
+    };
+
+    useModelStore.getState().setModel({
+      ...model,
+      loadCases: [model.loadCases[0], secondLoadCase],
+    });
+
+    expect(useModelStore.getState().activeLoadCaseId).toBe('lc-1');
+
+    useModelStore.getState().setActiveLoadCaseId('lc-2');
+    expect(useModelStore.getState().activeLoadCaseId).toBe('lc-2');
+
+    useModelStore.getState().setModel({
+      ...model,
+      loadCases: [model.loadCases[0]],
+    });
+
+    expect(useModelStore.getState().activeLoadCaseId).toBe('lc-1');
+  });
+
+  it('synchronizes active load case with load case and load selection', () => {
+    const model = createSampleTowerSegmentModel();
+    const secondLoadCase = {
+      ...model.loadCases[0],
+      id: 'lc-2',
+      name: 'Secondary',
+      loads: model.loadCases[0].loads.map((load, index) => ({
+        ...load,
+        id: `lc2-load-${index + 1}`,
+        name: `${load.name} LC2`,
+      })),
+    };
+
+    useModelStore.getState().setModel({
+      ...model,
+      loadCases: [model.loadCases[0], secondLoadCase],
+    });
+
+    useModelStore.getState().selectEntity({ type: 'loadCase', id: 'lc-2' });
+    expect(useModelStore.getState().activeLoadCaseId).toBe('lc-2');
+
+    useModelStore.getState().selectLoad('lc-1', model.loadCases[0].loads[0].id);
+    expect(useModelStore.getState().activeLoadCaseId).toBe('lc-1');
   });
 });

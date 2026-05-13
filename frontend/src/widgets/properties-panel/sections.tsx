@@ -52,9 +52,11 @@ import { EMPTY_RESTRAINT_STATE, type LoadEditorDraft } from './types';
 
 export function ModelSummarySection({
   model,
+  activeLoadCase,
   validationReport,
 }: {
   model: GridEngModel;
+  activeLoadCase: GridEngModel['loadCases'][number] | undefined;
   validationReport: ModelValidationResult;
 }) {
   const { t } = useI18n();
@@ -85,11 +87,11 @@ export function ModelSummarySection({
       </PropertySection>
 
       <PropertySection title={t('properties.sections.loadEnvironment')}>
-        <PropertyRow label={t('properties.rows.defaultLoadCase')} value={model.loadCases[0]?.name ?? '-'} />
-        <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(model.loadCases[0]?.wind.direction)} />
+        <PropertyRow label={t('properties.rows.activeLoadCase')} value={activeLoadCase?.name ?? '-'} />
+        <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(activeLoadCase?.wind.direction)} />
         <PropertyRow
           label={t('properties.rows.windPressure')}
-          value={`${formatNumber(model.loadCases[0]?.wind.nominalPressureKPa, 3)} kPa`}
+          value={`${formatNumber(activeLoadCase?.wind.nominalPressureKPa, 3)} kPa`}
         />
       </PropertySection>
 

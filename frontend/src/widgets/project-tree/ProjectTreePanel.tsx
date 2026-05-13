@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -9,17 +9,19 @@ import {
   Box,
   List,
   ListItemButton,
+  MenuItem,
   Paper,
   Stack,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 
-import { getLoadUnits, type Load, type Member, type Node, type Profile, type UnitSystem } from '../../entities/model';
+import { type Load, type Member, type Node, type Profile } from '../../entities/model';
 import { useModelStore } from '../../app/store';
 import { isSelectedEntity, isSelectedLoad } from '../../features/selection';
 import { useI18n } from '../../shared/i18n';
-import { formatNumber, formatOptionalText } from '../../shared/utils';
+import { formatOptionalText } from '../../shared/utils';
 
 type ProjectTreeSectionKey = 'loads' | 'members' | 'nodes';
 
@@ -29,13 +31,18 @@ export function ProjectTreePanel() {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
   const selectEntity = useModelStore((state) => state.selectEntity);
   const selectLoad = useModelStore((state) => state.selectLoad);
+  const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
+  const setActiveLoadCaseId = useModelStore((state) => state.setActiveLoadCaseId);
   const [expandedSections, setExpandedSections] = useState<Record<ProjectTreeSectionKey, boolean>>({
     loads: true,
     members: true,
     nodes: true,
   });
 
-  const totalLoads = model.loadCases.reduce((sum, loadCase) => sum + loadCase.loads.length, 0);
+  const activeLoadCase = useMemo(
+    () => model.loadCases.find((loadCase) => loadCase.id === activeLoadCaseId) ?? model.loadCases[0],
+    [activeLoadCaseId, model.loadCases],
+  );
   const profilesById = new Map(model.profiles.map((profile) => [profile.id, profile] as const));
   const nodesById = new Map(model.nodes.map((node) => [node.id, node] as const));
 
@@ -53,75 +60,110 @@ export function ProjectTreePanel() {
       sx={{
         display: 'flex',
         flexDirection: 'column',
+        width: '100%',
         minHeight: 0,
+        height: '100%',
         overflow: 'hidden',
       }}
     >
       <Box
         sx={{
           px: 2,
-          py: 1.5,
+          py: 1.25,
           borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
-        <Typography variant="h6" align="center">
+        <Typography
+          variant="subtitle2"
+          align="center"
+          color="text.secondary"
+          sx={{ fontWeight: 600, letterSpacing: '0.03em' }}
+        >
           {t('projectTree.panelTitle')}
         </Typography>
       </Box>
 
-      <Stack sx={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto' }}>
+      <Stack
+        sx={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          overflowY: 'auto',
+          overscrollBehaviorY: 'contain',
+          scrollbarGutter: 'stable',
+        }}
+      >
         <ProjectAccordionSection
           expanded={expandedSections.loads}
           title={t('projectTree.section.loads')}
-          count={totalLoads}
+          count={activeLoadCase?.loads.length ?? 0}
           onToggle={() => toggleSection('loads')}
         >
-          <List disablePadding dense>
-            {model.loadCases.map((loadCase) => (
-              <Box key={loadCase.id} sx={{ pb: 0.5 }}>
+          {model.loadCases.length === 0 ? (
+            <Box sx={{ px: 1.5, py: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                {t('projectTree.messages.noLoadCases')}
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              <Box sx={{ px: 1.5, py: 1 }}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label={t('projectTree.loadCase.selectLabel')}
+                  value={activeLoadCase?.id ?? ''}
+                  onChange={(event) => {
+                    setActiveLoadCaseId(event.target.value);
+                  }}
+                >
+                  {model.loadCases.map((loadCase) => (
+                    <MenuItem key={loadCase.id} value={loadCase.id}>
+                      {loadCase.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
+              {activeLoadCase != null && (
                 <ListItemButton
-                  selected={isSelectedEntity(selectedEntity, 'loadCase', loadCase.id)}
-                  onClick={() => selectEntity({ type: 'loadCase', id: loadCase.id })}
-                  sx={{ px: 1.5 }}
+                  selected={isSelectedEntity(selectedEntity, 'loadCase', activeLoadCase.id)}
+                  onClick={() => selectEntity({ type: 'loadCase', id: activeLoadCase.id })}
+                  sx={{ px: 1.5, mx: 0.75, borderRadius: 1 }}
                 >
                   <Stack spacing={0.15} sx={{ minWidth: 0 }}>
-                    <Typography variant="body2">{loadCase.name}</Typography>
+                    <Typography variant="body2">{activeLoadCase.name}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {t('projectTree.loadCase.loadsCount', { count: loadCase.loads.length })}
+                      {t('projectTree.loadCase.loadsCount', { count: activeLoadCase.loads.length })}
                     </Typography>
                   </Stack>
                 </ListItemButton>
+              )}
 
-                {loadCase.loads.length > 0 && (
-                  <List disablePadding dense sx={{ pl: 1.5 }}>
-                    {loadCase.loads.map((load) => (
-                      <Tooltip
-                        key={load.id}
-                        title={formatLoadTooltip(load, nodesById, model.members, t)}
-                        placement="right"
+              {activeLoadCase != null && activeLoadCase.loads.length > 0 && (
+                <List disablePadding dense sx={{ pl: 1.5, pr: 0.75, pb: 0.5 }}>
+                  {activeLoadCase.loads.map((load) => (
+                    <Tooltip
+                      key={load.id}
+                      title={formatLoadTooltip(load, nodesById, model.members, t)}
+                      placement="right"
+                    >
+                      <ListItemButton
+                        selected={isSelectedLoad(selectedEntity, activeLoadCase.id, load.id)}
+                        onClick={() => selectLoad(activeLoadCase.id, load.id)}
+                        sx={{ px: 1.5 }}
                       >
-                        <ListItemButton
-                          selected={isSelectedLoad(selectedEntity, loadCase.id, load.id)}
-                          onClick={() => selectLoad(loadCase.id, load.id)}
-                          sx={{ px: 1.5 }}
-                        >
-                          <Stack spacing={0.15} sx={{ minWidth: 0 }}>
-                            <Typography variant="body2" noWrap>
-                              {load.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" noWrap>
-                              {formatLoadSummary(load, model.units, t)}
-                            </Typography>
-                          </Stack>
-                        </ListItemButton>
-                      </Tooltip>
-                    ))}
-                  </List>
-                )}
-              </Box>
-            ))}
-          </List>
+                        <Typography variant="body2" noWrap>
+                          {formatLoadPrimaryText(load, t)}
+                        </Typography>
+                      </ListItemButton>
+                    </Tooltip>
+                  ))}
+                </List>
+              )}
+            </>
+          )}
         </ProjectAccordionSection>
 
         <ProjectAccordionSection
@@ -230,17 +272,21 @@ function ProjectAccordionSection({
       <AccordionSummary
         expandIcon={<ExpandMoreIcon fontSize="small" />}
         sx={{
-          minHeight: 40,
+          minHeight: 36,
           px: 1.5,
           borderBottom: '1px solid',
           borderColor: 'divider',
           '& .MuiAccordionSummary-content': {
-            my: 0.75,
+            my: 0.5,
           },
         }}
       >
-        <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
-          <Typography variant="subtitle2">{title}</Typography>
+        <Box
+          sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {title}
+          </Typography>
           <Typography variant="caption" color="text.secondary">
             {count}
           </Typography>
@@ -253,21 +299,19 @@ function ProjectAccordionSection({
   );
 }
 
-function formatLoadSummary(
+function formatLoadPrimaryText(
   load: Load,
-  units: UnitSystem,
   t: ReturnType<typeof useI18n>['t'],
 ): string {
-  if (load.type === 'nodal_concentrated') {
-    const typeLabel = load.kind === 'force'
-      ? t('projectTree.loadType.force')
-      : t('projectTree.loadType.moment');
-
-    return `${typeLabel} · ${formatNumber(load.magnitude, 2)} ${getLoadUnits(load, units)}`;
+  const loadName = load.name.trim();
+  if (loadName.length > 0) {
+    return loadName;
   }
 
-  if (load.distribution.type === 'linear') {
-    return `${t('projectTree.loadType.distributed')} · ${formatNumber(load.distribution.qStart, 2)}…${formatNumber(load.distribution.qEnd, 2)} ${getLoadUnits(load, units)}`;
+  if (load.type === 'nodal_concentrated') {
+    return load.kind === 'force'
+      ? t('projectTree.loadType.force')
+      : t('projectTree.loadType.moment');
   }
 
   return t('projectTree.loadType.distributed');

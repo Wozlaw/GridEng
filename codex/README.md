@@ -10,6 +10,7 @@
 4. Для канонического описания данных и импорта используй:
    - `codex/docs/grideng-model-v0.2.md`
    - `codex/docs/dxf-import-spec-v0.1.md`
+   - `codex/docs/ui-revision-2-implementation-notes.md`
 5. Выполняй frontend-задачи последовательно, без пропуска зависимостей между блоками.
 
 ## Структура нумерации
@@ -55,3 +56,19 @@ codex/
 cd frontend && npm run build
 cd frontend && npm run lint
 ```
+
+
+## Интерфейсная ревизия 2
+
+Новые задачи ревизии 2 добавлены поверх выполненного плана и начинаются с блока 21:
+
+- `21.1` — layout/overflow/высота TopMenu;
+- `21.2` — реорганизация ribbon TopMenu;
+- `21.3` — единое `activeLoadCaseId`;
+- `21.4` — scene overlays и `visibility.labels`;
+- `21.5` — подписи сил/моментов и визуальная грамматика закреплений;
+- `21.6` — ProjectTree/Properties polish;
+- `21.7` — docked/fullscreen console;
+- `21.8` — заглушки, финальный checklist и документация.
+
+Согласованные требования сохранены в `codex/reference/UI_REVISION_2_CHECKED_REQUIREMENTS.md`.

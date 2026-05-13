@@ -1,27 +1,74 @@
-import { Suspense, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { Line, Text } from '@react-three/drei';
+import { Line } from '@react-three/drei';
+import { amber, blue, cyan, red } from '@mui/material/colors';
+import { Quaternion, Vector3 } from 'three';
 
 import { useModelStore } from '../../app/store';
 import type { GridEngModel, Restraint } from '../../entities/model';
 import { modelPositionToScene, type ScenePoint3 } from './modelToScene';
+import { SCENE_LABEL_FONT_SIZE, SceneUprightLabel } from './SceneUprightLabel';
 
-const RESTRAINT_COLOR = '#7fd6ff';
-const SELECTED_RESTRAINT_COLOR = '#f4bf61';
-const HOVER_RESTRAINT_COLOR = '#d4efff';
-const LABEL_OFFSET_FACTOR = 1.5;
+const SELECTED_RESTRAINT_COLOR = amber[300];
+const HOVER_RESTRAINT_COLOR = amber[200];
+const AXIS_COLORS = {
+  X: red[300],
+  Y: cyan[300],
+  Z: blue[300],
+} as const;
+const CYLINDER_UP = new Vector3(0, 1, 0);
+
+type RestraintAxisLabel = 'X' | 'Y' | 'Z';
+type RestraintAxisMode = 'cube' | 'sphere' | 'cylinder';
 
 interface RestraintMarkersProps {
   restraints: GridEngModel['restraints'];
   nodesById: Map<string, GridEngModel['nodes'][number]>;
+  sceneCenter: ScenePoint3;
   visible: boolean;
+  showLabels: boolean;
   nodeRadius: number;
 }
+
+interface RestraintAxisGlyph {
+  axis: RestraintAxisLabel;
+  mode: RestraintAxisMode;
+  color: string;
+  position: ScenePoint3;
+  label: string;
+  labelPosition: ScenePoint3;
+  connectorPoints: [ScenePoint3, ScenePoint3];
+  quaternion: Quaternion;
+  size: number;
+}
+
+const RESTRAINT_AXES = [
+  {
+    axis: 'X' as const,
+    translationKey: 'ux' as const,
+    rotationKey: 'rx' as const,
+    direction: new Vector3(1, 0, 0),
+  },
+  {
+    axis: 'Y' as const,
+    translationKey: 'uy' as const,
+    rotationKey: 'ry' as const,
+    direction: new Vector3(0, 1, 0),
+  },
+  {
+    axis: 'Z' as const,
+    translationKey: 'uz' as const,
+    rotationKey: 'rz' as const,
+    direction: new Vector3(0, 0, 1),
+  },
+] as const;
 
 export function RestraintMarkers({
   restraints,
   nodesById,
+  sceneCenter,
   visible,
+  showLabels,
   nodeRadius,
 }: RestraintMarkersProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
@@ -47,8 +94,10 @@ export function RestraintMarkers({
             key={restraint.id}
             restraint={restraint}
             nodePosition={modelPositionToScene(node.position)}
+            sceneCenter={sceneCenter}
             nodeRadius={nodeRadius}
             isSelected={isSelected}
+            showLabels={showLabels}
           />
         );
       })}
@@ -59,40 +108,36 @@ export function RestraintMarkers({
 interface RestraintMarkerGroupProps {
   restraint: Restraint;
   nodePosition: ScenePoint3;
+  sceneCenter: ScenePoint3;
   nodeRadius: number;
   isSelected: boolean;
+  showLabels: boolean;
 }
 
 function RestraintMarkerGroup({
   restraint,
   nodePosition,
+  sceneCenter,
   nodeRadius,
   isSelected,
+  showLabels,
 }: RestraintMarkerGroupProps) {
   const selectRestraint = useModelStore((state) => state.selectRestraint);
   const [isHovered, setIsHovered] = useState(false);
-
-  const markerSize = Math.max(nodeRadius * 3.1, 0.12);
-  const basePosition: ScenePoint3 = [
-    nodePosition[0],
-    nodePosition[1],
-    nodePosition[2] - markerSize * 0.9,
-  ];
-  const translationalHalf = markerSize * 0.34;
-  const ringRadius = markerSize * 0.26;
-  const color = isSelected
+  const markerColor = isSelected
     ? SELECTED_RESTRAINT_COLOR
     : isHovered
       ? HOVER_RESTRAINT_COLOR
-      : RESTRAINT_COLOR;
-  const activeDofsLabel = formatActiveRestraintLabel(restraint);
-  const showLabel = isSelected || isHovered;
-  const labelPosition: ScenePoint3 = [
-    nodePosition[0],
-    nodePosition[1],
-    nodePosition[2] + markerSize * LABEL_OFFSET_FACTOR,
-  ];
-  const rotationMarkers = buildRotationMarkers(basePosition, ringRadius);
+      : null;
+
+  const axisGlyphs = useMemo(
+    () => buildRestraintAxisGlyphs(restraint, nodePosition, sceneCenter, nodeRadius, markerColor),
+    [markerColor, nodePosition, nodeRadius, restraint, sceneCenter],
+  );
+
+  if (axisGlyphs.length === 0) {
+    return null;
+  }
 
   return (
     <group
@@ -109,116 +154,148 @@ function RestraintMarkerGroup({
         setIsHovered(false);
       }}
     >
-      <mesh position={basePosition}>
-        <sphereGeometry args={[markerSize * 0.8, 12, 12]} />
+      <mesh position={nodePosition}>
+        <sphereGeometry args={[Math.max(nodeRadius * 1.9, 0.1), 14, 14]} />
         <meshBasicMaterial transparent opacity={0.01} depthWrite={false} />
       </mesh>
 
-      <Line points={[nodePosition, basePosition]} color={color} lineWidth={2.2} />
+      {axisGlyphs.map((glyph) => (
+        <group key={`${restraint.id}-${glyph.axis}`}>
+          <Line
+            points={glyph.connectorPoints}
+            color={glyph.color}
+            lineWidth={2.1}
+            renderOrder={30}
+          />
 
-      {restraint.ux && (
-        <Line
-          points={[
-            [basePosition[0] - translationalHalf, basePosition[1], basePosition[2]],
-            [basePosition[0] + translationalHalf, basePosition[1], basePosition[2]],
-          ]}
-          color={color}
-          lineWidth={2.4}
-        />
-      )}
-      {restraint.uy && (
-        <Line
-          points={[
-            [basePosition[0], basePosition[1] - translationalHalf, basePosition[2]],
-            [basePosition[0], basePosition[1] + translationalHalf, basePosition[2]],
-          ]}
-          color={color}
-          lineWidth={2.4}
-        />
-      )}
-      {restraint.uz && (
-        <Line
-          points={[
-            [basePosition[0], basePosition[1], basePosition[2] - translationalHalf],
-            [basePosition[0], basePosition[1], basePosition[2] + translationalHalf],
-          ]}
-          color={color}
-          lineWidth={2.4}
-        />
-      )}
+          <mesh position={glyph.position} quaternion={glyph.quaternion} renderOrder={31}>
+            {glyph.mode === 'cube' && (
+              <boxGeometry args={[glyph.size, glyph.size, glyph.size]} />
+            )}
+            {glyph.mode === 'sphere' && (
+              <sphereGeometry args={[glyph.size * 0.34, 16, 16]} />
+            )}
+            {glyph.mode === 'cylinder' && (
+              <cylinderGeometry args={[glyph.size * 0.18, glyph.size * 0.18, glyph.size * 0.92, 16]} />
+            )}
+            <meshStandardMaterial
+              color={glyph.color}
+              emissive={glyph.color}
+              emissiveIntensity={0.12}
+              metalness={0.08}
+              roughness={0.72}
+            />
+          </mesh>
 
-      {restraint.rx && <Line points={rotationMarkers.rx} color={color} lineWidth={2.1} />}
-      {restraint.ry && <Line points={rotationMarkers.ry} color={color} lineWidth={2.1} />}
-      {restraint.rz && <Line points={rotationMarkers.rz} color={color} lineWidth={2.1} />}
-
-      {showLabel && (
-        <Suspense fallback={null}>
-          <Text
-            position={labelPosition}
-            fontSize={Math.max(markerSize * 0.28, 0.08)}
-            color={color}
-            anchorX="center"
-            anchorY="middle"
-          >
-            {activeDofsLabel}
-          </Text>
-        </Suspense>
-      )}
+          {showLabels && (
+            <SceneUprightLabel
+              position={glyph.labelPosition}
+              text={glyph.label}
+              color={glyph.color}
+              fontSize={SCENE_LABEL_FONT_SIZE}
+            />
+          )}
+        </group>
+      ))}
     </group>
   );
 }
 
-function buildRotationMarkers(
-  basePosition: ScenePoint3,
-  radius: number,
-): Record<'rx' | 'ry' | 'rz', ScenePoint3[]> {
-  return {
-    rx: createCirclePoints(basePosition, radius, 'yz'),
-    ry: createCirclePoints(basePosition, radius, 'xz'),
-    rz: createCirclePoints(basePosition, radius, 'xy'),
-  };
+function buildRestraintAxisGlyphs(
+  restraint: Restraint,
+  nodePosition: ScenePoint3,
+  sceneCenter: ScenePoint3,
+  nodeRadius: number,
+  overrideColor: string | null,
+): RestraintAxisGlyph[] {
+  const markerSize = Math.max(nodeRadius * 2.8, 0.13);
+  const axisOffset = markerSize * 1.65;
+  const nodeVector = new Vector3(...nodePosition);
+  const centerVector = new Vector3(...sceneCenter);
+
+  return RESTRAINT_AXES.flatMap((axisConfig) => {
+    const translationFixed = restraint[axisConfig.translationKey];
+    const rotationFixed = restraint[axisConfig.rotationKey];
+    const mode = resolveAxisMode(translationFixed, rotationFixed);
+
+    if (mode == null) {
+      return [];
+    }
+
+    const axisColor = overrideColor ?? AXIS_COLORS[axisConfig.axis];
+    const axisDirection = resolveRestraintAxisDirection(axisConfig.axis, nodeVector, centerVector);
+    const symbolCenter = nodeVector.clone().addScaledVector(axisDirection, axisOffset);
+    const labelOffsetDistance = markerSize * 0.5 + SCENE_LABEL_FONT_SIZE * 0.8;
+    const labelPosition = symbolCenter.clone().addScaledVector(
+      axisConfig.axis === 'Z' ? axisDirection : new Vector3(0, 0, 1),
+      labelOffsetDistance,
+    );
+
+    return [{
+      axis: axisConfig.axis,
+      mode,
+      color: axisColor,
+      position: [symbolCenter.x, symbolCenter.y, symbolCenter.z] as ScenePoint3,
+      label: formatAxisRestraintLabel(axisConfig.axis, translationFixed, rotationFixed) ?? '',
+      labelPosition: [labelPosition.x, labelPosition.y, labelPosition.z] as ScenePoint3,
+      connectorPoints: [
+        nodePosition,
+        [symbolCenter.x, symbolCenter.y, symbolCenter.z],
+      ],
+      quaternion: new Quaternion().setFromUnitVectors(CYLINDER_UP, axisDirection),
+      size: markerSize,
+    }];
+  });
 }
 
-function createCirclePoints(
-  center: ScenePoint3,
-  radius: number,
-  plane: 'xy' | 'yz' | 'xz',
-  segments = 24,
-): ScenePoint3[] {
-  const points: ScenePoint3[] = [];
-
-  for (let step = 0; step <= segments; step += 1) {
-    const angle = (Math.PI * 2 * step) / segments;
-    const cos = Math.cos(angle) * radius;
-    const sin = Math.sin(angle) * radius;
-
-    switch (plane) {
-      case 'xy':
-        points.push([center[0] + cos, center[1] + sin, center[2]]);
-        break;
-      case 'yz':
-        points.push([center[0], center[1] + cos, center[2] + sin]);
-        break;
-      case 'xz':
-        points.push([center[0] + cos, center[1], center[2] + sin]);
-        break;
-      default:
-        break;
-    }
+function resolveAxisMode(
+  translationFixed: boolean,
+  rotationFixed: boolean,
+): RestraintAxisMode | null {
+  if (translationFixed && rotationFixed) {
+    return 'cube';
   }
 
-  return points;
+  if (translationFixed) {
+    return 'sphere';
+  }
+
+  if (rotationFixed) {
+    return 'cylinder';
+  }
+
+  return null;
 }
 
-function formatActiveRestraintLabel(restraint: Restraint): string {
-  const active = [
-    restraint.ux && 'UX',
-    restraint.uy && 'UY',
-    restraint.uz && 'UZ',
-    restraint.rx && 'RX',
-    restraint.ry && 'RY',
-    restraint.rz && 'RZ',
-  ].filter(Boolean);
+function resolveRestraintAxisDirection(
+  axis: RestraintAxisLabel,
+  nodePosition: Vector3,
+  sceneCenter: Vector3,
+): Vector3 {
+  if (axis === 'Z') {
+    return new Vector3(0, 0, -1);
+  }
 
-  return active.length > 0 ? active.join(' ') : 'FREE';
+  if (axis === 'X') {
+    return new Vector3(nodePosition.x >= sceneCenter.x ? 1 : -1, 0, 0);
+  }
+
+  return new Vector3(0, nodePosition.y >= sceneCenter.y ? 1 : -1, 0);
+}
+
+function formatAxisRestraintLabel(
+  axis: RestraintAxisLabel,
+  translationFixed: boolean,
+  rotationFixed: boolean,
+): string | null {
+  const activeDofs = [
+    translationFixed ? `U${axis}` : null,
+    rotationFixed ? `R${axis}` : null,
+  ].filter((value): value is string => value != null);
+
+  if (activeDofs.length === 0) {
+    return null;
+  }
+
+  return `${axis}: ${activeDofs.join('|')}`;
 }

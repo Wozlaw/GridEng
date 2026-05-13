@@ -12,7 +12,8 @@ type ConsoleMessageKey =
   | 'run'
   | 'emptyLog'
   | 'emptyHistory'
-  | 'reuseCommand';
+  | 'reuseCommand'
+  | 'expand';
 
 const messages: Record<AppLanguage, Record<ConsoleMessageKey, string>> = {
   ru: {
@@ -28,6 +29,7 @@ const messages: Record<AppLanguage, Record<ConsoleMessageKey, string>> = {
     emptyLog: 'Журнал пуст. Введите команду или нажмите `help`.',
     emptyHistory: 'История команд пока пуста.',
     reuseCommand: 'Подставить команду',
+    expand: 'Развернуть',
   },
   en: {
     title: 'Command Console',
@@ -42,6 +44,7 @@ const messages: Record<AppLanguage, Record<ConsoleMessageKey, string>> = {
     emptyLog: 'The log is empty. Enter a command or run `help`.',
     emptyHistory: 'No command history yet.',
     reuseCommand: 'Reuse command',
+    expand: 'Expand',
   },
 };
 

@@ -4,15 +4,22 @@ import { Line } from '@react-three/drei';
 import { Quaternion, Vector3 } from 'three';
 
 import { useModelStore, useUiStore } from '../../app/store';
-import { type GridEngModel, type NodalConcentratedLoad } from '../../entities/model';
+import {
+  getLoadUnits,
+  type GridEngModel,
+  type NodalConcentratedLoad,
+  type UnitSystem,
+} from '../../entities/model';
 import { isSelectedLoad } from '../../features/selection';
 import { translate } from '../../shared/i18n';
 import { notifyWarning } from '../../shared/ui';
+import { formatNumber } from '../../shared/utils/format';
 import {
   getLoadAnchorPosition,
   modelPositionToScene,
   type ScenePoint3,
 } from './modelToScene';
+import { SCENE_LABEL_FONT_SIZE, SceneUprightLabel } from './SceneUprightLabel';
 
 const MOMENT_COLOR = '#ff7ab6';
 const SELECTED_MOMENT_COLOR = '#f4bf61';
@@ -28,6 +35,8 @@ interface MomentVectorsProps {
   nodesById: Map<string, GridEngModel['nodes'][number]>;
   membersById: Map<string, GridEngModel['members'][number]>;
   visible: boolean;
+  showLabels: boolean;
+  units: UnitSystem;
   sceneLongestSide: number;
 }
 
@@ -39,6 +48,8 @@ interface MomentGlyph {
   headQuaternion: Quaternion;
   headRadius: number;
   headLength: number;
+  label: string;
+  labelPosition: ScenePoint3;
 }
 
 export function MomentVectors({
@@ -46,6 +57,8 @@ export function MomentVectors({
   nodesById,
   membersById,
   visible,
+  showLabels,
+  units,
   sceneLongestSide,
 }: MomentVectorsProps) {
   const selectedEntity = useModelStore((state) => state.selectedEntity);
@@ -53,8 +66,8 @@ export function MomentVectors({
   const language = useUiStore((state) => state.language);
   const warningRef = useRef<Set<string>>(new Set());
   const glyphs = useMemo(
-    () => buildMomentGlyphs(loadCase, nodesById, membersById, sceneLongestSide),
-    [loadCase, membersById, nodesById, sceneLongestSide],
+    () => buildMomentGlyphs(loadCase, nodesById, membersById, units, sceneLongestSide),
+    [loadCase, membersById, nodesById, sceneLongestSide, units],
   );
   const unsupportedDistributedMoments = useMemo(
     () => (loadCase?.loads ?? []).filter(
@@ -116,6 +129,14 @@ export function MomentVectors({
               <coneGeometry args={[glyph.headRadius, glyph.headLength, 14]} />
               <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} />
             </mesh>
+            {showLabels && (
+              <SceneUprightLabel
+                position={glyph.labelPosition}
+                text={glyph.label}
+                color={color}
+                fontSize={SCENE_LABEL_FONT_SIZE}
+              />
+            )}
           </group>
         );
       })}
@@ -127,6 +148,7 @@ function buildMomentGlyphs(
   loadCase: GridEngModel['loadCases'][number] | undefined,
   nodesById: Map<string, GridEngModel['nodes'][number]>,
   membersById: Map<string, GridEngModel['members'][number]>,
+  units: UnitSystem,
   sceneLongestSide: number,
 ): MomentGlyph[] {
   const loads = (loadCase?.loads ?? []).filter(
@@ -157,22 +179,25 @@ function buildMomentGlyphs(
       ).normalize();
       const normalizedMagnitude = maxMagnitude > 0 ? Math.abs(load.magnitude) / maxMagnitude : 0;
       const radius = maxRadius * Math.max(normalizedMagnitude, MIN_MOMENT_RATIO);
-      const headLength = Math.min(Math.max(radius * 0.48, 0.08), maxRadius * 0.56);
+      const arcRadius = radius * 0.7;
+      const headLength = Math.min(Math.max(arcRadius * 0.48, 0.08), maxRadius * 0.56);
       const headRadius = Math.max(headLength * 0.28, 0.03);
+      const unitsLabel = getLoadUnits(load, units);
 
       const origin = new Vector3(...modelPositionToScene(anchor));
       const radial = getPerpendicularUnitVector(axis);
       const tangent = new Vector3().crossVectors(axis, radial).normalize();
 
-      const arcPoints = createArcPoints(origin, radial, tangent, radius);
+      const arcPoints = createArcPoints(origin, radial, tangent, arcRadius);
       const endAngle = ARC_START_RAD + ARC_SWEEP_RAD;
-      const endPoint = pointOnArc(origin, radial, tangent, radius, endAngle);
+      const endPoint = pointOnArc(origin, radial, tangent, arcRadius, endAngle);
+      const labelPoint = origin.clone().add(new Vector3(0, 0, -(arcRadius + SCENE_LABEL_FONT_SIZE * 0.8)));
       const tangentDirection = radial
         .clone()
         .multiplyScalar(-Math.sin(endAngle))
         .add(tangent.clone().multiplyScalar(Math.cos(endAngle)))
         .normalize();
-      const headCenter = endPoint.clone().addScaledVector(tangentDirection, -headLength / 2);
+      const headCenter = endPoint.clone().addScaledVector(tangentDirection, headLength / 2);
 
       return {
         id: load.id,
@@ -182,6 +207,8 @@ function buildMomentGlyphs(
         headQuaternion: new Quaternion().setFromUnitVectors(ARROW_UP, tangentDirection),
         headRadius,
         headLength,
+        label: `${formatNumber(load.magnitude, 2)} ${unitsLabel}`,
+        labelPosition: [labelPoint.x, labelPoint.y, labelPoint.z],
       };
     })
     .filter((glyph): glyph is MomentGlyph => glyph != null);

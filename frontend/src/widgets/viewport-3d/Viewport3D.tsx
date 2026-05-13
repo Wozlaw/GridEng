@@ -20,6 +20,7 @@ import { RestraintMarkers } from './RestraintMarkers';
 import { SceneAxes } from './SceneAxes';
 import { SceneGrid } from './SceneGrid';
 import { StressMapLegend } from './StressMapLegend';
+import { WindOverlay } from './WindOverlay';
 import {
   getFitCameraDistance,
   getViewportSceneMetrics,
@@ -32,6 +33,7 @@ const DEFAULT_CAMERA_DIRECTION = new Vector3(1, -1, 0.82).normalize();
 export function Viewport3D() {
   const { t } = useI18n();
   const model = useModelStore((state) => state.model);
+  const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
   const viewMode = useModelStore((state) => state.viewMode);
   const visibility = useModelStore((state) => state.visibility);
   const fitRequestNonce = useModelStore((state) => state.fitRequestNonce);
@@ -40,7 +42,10 @@ export function Viewport3D() {
   const stressMapNotificationKeyRef = useRef<string | null>(null);
 
   const sceneMetrics = useMemo(() => getViewportSceneMetrics(model.nodes), [model.nodes]);
-  const activeLoadCase = model.loadCases[0];
+  const activeLoadCase = useMemo(
+    () => model.loadCases.find((loadCase) => loadCase.id === activeLoadCaseId) ?? model.loadCases[0],
+    [activeLoadCaseId, model.loadCases],
+  );
   const activeStressMapState = useMemo(
     () => (activeLoadCase == null ? null : resolveStressMapState(model.results, activeLoadCase.id)),
     [activeLoadCase, model.results],
@@ -140,6 +145,7 @@ export function Viewport3D() {
 
         {visibility.grid && <SceneGrid size={sceneMetrics.sceneGridSize} />}
         {visibility.axes && <SceneAxes size={sceneMetrics.sceneAxesSize} />}
+        <WindOverlay wind={activeLoadCase?.wind} />
 
         <OrbitControls
           ref={controlsRef}
@@ -166,12 +172,14 @@ export function Viewport3D() {
         <NodePoints
           nodes={model.nodes}
           nodeRadius={sceneMetrics.sceneNodeRadius}
-          visible={visibility.nodes}
+          visible={visibility.nodes && viewMode !== 'real' && viewMode !== 'stress-map'}
         />
         <RestraintMarkers
           restraints={model.restraints}
           nodesById={nodeById}
+          sceneCenter={sceneMetrics.sceneCenter}
           visible={visibility.restraints}
+          showLabels={visibility.labels}
           nodeRadius={sceneMetrics.sceneNodeRadius}
         />
         <LoadVectors
@@ -179,14 +187,17 @@ export function Viewport3D() {
           nodesById={nodeById}
           membersById={membersById}
           visible={visibility.loads}
-          sceneLongestSide={sceneMetrics.sceneLongestSide}
+          showLabels={visibility.labels}
           units={model.units}
+          sceneLongestSide={sceneMetrics.sceneLongestSide}
         />
         <MomentVectors
           loadCase={activeLoadCase}
           nodesById={nodeById}
           membersById={membersById}
           visible={visibility.loads && visibility.moments}
+          showLabels={visibility.labels}
+          units={model.units}
           sceneLongestSide={sceneMetrics.sceneLongestSide}
         />
       </Canvas>

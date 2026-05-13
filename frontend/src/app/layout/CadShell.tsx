@@ -118,9 +118,12 @@ export function CadShell() {
   return (
     <Box
       sx={{
+        width: '100%',
+        minWidth: 0,
+        minHeight: 0,
         height: '100%',
         display: 'grid',
-        gridTemplateRows: 'auto 1fr auto',
+        gridTemplateRows: 'var(--top-menu-height, 184px) minmax(0, 1fr) auto',
         overflow: 'hidden',
       }}
     >
@@ -129,6 +132,8 @@ export function CadShell() {
       <Box
         component="main"
         sx={{
+          width: '100%',
+          minWidth: 0,
           minHeight: 0,
           overflow: 'hidden',
           px: { xs: 1, md: 1.25 },
@@ -139,15 +144,28 @@ export function CadShell() {
           sx={{
             display: { xs: 'grid', lg: 'none' },
             height: '100%',
+            width: '100%',
+            minWidth: 0,
             minHeight: 0,
             gap: 1,
             gridTemplateRows: 'minmax(0, 0.9fr) minmax(0, 1.35fr) minmax(0, 1fr)',
           }}
         >
           <ProjectTreePanel />
-          <Suspense fallback={<ViewportLoadingFallback />}>
-            <Viewport3D />
-          </Suspense>
+          <Box
+            sx={{
+              minWidth: 0,
+              minHeight: 0,
+              display: 'grid',
+              gridTemplateRows: 'minmax(0, 1fr) auto',
+              overflow: 'hidden',
+            }}
+          >
+            <Suspense fallback={<ViewportLoadingFallback />}>
+              <Viewport3D />
+            </Suspense>
+            <CommandConsole />
+          </Box>
           <PropertiesPanel />
         </Box>
 
@@ -156,11 +174,15 @@ export function CadShell() {
           sx={{
             display: { xs: 'none', lg: 'grid' },
             height: '100%',
+            width: '100%',
+            maxWidth: '100%',
+            minWidth: 0,
             minHeight: 0,
             gridTemplateColumns: desktopColumns,
+            overflow: 'hidden',
           }}
         >
-          <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+          <Box sx={{ minWidth: 0, minHeight: 0, height: '100%', overflow: 'hidden' }}>
             {!projectTreeCollapsed && <ProjectTreePanel />}
           </Box>
 
@@ -172,9 +194,20 @@ export function CadShell() {
             onToggle={() => toggleProjectTreeCollapsed()}
           />
 
-          <Suspense fallback={<ViewportLoadingFallback />}>
-            <Viewport3D />
-          </Suspense>
+          <Box
+            sx={{
+              minWidth: 0,
+              minHeight: 0,
+              display: 'grid',
+              gridTemplateRows: 'minmax(0, 1fr) auto',
+              overflow: 'hidden',
+            }}
+          >
+            <Suspense fallback={<ViewportLoadingFallback />}>
+              <Viewport3D />
+            </Suspense>
+            <CommandConsole />
+          </Box>
 
           <PanelHandle
             side="right"
@@ -184,14 +217,13 @@ export function CadShell() {
             onToggle={() => togglePropertiesCollapsed()}
           />
 
-          <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+          <Box sx={{ minWidth: 0, minHeight: 0, height: '100%', overflow: 'hidden' }}>
             {!propertiesCollapsed && <PropertiesPanel />}
           </Box>
         </Box>
       </Box>
 
       <BottomStatusBar />
-      <CommandConsole />
       <ProjectProfilesDialog />
       <ProjectMaterialsDialog />
       <WindEditorDialog />

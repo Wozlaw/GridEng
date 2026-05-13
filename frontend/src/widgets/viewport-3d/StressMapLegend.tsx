@@ -34,8 +34,8 @@ export function StressMapLegend({
       variant="outlined"
       sx={{
         position: 'absolute',
-        top: 16,
-        right: 16,
+        left: 16,
+        bottom: 16,
         zIndex: 2,
         minWidth: 210,
         px: 1.5,

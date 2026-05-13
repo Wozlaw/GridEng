@@ -18,12 +18,14 @@ import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import TerminalIcon from '@mui/icons-material/Terminal';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 import { useLayoutStore, useModelStore, useUiStore } from '../../app/store';
 import { downloadGridEngJson } from '../../features/export-json/exportGridEngJson';
+import { useCommandConsoleStore } from '../../features/console/store';
 import { openMaterialsDialog, openProfilesDialog } from '../../features/project-catalogs';
 import { getSelectedEntityLabel } from '../../features/selection';
 import { ACTIVE_VIEW_MODES, isActiveViewMode, type ActiveViewMode } from '../../features/view-modes';
@@ -37,7 +39,7 @@ import type {
   RibbonCommandGroupDefinition,
 } from './types';
 
-const VISIBILITY_KEYS = ['axes', 'grid', 'loads', 'restraints'] as const;
+const VISIBILITY_KEYS = ['axes', 'grid', 'loads', 'restraints', 'labels'] as const;
 
 function localize(language: AppLanguage, ru: string, en: string): string {
   return language === 'ru' ? ru : en;
@@ -338,6 +340,14 @@ export const APP_COMMANDS: AppCommandDefinition[] = [
     },
   },
   {
+    id: 'document.exportDxf',
+    labelKey: 'commands.document.exportDxf.label',
+    tooltipKey: 'commands.document.exportDxf.tooltip',
+    icon: DownloadIcon,
+    placeholder: true,
+    handler: () => notifyPlaceholder('commands.document.exportDxf.label'),
+  },
+  {
     id: 'view.fit',
     labelKey: 'commands.view.fit.label',
     tooltipKey: 'commands.view.fit.tooltip',
@@ -419,6 +429,14 @@ export const APP_COMMANDS: AppCommandDefinition[] = [
     handler: () => toggleVisibility('restraints'),
   },
   {
+    id: 'visibility.labels',
+    labelKey: 'visibility.labels',
+    tooltipKey: 'commands.visibility.labels.tooltip',
+    icon: TextFieldsIcon,
+    isActive: () => useModelStore.getState().visibility.labels,
+    handler: () => toggleVisibility('labels'),
+  },
+  {
     id: 'catalog.constructions',
     labelKey: 'commands.catalog.constructions.label',
     tooltipKey: 'commands.catalog.constructions.tooltip',
@@ -454,11 +472,28 @@ export const APP_COMMANDS: AppCommandDefinition[] = [
     handler: () => openProjectMaterialsCatalog(),
   },
   {
+    id: 'catalog.profileCatalog',
+    labelKey: 'commands.catalog.profileCatalog.label',
+    tooltipKey: 'commands.catalog.profileCatalog.tooltip',
+    icon: TableRowsIcon,
+    placeholder: true,
+    handler: () => notifyPlaceholder('commands.catalog.profileCatalog.label'),
+  },
+  {
+    id: 'catalog.materialCatalog',
+    labelKey: 'commands.catalog.materialCatalog.label',
+    tooltipKey: 'commands.catalog.materialCatalog.tooltip',
+    icon: LayersIcon,
+    placeholder: true,
+    handler: () => notifyPlaceholder('commands.catalog.materialCatalog.label'),
+  },
+  {
     id: 'analytics.console',
     labelKey: 'commands.analytics.console.label',
     tooltipKey: 'commands.analytics.console.tooltip',
     icon: TerminalIcon,
     hotkey: 'Ctrl+Shift+P',
+    isActive: () => useCommandConsoleStore.getState().isDockedOpen,
     handler: (context) => context.openConsole?.(),
   },
   {
@@ -473,7 +508,21 @@ export const APP_COMMANDS: AppCommandDefinition[] = [
     labelKey: 'commands.analytics.summary.label',
     tooltipKey: 'commands.analytics.summary.tooltip',
     icon: SummarizeIcon,
-    handler: () => useModelStore.getState().clearSelection(),
+    placeholder: true,
+    handler: () => {
+      const language = useUiStore.getState().language;
+
+      notifyReservedFeature(
+        localize(language, 'Сводка аналитики пока недоступна.', 'Analytics summary is not available yet.'),
+        [
+          localize(
+            language,
+            'Отдельная сводка по активному загружению и результатам расчета будет добавлена следующей аналитической итерацией.',
+            'A dedicated summary for the active load case and analysis results will be added in a later analytics iteration.',
+          ),
+        ],
+      );
+    },
   },
   {
     id: 'report.specification',
@@ -1437,43 +1486,42 @@ export const RIBBON_COMMAND_GROUPS: RibbonCommandGroupDefinition[] = [
   {
     id: 'document',
     titleKey: 'ribbon.group.document',
-    primaryCommandIds: ['document.importDxf', 'document.importJson', 'document.exportJson'],
-    secondaryCommandIds: ['document.openProject', 'document.saveProject'],
+    primaryCommandIds: ['document.openProject', 'document.saveProject', 'document.importDxf'],
+    menuSecondaryCommandIds: ['document.exportDxf', 'document.importJson', 'document.exportJson'],
   },
   {
     id: 'view',
     titleKey: 'ribbon.group.view',
-    primaryCommandIds: ['view.fit', 'view.wireframe', 'view.loads', 'view.restraints'],
-    secondaryCommandIds: ['view.real', 'view.stressMap'],
+    primaryCommandIds: ['view.wireframe', 'view.real', 'view.stressMap'],
   },
   {
     id: 'visibility',
     titleKey: 'ribbon.group.visibility',
-    primaryCommandIds: ['visibility.axes', 'visibility.grid', 'visibility.loads', 'visibility.restraints'],
-    secondaryCommandIds: [],
+    primaryCommandIds: ['view.fit', 'visibility.axes', 'visibility.grid'],
+    menuSecondaryCommandIds: ['visibility.loads', 'visibility.restraints', 'visibility.labels'],
   },
   {
     id: 'catalog',
     titleKey: 'ribbon.group.catalog',
-    primaryCommandIds: ['catalog.profiles', 'catalog.materials'],
-    secondaryCommandIds: ['catalog.constructions'],
+    primaryCommandIds: ['catalog.constructions'],
+    inlineSecondaryCommandIds: ['catalog.profiles', 'catalog.materials'],
+    menuSecondaryCommandIds: ['catalog.profileCatalog', 'catalog.materialCatalog'],
   },
   {
     id: 'analytics',
     titleKey: 'ribbon.group.analytics',
-    primaryCommandIds: ['analytics.summary', 'analytics.wind'],
-    secondaryCommandIds: ['analytics.console'],
+    primaryCommandIds: ['analytics.console'],
+    inlineSecondaryCommandIds: ['analytics.summary', 'analytics.wind'],
   },
   {
     id: 'report',
     titleKey: 'ribbon.group.report',
-    primaryCommandIds: ['report.specification'],
-    secondaryCommandIds: ['report.calcReport'],
+    primaryCommandIds: ['report.calcReport', 'report.specification'],
   },
   {
     id: 'about',
     titleKey: 'ribbon.group.about',
-    primaryCommandIds: ['about.help', 'about.about'],
-    secondaryCommandIds: ['about.license'],
+    primaryCommandIds: ['about.help'],
+    inlineSecondaryCommandIds: ['about.about', 'about.license'],
   },
 ];

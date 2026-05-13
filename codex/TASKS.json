@@ -389,6 +389,78 @@
       "title": "Task 20.2 — DXF import specification documentation",
       "prompt_file": "prompts/20-02-dxf-docs.md",
       "default_checks": []
+    },
+    {
+      "id": "21-01-layout-overflow-panels-menu-height",
+      "title": "Task 21.1 — Layout overflow and TopMenu height",
+      "prompt_file": "prompts/21-01-layout-overflow-panels-menu-height.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-02-ribbon-topmenu-reorganization",
+      "title": "Task 21.2 — Ribbon TopMenu reorganization",
+      "prompt_file": "prompts/21-02-ribbon-topmenu-reorganization.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-03-active-loadcase-state-project-tree",
+      "title": "Task 21.3 — Active load case and ProjectTree",
+      "prompt_file": "prompts/21-03-active-loadcase-state-project-tree.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-04-scene-overlays-wind-stress-legend-label-visibility",
+      "title": "Task 21.4 — Scene overlays and visibility.labels",
+      "prompt_file": "prompts/21-04-scene-overlays-wind-stress-legend-label-visibility.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-05-scene-labels-and-restraint-symbols",
+      "title": "Task 21.5 — Scene labels and restraint symbols",
+      "prompt_file": "prompts/21-05-scene-labels-and-restraint-symbols.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-06-project-tree-properties-panel-polish",
+      "title": "Task 21.6 — ProjectTree and PropertiesPanel polish",
+      "prompt_file": "prompts/21-06-project-tree-properties-panel-polish.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-07-docked-console-and-fullscreen-modal",
+      "title": "Task 21.7 — Docked console and fullscreen modal",
+      "prompt_file": "prompts/21-07-docked-console-and-fullscreen-modal.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "21-08-placeholders-final-checklist-docs",
+      "title": "Task 21.8 — Placeholders, final checklist and docs",
+      "prompt_file": "prompts/21-08-placeholders-final-checklist-docs.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
     }
   ]
 }

@@ -68,5 +68,6 @@ export interface RibbonCommandGroupDefinition {
   id: RibbonCommandGroupId;
   titleKey: I18nKey;
   primaryCommandIds: string[];
-  secondaryCommandIds: string[];
+  inlineSecondaryCommandIds?: string[];
+  menuSecondaryCommandIds?: string[];
 }

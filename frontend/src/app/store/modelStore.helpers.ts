@@ -55,6 +55,19 @@ export function findLoadCase(model: GridEngModel, loadCaseId: Id) {
   return model.loadCases.find((loadCase) => loadCase.id === loadCaseId);
 }
 
+export function resolveActiveLoadCaseId(model: GridEngModel, activeLoadCaseId: Id | null): Id | null {
+  if (activeLoadCaseId != null && findLoadCase(model, activeLoadCaseId) != null) {
+    return activeLoadCaseId;
+  }
+
+  return model.loadCases[0]?.id ?? null;
+}
+
+export function findActiveLoadCase(model: GridEngModel, activeLoadCaseId: Id | null): LoadCase | undefined {
+  const resolvedId = resolveActiveLoadCaseId(model, activeLoadCaseId);
+  return resolvedId == null ? undefined : findLoadCase(model, resolvedId);
+}
+
 export function findLoadCaseIndex(model: GridEngModel, loadCaseId: Id): number {
   return model.loadCases.findIndex((loadCase) => loadCase.id === loadCaseId);
 }
@@ -120,6 +133,33 @@ export function sanitizeSelection(selectedEntity: SelectedEntity, model: GridEng
     default:
       return EMPTY_SELECTION;
   }
+}
+
+export function syncSelectionWithActiveLoadCase(
+  selectedEntity: SelectedEntity,
+  activeLoadCaseId: Id | null,
+): SelectedEntity {
+  if (activeLoadCaseId == null) {
+    return selectedEntity.type === 'loadCase' || selectedEntity.type === 'load'
+      ? EMPTY_SELECTION
+      : selectedEntity;
+  }
+
+  if (selectedEntity.type === 'loadCase') {
+    return {
+      type: 'loadCase',
+      id: activeLoadCaseId,
+    };
+  }
+
+  if (selectedEntity.type === 'load' && selectedEntity.loadCaseId !== activeLoadCaseId) {
+    return {
+      type: 'loadCase',
+      id: activeLoadCaseId,
+    };
+  }
+
+  return selectedEntity;
 }
 
 export function createSequentialId(prefix: string, ids: Id[]): Id {

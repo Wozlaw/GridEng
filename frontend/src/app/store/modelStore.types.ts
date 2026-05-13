@@ -75,6 +75,7 @@ export interface ModelStoreState {
   model: GridEngModel;
   validationReport: ModelValidationResult;
   selectedEntity: SelectedEntity;
+  activeLoadCaseId: Id | null;
   viewMode: ViewMode;
   visibility: VisibilityState;
   fitRequestNonce: number;
@@ -84,10 +85,12 @@ export interface ModelStoreState {
   selectEntity: (selectedEntity: SelectedEntity) => void;
   selectLoad: (loadCaseId: Id, loadId: Id) => void;
   selectRestraint: (restraintId: Id) => void;
+  setActiveLoadCaseId: (loadCaseId: Id | null) => void;
   clearSelection: () => void;
   getSelectedNode: () => GridEngModel['nodes'][number] | undefined;
   getSelectedMember: () => GridEngModel['members'][number] | undefined;
   getSelectedLoadCase: () => GridEngModel['loadCases'][number] | undefined;
+  getActiveLoadCase: () => GridEngModel['loadCases'][number] | undefined;
   getSelectedLoad: () => Load | undefined;
   getSelectedRestraint: () => Restraint | undefined;
   getSelectedRestraintNode: () => GridEngModel['nodes'][number] | undefined;

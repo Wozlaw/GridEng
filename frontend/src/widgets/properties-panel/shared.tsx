@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -33,10 +37,73 @@ import { formatNumber, formatOptionalText, formatVector } from '../../shared/uti
 export function PropertySection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{title}</Typography>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ fontWeight: 600, letterSpacing: '0.02em' }}
+      >
+        {title}
+      </Typography>
       <Divider />
       <Stack spacing={1}>{children}</Stack>
     </Stack>
+  );
+}
+
+export function TechnicalDetailsSection({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<{ label: string; value: string }>;
+}) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <Accordion
+      disableGutters
+      elevation={0}
+      square
+      sx={{
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 1,
+        overflow: 'hidden',
+        bgcolor: 'transparent',
+        '&::before': {
+          display: 'none',
+        },
+      }}
+    >
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon fontSize="small" />}
+        sx={{
+          minHeight: 36,
+          px: 1.5,
+          '& .MuiAccordionSummary-content': {
+            my: 0.75,
+          },
+        }}
+      >
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ fontWeight: 700, letterSpacing: '0.05em' }}
+        >
+          {title}
+        </Typography>
+      </AccordionSummary>
+
+      <AccordionDetails sx={{ px: 1.5, py: 1.25 }}>
+        <Stack spacing={0.75}>
+          {rows.map((row) => (
+            <PropertyRow key={`${row.label}-${row.value}`} label={row.label} value={row.value} />
+          ))}
+        </Stack>
+      </AccordionDetails>
+    </Accordion>
   );
 }
 
@@ -45,14 +112,16 @@ export function PropertyRow({ label, value }: { label: string; value: string }) 
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'minmax(0, 132px) minmax(0, 1fr)',
+        gridTemplateColumns: 'minmax(0, 120px) minmax(0, 1fr)',
         gap: 1,
       }}
     >
       <Typography variant="body2" color="text.secondary">
         {label}
       </Typography>
-      <Typography variant="body2">{value}</Typography>
+      <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+        {value}
+      </Typography>
     </Box>
   );
 }

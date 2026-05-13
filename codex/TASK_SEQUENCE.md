@@ -68,3 +68,15 @@ cd frontend && npm run lint
 ```
 
 Минимальная ручная проверка после блоков 10–17: открыть приложение, выбрать ноду/элемент/нагрузку, проверить что камера не меняется при выборе, экспортировать JSON.
+
+
+## Блок 21 — интерфейсная ревизия 2 поверх выполненных задач
+
+- `codex/prompts/21-01-layout-overflow-panels-menu-height.md` — Layout: overflow, ширина приложения и фиксированная высота TopMenu
+- `codex/prompts/21-02-ribbon-topmenu-reorganization.md` — TopMenu/Ribbon: реорганизация групп и команд
+- `codex/prompts/21-03-active-loadcase-state-project-tree.md` — Active load case: единое активное загружение и дерево проекта
+- `codex/prompts/21-04-scene-overlays-wind-stress-legend-label-visibility.md` — Scene overlays: ветер, легенда карты напряжений и visibility.labels
+- `codex/prompts/21-05-scene-labels-and-restraint-symbols.md` — Scene labels: подписи сил/моментов и новая визуальная грамматика закреплений
+- `codex/prompts/21-06-project-tree-properties-panel-polish.md` — ProjectTree и PropertiesPanel: типографика, scroll и очистка шапки
+- `codex/prompts/21-07-docked-console-and-fullscreen-modal.md` — Консоль: нижняя docked-панель и fullscreen modal
+- `codex/prompts/21-08-placeholders-final-checklist-docs.md` — Заглушки, финальная интеграционная проверка и документация UI revision 2

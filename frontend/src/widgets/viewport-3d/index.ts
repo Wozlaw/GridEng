@@ -8,5 +8,6 @@ export * from './LoadVectors';
 export * from './MomentVectors';
 export * from './RestraintMarkers';
 export * from './StressMapLegend';
+export * from './WindOverlay';
 export * from './modelToScene';
 export * from './stressMap';

@@ -96,6 +96,15 @@ frontend/src/
 | 20.1 | done | `prompts/20-01-model-docs.md` | Документация GridEngModel v0.2 |
 | 20.2 | done | `prompts/20-02-dxf-docs.md` | Документация DXF импорта |
 
+| 21.1 | done | `prompts/21-01-layout-overflow-panels-menu-height.md` | Layout: overflow, ширина приложения и фиксированная высота TopMenu |
+| 21.2 | done | `prompts/21-02-ribbon-topmenu-reorganization.md` | TopMenu/Ribbon: реорганизация групп и команд |
+| 21.3 | done | `prompts/21-03-active-loadcase-state-project-tree.md` | Active load case: единое активное загружение и дерево проекта |
+| 21.4 | done | `prompts/21-04-scene-overlays-wind-stress-legend-label-visibility.md` | Scene overlays: ветер, легенда карты напряжений и visibility.labels |
+| 21.5 | done | `prompts/21-05-scene-labels-and-restraint-symbols.md` | Scene labels: подписи сил/моментов и новая визуальная грамматика закреплений |
+| 21.6 | done | `prompts/21-06-project-tree-properties-panel-polish.md` | ProjectTree и PropertiesPanel: типографика, scroll и очистка шапки |
+| 21.7 | done | `prompts/21-07-docked-console-and-fullscreen-modal.md` | Консоль: нижняя docked-панель и fullscreen modal |
+| 21.8 | done | `prompts/21-08-placeholders-final-checklist-docs.md` | Заглушки, финальная интеграционная проверка и документация UI revision 2 |
+
 ## Примечание по перенумерации
 
 Новые задачи интерфейсной итерации встроены после выполненной задачи 9.2 и занимают диапазон 10.1–17.2.
@@ -108,6 +117,13 @@ frontend/src/
 - старая 11.2 → новая 19.2;
 - старая 12.1 → новая 20.1;
 - старая 12.2 → новая 20.2.
+
+
+## Примечание по интерфейсной ревизии 2
+
+Задачи 21.1–21.8 выполняются поверх завершенных задач 10.1–20.2. Они не меняют онтологию проекта и должны сохранять существующие `CadShell`, `TopMenu`, `ProjectTreePanel`, `PropertiesPanel`, `Viewport3D`, `CommandConsole`, `modelStore`, `APP_COMMANDS_BY_ID`, `RIBBON_COMMAND_GROUPS`, `runAppCommand`.
+
+Исходник согласованных требований: `codex/reference/UI_REVISION_2_CHECKED_REQUIREMENTS.md`.
 
 ## Главное правило
 

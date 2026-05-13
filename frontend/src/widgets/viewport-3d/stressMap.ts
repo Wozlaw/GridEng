@@ -1,3 +1,5 @@
+import { amber, blue, cyan, deepOrange, red } from '@mui/material/colors';
+
 import {
   findAnalysisResultsForLoadCase,
   getMemberStressMetric,
@@ -8,7 +10,13 @@ import {
   type StressMetricRange,
 } from '../../entities/model';
 
-const STRESS_MAP_STOPS = ['#1b4d9b', '#26c6da', '#f6d743', '#f97316', '#c81d25'] as const;
+const STRESS_MAP_STOPS = [
+  blue[800],
+  cyan[400],
+  amber[500],
+  deepOrange[500],
+  red[800],
+] as const;
 
 export interface StressMapState {
   loadCaseId: string;

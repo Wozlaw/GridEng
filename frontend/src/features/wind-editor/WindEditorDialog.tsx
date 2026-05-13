@@ -32,9 +32,9 @@ interface WindDraft {
 export function WindEditorDialog() {
   const { language } = useI18n();
   const model = useModelStore((state) => state.model);
+  const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
+  const setActiveLoadCaseId = useModelStore((state) => state.setActiveLoadCaseId);
   const open = useWindEditorStore((state) => state.isOpen);
-  const activeLoadCaseId = useWindEditorStore((state) => state.activeLoadCaseId);
-  const setActiveLoadCaseId = useWindEditorStore((state) => state.setActiveLoadCaseId);
   const close = useWindEditorStore((state) => state.close);
 
   const activeLoadCase = model.loadCases.find((loadCase) => loadCase.id === activeLoadCaseId) ?? model.loadCases[0];

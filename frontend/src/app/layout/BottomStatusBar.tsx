@@ -21,6 +21,8 @@ export function BottomStatusBar() {
       square
       variant="outlined"
       sx={{
+        minWidth: 0,
+        overflow: 'hidden',
         borderLeft: 'none',
         borderRight: 'none',
         borderBottom: 'none',
