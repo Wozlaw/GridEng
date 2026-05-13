@@ -1,5 +1,7 @@
-import { GridEngModelSchema } from './schema';
+import { ZodError } from 'zod';
+
 import { isZeroVector } from './geometry';
+import { migrateGridEngModelToCurrent } from './migrations';
 import type { GridEngModel, Id, Load, Member, Node } from './types';
 
 const ZERO_LENGTH_MEMBER_TOLERANCE_MM = 1e-6;
@@ -36,11 +38,25 @@ export interface ModelValidationResult {
 export type ModelValidationReport = ModelValidationResult;
 
 export function parseGridEngModel(raw: unknown): GridEngModel {
-  return GridEngModelSchema.parse(raw) as GridEngModel;
+  return migrateGridEngModelToCurrent(raw);
 }
 
 export function safeParseGridEngModel(raw: unknown) {
-  return GridEngModelSchema.safeParse(raw);
+  try {
+    return {
+      success: true as const,
+      data: parseGridEngModel(raw),
+    };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        success: false as const,
+        error,
+      };
+    }
+
+    throw error;
+  }
 }
 
 export function validateGridEngModel(raw: unknown): ModelValidationResult {

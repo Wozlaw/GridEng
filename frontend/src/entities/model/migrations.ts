@@ -12,8 +12,6 @@ import {
   NodeSchema,
   ProfileSchema,
   RestraintSchema,
-  UnitSystemSchema,
-  WindLoadDefinitionSchema,
 } from './schema';
 import { normalizeVec3, vec3Length } from './geometry';
 import type {
@@ -27,10 +25,34 @@ import type {
 
 const DEFAULT_LOAD_DIRECTION: Vec3 = { x: 0, y: 0, z: 1 };
 
+const LegacyUnitSystemSchema = z.object({
+  length: z.enum(['mm', 'm']),
+  force: z.enum(['N', 'kN']),
+  moment: z.enum(['Nmm', 'kNm']),
+  stress: z.literal('MPa'),
+  pressure: z.enum(['kPa', 'Pa']),
+  mass: z.literal('kg'),
+});
+
+const LegacyWindLoadDefinitionSchema = z.object({
+  direction: z.object({
+    x: z.number().finite(),
+    y: z.number().finite(),
+    z: z.number().finite(),
+  }),
+  nominalPressurePa: z.number().finite().nonnegative().optional(),
+  nominalPressureKPa: z.number().finite().nonnegative().optional(),
+  comment: z.string().optional(),
+}).transform((wind) => ({
+  direction: wind.direction,
+  nominalPressurePa: wind.nominalPressurePa ?? ((wind.nominalPressureKPa ?? 0) * 1000),
+  comment: wind.comment,
+}));
+
 const GridEngModelV01Schema = z.object({
   schemaVersion: z.literal('0.1'),
   name: z.string().min(1),
-  units: UnitSystemSchema,
+  units: LegacyUnitSystemSchema,
   settings: ModelSettingsSchema,
   nodes: z.array(NodeSchema),
   members: z.array(MemberSchema),
@@ -41,7 +63,7 @@ const GridEngModelV01Schema = z.object({
     id: LoadCaseSchema.shape.id,
     name: LoadCaseSchema.shape.name,
     loads: z.array(ConcentratedLoadSchema),
-    wind: WindLoadDefinitionSchema,
+    wind: LegacyWindLoadDefinitionSchema,
   })),
   importMeta: z.object({
     source: z.enum(['dxf', 'json', 'manual']),
@@ -69,9 +91,11 @@ export function migrateGridEngModelToCurrentDetailed(input: unknown): GridEngMod
     return migrateV01ToV02(legacyModel);
   }
 
+  const normalized = normalizeCurrentModelInput(input);
+
   return {
-    model: GridEngModelSchema.parse(input) as GridEngModel,
-    warnings: [],
+    model: GridEngModelSchema.parse(normalized.model) as GridEngModel,
+    warnings: normalized.warnings,
   };
 }
 
@@ -81,6 +105,10 @@ function migrateV01ToV02(model: GridEngModelV01): GridEngModelMigrationResult {
   const nextModel: GridEngModel = {
     ...model,
     schemaVersion: '0.2',
+    units: {
+      ...model.units,
+      pressure: 'Pa',
+    },
     loadCases: model.loadCases.map((loadCase, loadCaseIndex) => ({
       id: loadCase.id,
       name: loadCase.name,
@@ -98,6 +126,71 @@ function migrateV01ToV02(model: GridEngModelV01): GridEngModelMigrationResult {
     model: nextModel,
     warnings,
   };
+}
+
+function normalizeCurrentModelInput(input: unknown): GridEngModelMigrationResult {
+  if (!isRecord(input)) {
+    return {
+      model: input as GridEngModel,
+      warnings: [],
+    };
+  }
+
+  const warnings: string[] = [];
+  const nextModel: Record<string, unknown> = { ...input };
+
+  if (isRecord(nextModel.units)) {
+    const nextUnits: Record<string, unknown> = { ...nextModel.units };
+
+    if (nextUnits.pressure === 'kPa') {
+      nextUnits.pressure = 'Pa';
+      warnings.push('Legacy units.pressure value "kPa" was normalized to "Pa".');
+    }
+
+    nextModel.units = nextUnits;
+  }
+
+  if (Array.isArray(nextModel.loadCases)) {
+    nextModel.loadCases = nextModel.loadCases.map((loadCase, loadCaseIndex) => {
+      if (!isRecord(loadCase)) {
+        return loadCase;
+      }
+
+      const nextLoadCase: Record<string, unknown> = { ...loadCase };
+
+      if (isRecord(loadCase.wind)) {
+        nextLoadCase.wind = normalizeCurrentWindInput(loadCase.wind, loadCaseIndex, warnings);
+      }
+
+      return nextLoadCase;
+    });
+  }
+
+  return {
+    model: nextModel as unknown as GridEngModel,
+    warnings,
+  };
+}
+
+function normalizeCurrentWindInput(
+  wind: Record<string, unknown>,
+  loadCaseIndex: number,
+  warnings: string[],
+): Record<string, unknown> {
+  const nextWind: Record<string, unknown> = { ...wind };
+
+  if (typeof nextWind.nominalPressurePa === 'number' && Number.isFinite(nextWind.nominalPressurePa)) {
+    delete nextWind.nominalPressureKPa;
+    return nextWind;
+  }
+
+  if (typeof nextWind.nominalPressureKPa === 'number' && Number.isFinite(nextWind.nominalPressureKPa)) {
+    nextWind.nominalPressurePa = nextWind.nominalPressureKPa * 1000;
+    delete nextWind.nominalPressureKPa;
+    warnings.push(`Legacy loadCases[${loadCaseIndex}].wind.nominalPressureKPa was migrated to nominalPressurePa.`);
+  }
+
+  return nextWind;
 }
 
 function migrateLegacyConcentratedLoad(
@@ -300,4 +393,8 @@ function readSchemaVersion(input: unknown): string | undefined {
 
   const rawVersion = (input as { schemaVersion?: unknown }).schemaVersion;
   return typeof rawVersion === 'string' ? rawVersion : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value != null && !Array.isArray(value);
 }

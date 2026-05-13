@@ -18,14 +18,14 @@ describe('modelStore', () => {
   it('normalizes wind direction and keeps zero vector as disabled wind', () => {
     const firstUpdate = useModelStore.getState().updateLoadCaseWind('lc-1', {
       direction: { x: 0, y: 12, z: 0 },
-      nominalPressureKPa: 0.85,
+      nominalPressurePa: 850,
       comment: '  test wind  ',
     });
 
     expect(firstUpdate.ok).toBe(true);
     expect(useModelStore.getState().model.loadCases[0].wind).toEqual({
       direction: { x: 0, y: 1, z: 0 },
-      nominalPressureKPa: 0.85,
+      nominalPressurePa: 850,
       comment: 'test wind',
     });
 

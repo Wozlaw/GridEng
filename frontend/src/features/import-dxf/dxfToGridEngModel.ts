@@ -16,6 +16,11 @@ import type {
   DxfImportOptions,
   DxfImportPreview,
   DxfLineEntity,
+  DxfGroupPreviewDiagnostics,
+  DxfMemberPreviewDiagnostics,
+  DxfPreviewDiagnostic,
+  DxfPreviewDiagnosticCode,
+  DxfPreviewDiagnosticStatus,
   DxfToGridEngModelResult,
 } from './types';
 
@@ -45,6 +50,12 @@ export function convertDxfToGridEngModel(
       model: null,
       preview: {
         ...createEmptyPreview(),
+        diagnostics: {
+          ...createEmptyPreview().diagnostics,
+          summary: [
+            createDiagnostic('error', 'unexpected_import_error', formatUnknownError(error)),
+          ],
+        },
         errors: [formatUnknownError(error)],
       },
     };
@@ -77,11 +88,15 @@ function buildModelFromLines({
   };
 
   if (ignoredEntitiesCount > 0) {
-    warnings.push(`Ignored ${ignoredEntitiesCount} non-LINE DXF entities.`);
+    const message = `Ignored ${ignoredEntitiesCount} non-LINE DXF entities.`;
+    warnings.push(message);
+    preview.diagnostics.summary.push(createDiagnostic('warning', 'ignored_entities_present', message));
   }
 
   if (lines.length === 0) {
-    errors.push('DXF file does not contain any LINE entities.');
+    const message = 'DXF file does not contain any LINE entities.';
+    errors.push(message);
+    preview.diagnostics.summary.push(createDiagnostic('error', 'no_line_entities', message));
     return {
       model: null,
       preview: {
@@ -95,37 +110,66 @@ function buildModelFromLines({
   const normalized = normalizeDxfCoordinates(lines, options);
   preview.is3D = normalized.diagnostics.is3D;
   preview.zRange = normalized.diagnostics.zRange;
+  preview.diagnostics.lines = normalized.lines.map((line, lineIndex) => ({
+    lineIndex,
+    start: { ...line.start },
+    end: { ...line.end },
+    handle: line.handle,
+    layer: line.layer,
+    status: 'ok',
+    displayColor: toDisplayColor(line.trueColor ?? line.color),
+    diagnostics: [],
+  }));
 
   if (!normalized.diagnostics.is3D) {
-    warnings.push(
-      options.force2DToXY
+    const message = options.force2DToXY
         ? 'DXF geometry was recognized as 2D and projected to the XY plane with Z=0.'
-        : 'DXF geometry was recognized as 2D.',
+        : 'DXF geometry was recognized as 2D.';
+    warnings.push(message);
+    preview.diagnostics.summary.push(
+      createDiagnostic(
+        'warning',
+        options.force2DToXY ? 'recognized_as_2d_projected' : 'recognized_as_2d',
+        message,
+      ),
     );
   }
 
   const merged = mergeDxfNodes(normalized.lines, options.toleranceMm);
   preview.nodesCount = merged.nodes.length;
   preview.mergedNodesCount = merged.mergedNodesCount;
+  preview.diagnostics.nodes = merged.nodes.map((node) => ({
+    nodeId: node.id,
+    status: 'ok',
+    diagnostics: [],
+  }));
 
   const colorGroups = new Map<string, DxfColorGroup>();
+  const groupDiagnostics = new Map<string, DxfGroupPreviewDiagnostics>();
   const colorProfileMap: Record<string, string> = {};
   const layerMap: Record<string, string> = {};
   const members: Member[] = [];
+  const memberDiagnostics: DxfMemberPreviewDiagnostics[] = [];
 
   for (const [lineIndex, line] of normalized.lines.entries()) {
+    const lineDiagnostic = preview.diagnostics.lines[lineIndex];
     const endpointIds = merged.endpointNodeIds[lineIndex];
     if (endpointIds == null) {
-      errors.push(`LINE at index ${lineIndex} could not be mapped to merged DXF nodes.`);
+      const message = `LINE at index ${lineIndex} could not be mapped to merged DXF nodes.`;
+      errors.push(message);
+      pushDiagnostic(lineDiagnostic, createDiagnostic('error', 'line_node_mapping_failed', message));
       continue;
     }
 
     if (endpointIds.startNodeId === endpointIds.endNodeId) {
-      errors.push(`LINE at index ${lineIndex} collapses to zero length after node merge.`);
+      const message = `LINE at index ${lineIndex} collapses to zero length after node merge.`;
+      errors.push(message);
+      pushDiagnostic(lineDiagnostic, createDiagnostic('error', 'line_zero_length_after_merge', message));
       continue;
     }
 
     const group = getOrCreateColorGroup(colorGroups, line);
+    lineDiagnostic.groupKey = group.key;
     colorProfileMap[group.key] = group.profileId ?? createProfileId(group.key);
     group.profileId = colorProfileMap[group.key];
 
@@ -133,9 +177,11 @@ function buildModelFromLines({
       layerMap[line.layer] = group.key;
     }
 
+    const memberId = `M${members.length + 1}`;
     group.membersCount += 1;
+    group.memberIds.push(memberId);
     members.push({
-      id: `M${members.length + 1}`,
+      id: memberId,
       startNodeId: endpointIds.startNodeId,
       endNodeId: endpointIds.endNodeId,
       profileId: group.profileId,
@@ -143,10 +189,43 @@ function buildModelFromLines({
       groupId: group.key,
       source: buildSourceRef(line),
     });
+
+    memberDiagnostics.push({
+      memberId,
+      lineIndex,
+      startNodeId: endpointIds.startNodeId,
+      endNodeId: endpointIds.endNodeId,
+      handle: line.handle,
+      layer: line.layer,
+      groupKey: group.key,
+      status: 'ok',
+      diagnostics: [],
+    });
+    lineDiagnostic.memberId = memberId;
+
+    groupDiagnostics.set(
+      group.key,
+      syncGroupDiagnostics(groupDiagnostics.get(group.key), group),
+    );
   }
 
   preview.membersCount = members.length;
   preview.colorGroups = Array.from(colorGroups.values());
+  preview.diagnostics.members = memberDiagnostics;
+  preview.diagnostics.groups = Array.from(groupDiagnostics.values()).map((groupDiagnostic) => {
+    const nextGroupDiagnostic = { ...groupDiagnostic, memberIds: [...groupDiagnostic.memberIds] };
+
+    pushDiagnostic(
+      nextGroupDiagnostic,
+      createDiagnostic(
+        'warning',
+        'group_profile_unassigned',
+        `Group ${groupDiagnostic.groupKey} still uses temporary DXF profile ${groupDiagnostic.profileId ?? '-'}.`,
+      ),
+    );
+
+    return nextGroupDiagnostic;
+  });
 
   const model = createDxfModel({
     fileName: options.fileName,
@@ -166,6 +245,8 @@ function buildModelFromLines({
 
   appendValidationIssues(warnings, validationReport.warnings);
   appendValidationIssues(errors, validationReport.errors);
+  applyStructuredValidationDiagnostics(preview, validationReport.warnings);
+  syncLineDiagnosticsFromMembersAndGroups(preview);
 
   preview.warnings = warnings;
   preview.errors = errors;
@@ -271,6 +352,7 @@ function getOrCreateColorGroup(
   const next: DxfColorGroup = {
     ...seed,
     membersCount: 0,
+    memberIds: [],
     profileId: createProfileId(seed.key),
     temporaryProfileName: createTemporaryProfileName(seed.key),
   };
@@ -392,9 +474,135 @@ function createEmptyPreview(): DxfImportPreview {
     mergedNodesCount: 0,
     danglingMembersCount: 0,
     colorGroups: [],
+    diagnostics: {
+      summary: [],
+      lines: [],
+      members: [],
+      nodes: [],
+      groups: [],
+    },
     warnings: [],
     errors: [],
   };
+}
+
+function createDiagnostic(
+  status: DxfPreviewDiagnosticStatus,
+  code: DxfPreviewDiagnosticCode,
+  message: string,
+): DxfPreviewDiagnostic {
+  return {
+    status,
+    code,
+    message,
+  };
+}
+
+function pushDiagnostic<
+  TEntry extends {
+    status: DxfPreviewDiagnosticStatus;
+    diagnostics: DxfPreviewDiagnostic[];
+  },
+>(entry: TEntry, diagnostic: DxfPreviewDiagnostic): void {
+  entry.diagnostics.push(diagnostic);
+  entry.status = getHigherStatus(entry.status, diagnostic.status);
+}
+
+function getHigherStatus(
+  current: DxfPreviewDiagnosticStatus,
+  next: DxfPreviewDiagnosticStatus,
+): DxfPreviewDiagnosticStatus {
+  const rank: Record<DxfPreviewDiagnosticStatus, number> = {
+    ok: 0,
+    warning: 1,
+    error: 2,
+  };
+
+  return rank[next] > rank[current] ? next : current;
+}
+
+function syncGroupDiagnostics(
+  current: DxfGroupPreviewDiagnostics | undefined,
+  group: DxfColorGroup,
+): DxfGroupPreviewDiagnostics {
+  if (current != null) {
+    return {
+      ...current,
+      profileId: group.profileId,
+      temporaryProfileName: group.temporaryProfileName,
+      layer: group.layer,
+      memberIds: [...group.memberIds],
+    };
+  }
+
+  return {
+    groupKey: group.key,
+    profileId: group.profileId,
+    temporaryProfileName: group.temporaryProfileName,
+    layer: group.layer,
+    memberIds: [...group.memberIds],
+    status: 'ok',
+    diagnostics: [],
+  };
+}
+
+function applyStructuredValidationDiagnostics(
+  preview: DxfImportPreview,
+  issues: ModelValidationIssue[],
+): void {
+  for (const issue of issues) {
+    if (issue.code === 'hanging_member' && issue.entityId != null) {
+      const memberDiagnostic = preview.diagnostics.members.find(
+        (entry) => entry.memberId === issue.entityId,
+      );
+
+      if (memberDiagnostic != null) {
+        pushDiagnostic(
+          memberDiagnostic,
+          createDiagnostic('warning', 'member_hanging', issue.message),
+        );
+      }
+
+      continue;
+    }
+
+    if (issue.code === 'isolated_node' && issue.entityId != null) {
+      const nodeDiagnostic = preview.diagnostics.nodes.find((entry) => entry.nodeId === issue.entityId);
+
+      if (nodeDiagnostic != null) {
+        pushDiagnostic(
+          nodeDiagnostic,
+          createDiagnostic('warning', 'node_isolated', issue.message),
+        );
+      }
+    }
+  }
+}
+
+function syncLineDiagnosticsFromMembersAndGroups(preview: DxfImportPreview): void {
+  const memberDiagnosticsById = new Map(
+    preview.diagnostics.members.map((entry) => [entry.memberId, entry] as const),
+  );
+  const groupDiagnosticsByKey = new Map(
+    preview.diagnostics.groups.map((entry) => [entry.groupKey, entry] as const),
+  );
+
+  for (const lineDiagnostic of preview.diagnostics.lines) {
+    const memberDiagnostic = lineDiagnostic.memberId != null
+      ? memberDiagnosticsById.get(lineDiagnostic.memberId)
+      : undefined;
+    const groupDiagnostic = lineDiagnostic.groupKey != null
+      ? groupDiagnosticsByKey.get(lineDiagnostic.groupKey)
+      : undefined;
+
+    if (memberDiagnostic != null) {
+      lineDiagnostic.status = getHigherStatus(lineDiagnostic.status, memberDiagnostic.status);
+    }
+
+    if (groupDiagnostic != null) {
+      lineDiagnostic.status = getHigherStatus(lineDiagnostic.status, groupDiagnostic.status);
+    }
+  }
 }
 
 function pushUnique(target: string[], message: string): void {

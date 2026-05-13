@@ -1,9 +1,13 @@
 export * from './types';
+export * from './diagnostics';
 export * from './parseDxfLines';
 export * from './mergeDxfNodes';
 export * from './normalizeDxfCoordinates';
 export * from './dxfToGridEngModel';
 export * from './assignDxfProfiles';
 export * from './DxfImportDialog';
+export * from './DxfImportLogDialog';
+export * from './DxfProfileAssignmentPanel';
+export * from './DxfPreviewScene';
 export * from './ImportDxfButton';
 export { DxfImportPreviewPanel } from './DxfImportPreview';

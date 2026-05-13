@@ -80,3 +80,22 @@ cd frontend && npm run lint
 - `codex/prompts/21-06-project-tree-properties-panel-polish.md` — ProjectTree и PropertiesPanel: типографика, scroll и очистка шапки
 - `codex/prompts/21-07-docked-console-and-fullscreen-modal.md` — Консоль: нижняя docked-панель и fullscreen modal
 - `codex/prompts/21-08-placeholders-final-checklist-docs.md` — Заглушки, финальная интеграционная проверка и документация UI revision 2
+
+
+## Блок 22 — интерфейсная ревизия 3 поверх выполненных задач
+
+- `codex/prompts/22-01-theme-console-commands.md` — Консольные команды темы: `theme light`, `theme dark`, `theme toggle`, `theme status`
+- `codex/prompts/22-02-dxf-settings-console-and-log-dialog.md` — DXF settings через консоль и отдельное окно логов импорта
+- `codex/prompts/22-03-dxf-preview-diagnostics-model.md` — Структурированные diagnostics DXF preview для поэлементной подсветки
+- `codex/prompts/22-04-dxf-3d-preview-color-modes.md` — 3D preview DXF и режимы окраски `Диагностика` / `Профили`
+- `codex/prompts/22-05-dxf-profile-assignment-by-color.md` — Назначение профилей по DXF color/color group с фильтром по типу профиля
+- `codex/prompts/22-06-wind-dialog-polish-and-final-docs.md` — Диалог `Ветер`, давление в Па, `Z=0` в UI и документация ревизии 3
+
+После каждой задачи блока 22 проверить:
+
+```bash
+cd frontend && npm run build
+cd frontend && npm run lint
+```
+
+Минимальная ручная проверка блока 22: консольные команды темы и DXF-настроек, DXF preview без изменения основной модели до импорта, режимы `Диагностика`/`Профили`, назначение профиля по цвету, окно логов, диалог `Ветер` с давлением в Па и `Z=0`.

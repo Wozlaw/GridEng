@@ -13,7 +13,7 @@ export const UnitSystemSchema = z.object({
   force: z.enum(['N', 'kN']),
   moment: z.enum(['Nmm', 'kNm']),
   stress: z.literal('MPa'),
-  pressure: z.literal('kPa'),
+  pressure: z.literal('Pa'),
   mass: z.literal('kg'),
 });
 
@@ -24,7 +24,7 @@ export const ForceMomentVectorSchema = z.object({
 
 export const WindLoadDefinitionSchema = z.object({
   direction: Vec3Schema,
-  nominalPressureKPa: z.number().finite().nonnegative(),
+  nominalPressurePa: z.number().finite().nonnegative(),
   comment: z.string().optional(),
 });
 

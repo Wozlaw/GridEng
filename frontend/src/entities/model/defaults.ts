@@ -9,7 +9,7 @@ export const ZERO_FORCE_MOMENT: ForceMomentVector = Object.freeze({
 
 export const NO_WIND: WindLoadDefinition = Object.freeze({
   direction: ZERO_VEC3,
-  nominalPressureKPa: 0,
+  nominalPressurePa: 0,
 });
 
 export const DEFAULT_UNITS: UnitSystem = Object.freeze({
@@ -17,7 +17,7 @@ export const DEFAULT_UNITS: UnitSystem = Object.freeze({
   force: 'N',
   moment: 'Nmm',
   stress: 'MPa',
-  pressure: 'kPa',
+  pressure: 'Pa',
   mass: 'kg',
 });
 

@@ -40,6 +40,49 @@ describe('createModelFromDxfLines', () => {
           key: 'ACI_1',
           layer: 'LEG',
           membersCount: 2,
+          memberIds: ['M1', 'M2'],
+        }),
+      ]),
+    );
+    expect(result.preview.diagnostics.members).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          memberId: 'M1',
+          groupKey: 'ACI_1',
+          status: 'warning',
+        }),
+        expect.objectContaining({
+          memberId: 'M2',
+          groupKey: 'ACI_1',
+          status: 'warning',
+        }),
+      ]),
+    );
+    expect(result.preview.diagnostics.lines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          lineIndex: 0,
+          memberId: 'M1',
+          displayColor: undefined,
+          status: 'warning',
+        }),
+        expect.objectContaining({
+          lineIndex: 1,
+          memberId: 'M2',
+          status: 'warning',
+        }),
+      ]),
+    );
+    expect(result.preview.diagnostics.groups).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          groupKey: 'ACI_1',
+          status: 'warning',
+          diagnostics: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'group_profile_unassigned',
+            }),
+          ]),
         }),
       ]),
     );
@@ -57,5 +100,39 @@ describe('createModelFromDxfLines', () => {
     expect(result.model?.importMeta?.dxf?.colorProfileMap).toEqual({
       ACI_1: 'P_COLOR_ACI_1',
     });
+  });
+
+  it('reports zero-length lines after merge as structured line diagnostics', () => {
+    const lines: DxfLineEntity[] = [
+      {
+        start: { x: 0, y: 0, z: 0 },
+        end: { x: 0.2, y: 0, z: 0 },
+        colorIndex: 3,
+        layer: 'ERR',
+        handle: 'ZZ',
+      },
+    ];
+
+    const result = createModelFromDxfLines(lines, {
+      fileName: 'bad.dxf',
+      toleranceMm: 1,
+      centerOnXY: false,
+      force2DToXY: true,
+    });
+
+    expect(result.model).toBeNull();
+    expect(result.preview.diagnostics.lines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          lineIndex: 0,
+          status: 'error',
+          diagnostics: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'line_zero_length_after_merge',
+            }),
+          ]),
+        }),
+      ]),
+    );
   });
 });

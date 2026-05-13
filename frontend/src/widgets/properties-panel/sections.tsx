@@ -91,7 +91,7 @@ export function ModelSummarySection({
         <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(activeLoadCase?.wind.direction)} />
         <PropertyRow
           label={t('properties.rows.windPressure')}
-          value={`${formatNumber(activeLoadCase?.wind.nominalPressureKPa, 3)} kPa`}
+          value={`${formatNumber(activeLoadCase?.wind.nominalPressurePa, 0)} Pa`}
         />
       </PropertySection>
 
@@ -517,7 +517,7 @@ export function LoadCaseSummarySection({
         <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(loadCase.wind.direction)} />
         <PropertyRow
           label={t('properties.rows.nominalPressure')}
-          value={`${formatNumber(loadCase.wind.nominalPressureKPa, 3)} kPa`}
+          value={`${formatNumber(loadCase.wind.nominalPressurePa, 0)} Pa`}
         />
       </PropertySection>
 

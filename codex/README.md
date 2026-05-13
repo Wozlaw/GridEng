@@ -11,6 +11,7 @@
    - `codex/docs/grideng-model-v0.2.md`
    - `codex/docs/dxf-import-spec-v0.1.md`
    - `codex/docs/ui-revision-2-implementation-notes.md`
+   - `codex/docs/ui-revision-3-implementation-notes.md`
 5. Выполняй frontend-задачи последовательно, без пропуска зависимостей между блоками.
 
 ## Структура нумерации
@@ -72,3 +73,17 @@ cd frontend && npm run lint
 - `21.8` — заглушки, финальный checklist и документация.
 
 Согласованные требования сохранены в `codex/reference/UI_REVISION_2_CHECKED_REQUIREMENTS.md`.
+
+
+## Интерфейсная ревизия 3
+
+Новые задачи ревизии 3 добавлены поверх выполненного плана и начинаются с блока 22:
+
+- `22.1` — консольные команды темы `light/dark/toggle/status`;
+- `22.2` — DXF settings через консоль и отдельное окно логов импорта;
+- `22.3` — structured diagnostics для DXF preview;
+- `22.4` — 3D preview DXF и режимы окраски `Диагностика` / `Профили`;
+- `22.5` — назначение профилей по DXF color/color group;
+- `22.6` — диалог `Ветер`, давление в Па, `Z=0` в UI и финальная документация.
+
+Согласованные требования сохранены в `codex/reference/UI_REVISION_3_CHECKED_REQUIREMENTS.md`.

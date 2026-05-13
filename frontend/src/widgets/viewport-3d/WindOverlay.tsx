@@ -38,8 +38,8 @@ export function WindOverlay({ wind }: WindOverlayProps) {
   }
 
   direction.normalize();
-  const pressureLabel = Number.isFinite(wind.nominalPressureKPa)
-    ? `${formatNumber(wind.nominalPressureKPa, 3)} kPa`
+  const pressureLabel = Number.isFinite(wind.nominalPressurePa)
+    ? `${formatNumber(wind.nominalPressurePa, 0)} Pa`
     : null;
 
   return (

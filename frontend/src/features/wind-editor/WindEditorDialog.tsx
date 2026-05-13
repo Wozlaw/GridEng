@@ -1,16 +1,19 @@
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Alert,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   MenuItem,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
@@ -19,15 +22,18 @@ import type { AppLanguage } from '../../shared/i18n';
 import { useI18n } from '../../shared/i18n';
 import { notifyError, notifySuccess } from '../../shared/ui';
 import { formatNumber } from '../../shared/utils';
+import { NumberField } from './components/NumberField';
+import {
+  formatPressurePaInput,
+  hasNonZeroWindZ,
+  parseWindDraft,
+  type WindDraftValidationError,
+  type WindDraftValues,
+} from './helpers';
 import { useWindEditorStore } from './store';
 
-interface WindDraft {
-  x: string;
-  y: string;
-  z: string;
-  nominalPressureKPa: string;
-  comment: string;
-}
+const WIND_VECTOR_STEP = 1;
+const WIND_PRESSURE_STEP_PA = 10;
 
 export function WindEditorDialog() {
   const { language } = useI18n();
@@ -44,10 +50,12 @@ export function WindEditorDialog() {
       open={open}
       onClose={close}
       fullWidth
-      maxWidth="sm"
+      maxWidth="xs"
       slotProps={{
         paper: {
           sx: {
+            width: { xs: 'calc(100% - 32px)', sm: 420 },
+            maxWidth: '100%',
             bgcolor: 'background.default',
             border: '1px solid',
             borderColor: 'divider',
@@ -56,35 +64,38 @@ export function WindEditorDialog() {
       }}
     >
       <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-        {localize(language, 'Ручной ветер', 'Manual wind')}
+        {localize(language, 'Ветер', 'Wind')}
       </DialogTitle>
 
-      <DialogContent sx={{ display: 'grid', gap: 2, pt: 2.5 }}>
-        {model.loadCases.length === 0
-          ? (
-            <Alert severity="warning">
+      <DialogContent sx={{ pt: 2.5 }}>
+        <Stack spacing={2.25}>
+          {model.loadCases.length === 0 ? (
+            <Alert severity="warning" variant="outlined">
               {localize(language, 'В модели нет загружений для задания ветра.', 'The model has no load cases for wind input.')}
             </Alert>
-          )
-          : (
-            <Stack spacing={2} sx={{ pt: 0.5 }}>
-              <TextField
-                select
-                fullWidth
-                label={localize(language, 'Загружение', 'Load case')}
-                value={activeLoadCase?.id ?? ''}
-                onChange={(event) => {
-                  setActiveLoadCaseId(event.target.value);
-                }}
-              >
-                {model.loadCases.map((loadCase) => (
-                  <MenuItem key={loadCase.id} value={loadCase.id}>
-                    {loadCase.name} ({loadCase.id})
-                  </MenuItem>
-                ))}
-              </TextField>
+          ) : (
+            <>
+              <Stack spacing={0.5}>
+                <Typography variant="caption" color="text.secondary">
+                  {localize(language, 'Загружение', 'Load case')}
+                </Typography>
+                <TextField
+                  select
+                  fullWidth
+                  value={activeLoadCase?.id ?? ''}
+                  onChange={(event) => {
+                    setActiveLoadCaseId(event.target.value);
+                  }}
+                >
+                  {model.loadCases.map((loadCase) => (
+                    <MenuItem key={loadCase.id} value={loadCase.id} title={loadCase.id}>
+                      {loadCase.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Stack>
 
-              {activeLoadCase != null && (
+              {activeLoadCase != null ? (
                 <WindEditorForm
                   key={activeLoadCase.id}
                   language={language}
@@ -93,38 +104,42 @@ export function WindEditorDialog() {
                   initialDraft={{
                     x: String(activeLoadCase.wind.direction.x),
                     y: String(activeLoadCase.wind.direction.y),
-                    z: String(activeLoadCase.wind.direction.z),
-                    nominalPressureKPa: String(activeLoadCase.wind.nominalPressureKPa),
+                    nominalPressurePa: formatPressurePaInput(activeLoadCase.wind.nominalPressurePa),
                     comment: activeLoadCase.wind.comment ?? '',
                   }}
-                  onSaved={() => {
-                    close();
-                  }}
+                  initialWindZ={activeLoadCase.wind.direction.z}
+                  onSaved={close}
                 />
-              )}
-            </Stack>
+              ) : null}
+            </>
           )}
+        </Stack>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={close}>
-          {localize(language, 'Отмена', 'Cancel')}
-        </Button>
-        <Button
-          variant="contained"
-          form="wind-editor-form"
-          type="submit"
-          disabled={activeLoadCase == null}
-        >
-          {localize(language, 'Сохранить', 'Save')}
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <ActionIconButton
+            title={localize(language, 'Отмена', 'Cancel')}
+            label={localize(language, 'Отмена', 'Cancel')}
+            onClick={close}
+          >
+            <CloseIcon />
+          </ActionIconButton>
+
+          <ActionIconButton
+            title={localize(language, 'Сохранить', 'Save')}
+            label={localize(language, 'Сохранить', 'Save')}
+            onClick={() => {
+              (document.getElementById('wind-editor-form') as HTMLFormElement | null)?.requestSubmit();
+            }}
+            disabled={activeLoadCase == null}
+          >
+            <CheckIcon />
+          </ActionIconButton>
+        </Stack>
       </DialogActions>
     </Dialog>
   );
-}
-
-function localize(language: AppLanguage, ru: string, en: string): string {
-  return language === 'ru' ? ru : en;
 }
 
 function WindEditorForm({
@@ -132,59 +147,59 @@ function WindEditorForm({
   loadCaseId,
   loadCaseName,
   initialDraft,
+  initialWindZ,
   onSaved,
 }: {
   language: AppLanguage;
   loadCaseId: string;
   loadCaseName: string;
-  initialDraft: WindDraft;
+  initialDraft: WindDraftValues;
+  initialWindZ: number;
   onSaved: () => void;
 }) {
   const updateLoadCaseWind = useModelStore((state) => state.updateLoadCaseWind);
-  const [draft, setDraft] = useState<WindDraft>(initialDraft);
-  const [errorText, setErrorText] = useState<string | null>(null);
+  const [draft, setDraft] = useState<WindDraftValues>(initialDraft);
+  const [submitErrorText, setSubmitErrorText] = useState<string | null>(null);
+  const [pressureFieldError, setPressureFieldError] = useState<string | null>(
+    getPressureFieldError(language, initialDraft.nominalPressurePa),
+  );
 
   const windDisabled = useMemo(() => {
     const x = Number(draft.x);
     const y = Number(draft.y);
-    const z = Number(draft.z);
 
-    return Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z)
-      && x === 0
-      && y === 0
-      && z === 0;
-  }, [draft]);
+    return Number.isFinite(x) && Number.isFinite(y) && x === 0 && y === 0;
+  }, [draft.x, draft.y]);
+
+  function handlePressureChange(value: string) {
+    setDraft((state) => ({ ...state, nominalPressurePa: value }));
+    setPressureFieldError(getPressureFieldError(language, value));
+    setSubmitErrorText(null);
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const x = Number(draft.x);
-    const y = Number(draft.y);
-    const z = Number(draft.z);
-    const nominalPressureKPa = Number(draft.nominalPressureKPa);
+    const parsedDraft = parseWindDraft(draft);
+    if (!parsedDraft.ok) {
+      const errorMessage = getSubmitErrorMessage(language, parsedDraft.error);
+      setSubmitErrorText(errorMessage);
 
-    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || !Number.isFinite(nominalPressureKPa)) {
-      const message = localize(
-        language,
-        'Поля направления и давления должны содержать корректные числа.',
-        'Direction and pressure fields should contain valid finite numbers.',
-      );
-      setErrorText(message);
+      if (parsedDraft.error === 'invalid_pressure' || parsedDraft.error === 'negative_pressure') {
+        setPressureFieldError(errorMessage);
+      }
+
       notifyError({
         title: localize(language, 'Не удалось сохранить ветер.', 'Failed to save wind settings.'),
-        details: [message],
+        details: [errorMessage],
       });
       return;
     }
 
-    const result = updateLoadCaseWind(loadCaseId, {
-      direction: { x, y, z },
-      nominalPressureKPa,
-      comment: draft.comment.trim() || undefined,
-    });
+    const result = updateLoadCaseWind(loadCaseId, parsedDraft.value);
 
     if (!result.ok) {
-      setErrorText(result.error);
+      setSubmitErrorText(result.error);
       notifyError({
         title: localize(language, 'Не удалось сохранить ветер.', 'Failed to save wind settings.'),
         details: [result.error],
@@ -193,48 +208,59 @@ function WindEditorForm({
     }
 
     notifySuccess({
-      title: localize(language, 'Параметры ветра обновлены.', 'Wind parameters updated.'),
+        title: localize(language, 'Параметры ветра обновлены.', 'Wind parameters updated.'),
       details: [
         `${localize(language, 'Загружение', 'Load case')}: ${loadCaseName}`,
-        `${localize(language, 'Давление', 'Pressure')}: ${formatNumber(nominalPressureKPa, 3)} kPa`,
+        `${localize(language, 'Давление', 'Pressure')}: ${formatNumber(parsedDraft.value.nominalPressurePa, 3)} Па`,
       ],
     });
     onSaved();
   }
 
   return (
-    <Stack component="form" id="wind-editor-form" spacing={2} onSubmit={handleSubmit}>
+    <Stack component="form" id="wind-editor-form" spacing={2.25} onSubmit={handleSubmit}>
+      {hasNonZeroWindZ(initialWindZ) ? (
+        <Alert severity="warning" variant="outlined">
+          {localize(
+            language,
+            `В текущей модели у ветра есть компонент Z = ${formatNumber(initialWindZ, 3)}. При сохранении он будет нормализован к 0.`,
+            `The current model has a wind Z component of ${formatNumber(initialWindZ, 3)}. It will be normalized to 0 on save.`,
+          )}
+        </Alert>
+      ) : null}
+
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-        <TextField
+        <NumberField
+          fullWidth
           label="X"
           value={draft.x}
-          onChange={(event) => {
-            setDraft((state) => ({ ...state, x: event.target.value }));
+          step={WIND_VECTOR_STEP}
+          onValueChange={(value) => {
+            setDraft((state) => ({ ...state, x: value }));
+            setSubmitErrorText(null);
           }}
         />
-        <TextField
+        <NumberField
+          fullWidth
           label="Y"
           value={draft.y}
-          onChange={(event) => {
-            setDraft((state) => ({ ...state, y: event.target.value }));
-          }}
-        />
-        <TextField
-          label="Z"
-          value={draft.z}
-          onChange={(event) => {
-            setDraft((state) => ({ ...state, z: event.target.value }));
+          step={WIND_VECTOR_STEP}
+          onValueChange={(value) => {
+            setDraft((state) => ({ ...state, y: value }));
+            setSubmitErrorText(null);
           }}
         />
       </Stack>
 
-      <TextField
+      <NumberField
         fullWidth
-        label={`${localize(language, 'Номинальное давление', 'Nominal pressure')} (kPa)`}
-        value={draft.nominalPressureKPa}
-        onChange={(event) => {
-          setDraft((state) => ({ ...state, nominalPressureKPa: event.target.value }));
-        }}
+        label={`${localize(language, 'Номинальное давление', 'Nominal pressure')} (Па)`}
+        value={draft.nominalPressurePa}
+        min={0}
+        step={WIND_PRESSURE_STEP_PA}
+        error={pressureFieldError != null}
+        helperText={pressureFieldError}
+        onValueChange={handlePressureChange}
       />
 
       <TextField
@@ -245,30 +271,101 @@ function WindEditorForm({
         value={draft.comment}
         onChange={(event) => {
           setDraft((state) => ({ ...state, comment: event.target.value }));
+          setSubmitErrorText(null);
         }}
       />
 
-      <Alert severity={windDisabled ? 'info' : 'success'}>
+      <Alert severity={windDisabled ? 'info' : 'success'} variant="outlined">
         {windDisabled
           ? localize(
             language,
-            'Нулевой вектор направления означает, что ветер отключен для этого загружения.',
-            'A zero direction vector means wind is disabled for this load case.',
+            'Нулевой вектор XY означает, что ветер отключен для этого загружения.',
+            'A zero XY direction vector means wind is disabled for this load case.',
           )
           : localize(
             language,
             'Направление будет нормализовано при сохранении. Нормативный расчет ветра в этой итерации не реализуется.',
-            'Direction will be normalized on save. The normative wind calculator is not implemented in this iteration.',
+            'Direction will be normalized on save. Normative wind calculation is not implemented in this iteration.',
           )}
       </Alert>
 
-      {errorText != null && (
-        <Alert severity="error">{errorText}</Alert>
-      )}
-
-      <Typography variant="body2" color="text.secondary">
-        {localize(language, 'Текущее загружение', 'Current load case')}: {loadCaseName}
-      </Typography>
+      {submitErrorText != null ? (
+        <Alert severity="error" variant="outlined">
+          {submitErrorText}
+        </Alert>
+      ) : null}
     </Stack>
   );
+}
+
+function localize(language: AppLanguage, ru: string, en: string): string {
+  return language === 'ru' ? ru : en;
+}
+
+interface ActionIconButtonProps {
+  title: string;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}
+
+function ActionIconButton({
+  title,
+  label,
+  onClick,
+  disabled = false,
+  children,
+}: ActionIconButtonProps) {
+  return (
+    <Tooltip title={title}>
+      <span>
+        <IconButton aria-label={label} onClick={onClick} disabled={disabled}>
+          {children}
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
+}
+
+function getPressureFieldError(language: AppLanguage, value: string): string | null {
+  if (value.trim().length === 0) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return localize(language, 'Давление должно быть числом.', 'Pressure must be a number.');
+  }
+
+  if (parsed < 0) {
+    return localize(language, 'Давление не может быть отрицательным.', 'Pressure cannot be negative.');
+  }
+
+  return null;
+}
+
+function getSubmitErrorMessage(language: AppLanguage, error: WindDraftValidationError): string {
+  switch (error) {
+    case 'invalid_direction':
+      return localize(
+        language,
+        'Поля X и Y должны содержать корректные конечные числа.',
+        'X and Y must contain valid finite numbers.',
+      );
+    case 'invalid_pressure':
+      return localize(
+        language,
+        'Поле давления должно содержать корректное конечное число в Па.',
+        'Pressure must contain a valid finite number in Pa.',
+      );
+    case 'negative_pressure':
+      return localize(
+        language,
+        'Давление не может быть отрицательным.',
+        'Pressure cannot be negative.',
+      );
+    default:
+      return localize(language, 'Неизвестная ошибка формы ветра.', 'Unknown wind form error.');
+  }
 }

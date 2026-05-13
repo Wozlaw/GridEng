@@ -2,6 +2,7 @@ import type { RefObject } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { Paper } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Color, PerspectiveCamera, Vector3 } from 'three';
@@ -32,6 +33,7 @@ const DEFAULT_CAMERA_DIRECTION = new Vector3(1, -1, 0.82).normalize();
 
 export function Viewport3D() {
   const { t } = useI18n();
+  const theme = useTheme();
   const model = useModelStore((state) => state.model);
   const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
   const viewMode = useModelStore((state) => state.viewMode);
@@ -71,6 +73,8 @@ export function Viewport3D() {
     ),
     [activeStressMapState, isStressMapMode],
   );
+  const sceneBackgroundColor = theme.palette.background.default;
+  const secondaryLightColor = theme.palette.mode === 'dark' ? '#b8c0c7' : '#7f8a93';
 
   useEffect(() => {
     if (!isStressMapMode) {
@@ -130,10 +134,11 @@ export function Viewport3D() {
             sceneMetrics.sceneCenter[1],
             sceneMetrics.sceneCenter[2],
           );
-          scene.background = new Color('#090909');
+          scene.background = new Color(sceneBackgroundColor);
         }}
         onPointerMissed={() => clearSelection()}
       >
+        <ViewportSceneBackground backgroundColor={sceneBackgroundColor} />
         <ViewportFitController
           controlsRef={controlsRef}
           fitRequestNonce={fitRequestNonce}
@@ -141,7 +146,7 @@ export function Viewport3D() {
         />
         <ambientLight intensity={0.65} />
         <directionalLight position={[1, -1, 2]} intensity={1.2} />
-        <directionalLight position={[-1, 1, 0.5]} intensity={0.4} color="#9fb6d3" />
+        <directionalLight position={[-1, 1, 0.5]} intensity={0.4} color={secondaryLightColor} />
 
         {visibility.grid && <SceneGrid size={sceneMetrics.sceneGridSize} />}
         {visibility.axes && <SceneAxes size={sceneMetrics.sceneAxesSize} />}
@@ -211,6 +216,10 @@ export function Viewport3D() {
       )}
     </Paper>
   );
+}
+
+function ViewportSceneBackground({ backgroundColor }: { backgroundColor: string }) {
+  return <color attach="background" args={[backgroundColor]} />;
 }
 
 interface ViewportFitControllerProps {

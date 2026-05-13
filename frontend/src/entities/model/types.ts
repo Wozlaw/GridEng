@@ -6,7 +6,7 @@ export type LengthUnit = 'mm' | 'm';
 export type ForceUnit = 'N' | 'kN';
 export type MomentUnit = 'Nmm' | 'kNm';
 export type StressUnit = 'MPa';
-export type PressureUnit = 'kPa';
+export type PressureUnit = 'Pa';
 export type MassUnit = 'kg';
 
 export interface UnitSystem {
@@ -38,8 +38,8 @@ export interface ForceMomentVector {
 export interface WindLoadDefinition {
   /** Direction vector. Zero vector means wind is disabled for this model/load case. */
   direction: Vec3;
-  /** Nominal wind pressure in kPa. Zero means wind pressure is not specified. */
-  nominalPressureKPa: number;
+  /** Nominal wind pressure in Pa. Zero means wind pressure is not specified. */
+  nominalPressurePa: number;
   /** Optional human-readable note for imported or hand-authored wind data. */
   comment?: string;
 }

@@ -1,7 +1,5 @@
 import type { DxfColorValue, GridEngModel, Id, Vec3 } from '../../entities/model';
 
-export const KEEP_DXF_CUSTOM_PROFILE_ID = '__custom__';
-
 export interface DxfImportSettings {
   toleranceMm: number;
   centerOnXY: boolean;
@@ -25,8 +23,79 @@ export interface DxfColorGroup {
   trueColor?: DxfColorValue;
   layer?: string;
   membersCount: number;
+  memberIds: Id[];
   profileId?: Id;
   temporaryProfileName?: string;
+}
+
+export type DxfPreviewDiagnosticStatus = 'ok' | 'warning' | 'error';
+
+export type DxfPreviewDiagnosticCode =
+  | 'file_read_error'
+  | 'unexpected_import_error'
+  | 'no_line_entities'
+  | 'ignored_entities_present'
+  | 'recognized_as_2d'
+  | 'recognized_as_2d_projected'
+  | 'line_node_mapping_failed'
+  | 'line_zero_length_after_merge'
+  | 'member_hanging'
+  | 'node_isolated'
+  | 'group_profile_unassigned';
+
+export interface DxfPreviewDiagnostic {
+  status: DxfPreviewDiagnosticStatus;
+  code: DxfPreviewDiagnosticCode;
+  message: string;
+}
+
+export interface DxfLinePreviewDiagnostics {
+  lineIndex: number;
+  start: Vec3;
+  end: Vec3;
+  handle?: string;
+  layer?: string;
+  groupKey?: string;
+  memberId?: Id;
+  displayColor?: string;
+  status: DxfPreviewDiagnosticStatus;
+  diagnostics: DxfPreviewDiagnostic[];
+}
+
+export interface DxfMemberPreviewDiagnostics {
+  memberId: Id;
+  lineIndex: number;
+  startNodeId: Id;
+  endNodeId: Id;
+  handle?: string;
+  layer?: string;
+  groupKey: string;
+  status: DxfPreviewDiagnosticStatus;
+  diagnostics: DxfPreviewDiagnostic[];
+}
+
+export interface DxfNodePreviewDiagnostics {
+  nodeId: Id;
+  status: DxfPreviewDiagnosticStatus;
+  diagnostics: DxfPreviewDiagnostic[];
+}
+
+export interface DxfGroupPreviewDiagnostics {
+  groupKey: string;
+  profileId?: Id;
+  temporaryProfileName?: string;
+  layer?: string;
+  memberIds: Id[];
+  status: DxfPreviewDiagnosticStatus;
+  diagnostics: DxfPreviewDiagnostic[];
+}
+
+export interface DxfPreviewDiagnostics {
+  summary: DxfPreviewDiagnostic[];
+  lines: DxfLinePreviewDiagnostics[];
+  members: DxfMemberPreviewDiagnostics[];
+  nodes: DxfNodePreviewDiagnostics[];
+  groups: DxfGroupPreviewDiagnostics[];
 }
 
 export interface DxfImportPreview {
@@ -39,9 +108,12 @@ export interface DxfImportPreview {
   mergedNodesCount: number;
   danglingMembersCount: number;
   colorGroups: DxfColorGroup[];
+  diagnostics: DxfPreviewDiagnostics;
   warnings: string[];
   errors: string[];
 }
+
+export type DxfPreviewColorMode = 'diagnostics' | 'profiles';
 
 export interface DxfToGridEngModelOptions extends DxfImportSettings {
   fileName: string;
@@ -49,8 +121,7 @@ export interface DxfToGridEngModelOptions extends DxfImportSettings {
 
 export type DxfLineInput = DxfLineEntity;
 export type DxfImportOptions = DxfToGridEngModelOptions;
-export type DxfAssignedProfileId = Id | typeof KEEP_DXF_CUSTOM_PROFILE_ID;
-export type DxfProfileAssignments = Record<string, DxfAssignedProfileId>;
+export type DxfProfileAssignments = Partial<Record<string, Id>>;
 
 export interface DxfToGridEngModelResult {
   model: GridEngModel | null;

@@ -1,42 +1,36 @@
-import type { ChangeEvent } from 'react';
-import { useState } from 'react';
+import type { ChangeEvent, ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
-  Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
-  MenuItem,
-  Paper,
-  Select,
+  IconButton,
   Stack,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
+  Tooltip,
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
 import { useI18n } from '../../shared/i18n';
-import { notifyError, notifySuccess, notifyWarning } from '../../shared/ui';
-import { getProfileCatalog } from '../../entities/section';
-import { applyDxfProfileAssignments } from './assignDxfProfiles';
+import { notifySuccess, notifyWarning } from '../../shared/ui';
+import { applyDxfProfileAssignmentsToResult } from './assignDxfProfiles';
+import { DxfImportLogDialog } from './DxfImportLogDialog';
+import { DxfProfileAssignmentPanel } from './DxfProfileAssignmentPanel';
+import { DxfPreviewScene } from './DxfPreviewScene';
+import { countDxfPreviewDiagnosticsByCode } from './diagnostics';
 import { convertDxfToGridEngModel } from './dxfToGridEngModel';
 import { DxfImportPreviewPanel } from './DxfImportPreview';
-import {
-  KEEP_DXF_CUSTOM_PROFILE_ID,
-  type DxfAssignedProfileId,
-  type DxfColorGroup,
-  type DxfProfileAssignments,
-  type DxfToGridEngModelResult,
+import type {
+  DxfImportPreview,
+  DxfPreviewColorMode,
+  DxfPreviewDiagnostic,
+  DxfProfileAssignments,
+  DxfToGridEngModelResult,
 } from './types';
 
 interface DxfImportDialogProps {
@@ -44,28 +38,35 @@ interface DxfImportDialogProps {
   onClose: () => void;
 }
 
-const PROFILE_CATALOG = getProfileCatalog();
-
 export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const { t } = useI18n();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dxfImportSettings = useModelStore((state) => state.dxfImportSettings);
-  const updateDxfImportSettings = useModelStore((state) => state.updateDxfImportSettings);
   const setModel = useModelStore((state) => state.setModel);
 
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [dxfText, setDxfText] = useState<string | null>(null);
   const [fileReadError, setFileReadError] = useState<string | null>(null);
   const [isReadingFile, setIsReadingFile] = useState(false);
+  const [isLogDialogOpen, setIsLogDialogOpen] = useState(false);
+  const [previewColorMode, setPreviewColorMode] = useState<DxfPreviewColorMode>('diagnostics');
   const [profileAssignments, setProfileAssignments] = useState<DxfProfileAssignments>({});
 
-  const previewResult = getPreviewResult({
+  const rawPreviewResult = useMemo(() => getPreviewResult({
     open,
     selectedFileName,
     dxfText,
     fileReadError,
     settings: dxfImportSettings,
-  });
-  const previewGroups = previewResult?.preview.colorGroups ?? [];
+  }), [dxfImportSettings, dxfText, fileReadError, open, selectedFileName]);
+
+  const previewResult = useMemo(() => {
+    if (rawPreviewResult == null) {
+      return null;
+    }
+
+    return applyDxfProfileAssignmentsToResult(rawPreviewResult, profileAssignments);
+  }, [profileAssignments, rawPreviewResult]);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -92,40 +93,17 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     }
   }
 
-  function handleToleranceChange(value: string) {
-    const nextTolerance = Number(value);
-    if (!Number.isFinite(nextTolerance) || nextTolerance <= 0) {
-      return;
-    }
-
-    updateDxfImportSettings({ toleranceMm: nextTolerance });
-  }
-
   function handleImport() {
     if (!previewResult?.model || previewResult.preview.errors.length > 0 || !selectedFileName) {
       return;
     }
 
-    let nextModel;
-    try {
-      nextModel = applyDxfProfileAssignments(previewResult.model, profileAssignments);
-    } catch (error) {
-      notifyError({
-        title: t('dxf.notifications.errorTitle', { fileName: selectedFileName }),
-        details: [
-          t('dxf.notifications.profileAssignmentFailed'),
-          error instanceof Error ? error.message : t('dxf.notifications.unknownError'),
-        ],
-      });
-      return;
-    }
-
-    setModel(nextModel);
+    setModel(previewResult.model);
 
     if (previewResult.preview.warnings.length > 0) {
       notifyWarning({
         title: t('dxf.notifications.warningTitle', { fileName: selectedFileName }),
-        details: previewResult.preview.warnings,
+        details: [t('dxf.notifications.warningDetail', { count: previewResult.preview.warnings.length })],
       });
     } else {
       notifySuccess({
@@ -142,199 +120,136 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     setDxfText(null);
     setFileReadError(null);
     setIsReadingFile(false);
+    setIsLogDialogOpen(false);
+    setPreviewColorMode('diagnostics');
     setProfileAssignments({});
     onClose();
   }
 
-  const canImport = previewResult?.model != null && previewResult.preview.errors.length === 0;
+  function openFilePicker() {
+    fileInputRef.current?.click();
+  }
+
+  const unassignedProfileCount = previewResult == null
+    ? 0
+    : countDxfPreviewDiagnosticsByCode(previewResult.preview, 'group_profile_unassigned');
+  const canImport = previewResult?.model != null
+    && previewResult.preview.errors.length === 0
+    && unassignedProfileCount === 0;
+  const canOpenLogs = previewResult != null;
 
   return (
-    <Dialog open={open} onClose={() => closeDialog()} fullWidth maxWidth="lg">
-      <DialogTitle>{t('dxf.dialog.title')}</DialogTitle>
-      <DialogContent dividers>
-        <Stack spacing={2}>
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={1.5}
-            sx={{
-              alignItems: { xs: 'stretch', md: 'center' },
-              justifyContent: 'space-between',
-            }}
-          >
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                {t('dxf.dialog.supportNote')}
-              </Typography>
-            </Box>
-
-            <Button component="label" variant="outlined" disabled={isReadingFile}>
-              {isReadingFile
-                ? t('dxf.dialog.reading')
-                : selectedFileName
-                  ? t('dxf.dialog.replaceFile')
-                  : t('dxf.dialog.chooseFile')}
-              <input
-                hidden
-                type="file"
-                accept=".dxf"
-                onChange={(event) => {
-                  void handleFileChange(event);
-                }}
-              />
-            </Button>
-          </Stack>
-
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <TextField
-              label={t('dxf.dialog.tolerance')}
-              type="number"
-              value={dxfImportSettings.toleranceMm}
-              onChange={(event) => handleToleranceChange(event.target.value)}
-              slotProps={{ htmlInput: { min: 0.001, step: 0.1 } }}
-              sx={{ minWidth: { xs: '100%', md: 180 } }}
+    <>
+      <Dialog open={open} onClose={closeDialog} fullWidth maxWidth="md">
+        <DialogTitle>{t('dxf.dialog.title')}</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".dxf"
+              style={{ display: 'none' }}
+              onChange={(event) => {
+                void handleFileChange(event);
+              }}
             />
 
-            <FormControlLabel
-              control={(
-                <Switch
-                  checked={dxfImportSettings.centerOnXY}
-                  onChange={(_event, checked) => {
-                    updateDxfImportSettings({ centerOnXY: checked });
-                  }}
-                />
-              )}
-              label={t('dxf.dialog.centerOnXY')}
+            <DxfImportPreviewPanel
+              fileName={selectedFileName}
+              preview={previewResult?.preview ?? null}
+              isBusy={isReadingFile}
             />
 
-            <FormControlLabel
-              control={(
-                <Switch
-                  checked={dxfImportSettings.force2DToXY}
-                  onChange={(_event, checked) => {
-                    updateDxfImportSettings({ force2DToXY: checked });
-                  }}
-                />
-              )}
-              label={t('dxf.dialog.force2DToXY')}
+            <DxfPreviewScene
+              preview={previewResult?.preview ?? null}
+              colorMode={previewColorMode}
+              onColorModeChange={setPreviewColorMode}
+              isBusy={isReadingFile}
+            />
+
+            <DxfProfileAssignmentPanel
+              key={selectedFileName ?? 'dxf-profile-assignment'}
+              groups={previewResult?.preview.colorGroups ?? []}
+              assignments={profileAssignments}
+              onAssignmentsChange={setProfileAssignments}
             />
           </Stack>
+        </DialogContent>
 
-          <DxfImportPreviewPanel
-            fileName={selectedFileName}
-            preview={previewResult?.preview ?? null}
-            isBusy={isReadingFile}
-          />
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Stack direction="row" spacing={1}>
+            <ActionIconButton
+              title={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
+              label={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
+              onClick={openFilePicker}
+              disabled={isReadingFile}
+            >
+              <UploadFileIcon />
+            </ActionIconButton>
 
-          <DxfProfileAssignmentTable
-            colorGroups={previewGroups}
-            assignments={profileAssignments}
-            onAssignmentChange={(groupKey, profileId) => {
-              setProfileAssignments((current) => ({
-                ...current,
-                [groupKey]: profileId,
-              }));
-            }}
-          />
-        </Stack>
-      </DialogContent>
+            <ActionIconButton
+              title={t('dxf.dialog.openLogs')}
+              label={t('dxf.dialog.openLogs')}
+              onClick={() => setIsLogDialogOpen(true)}
+              disabled={!canOpenLogs}
+            >
+              <ArticleOutlinedIcon />
+            </ActionIconButton>
 
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={closeDialog}>{t('dxf.dialog.cancel')}</Button>
-        <Button variant="contained" onClick={handleImport} disabled={!canImport}>
-          {t('dxf.dialog.import')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+            <ActionIconButton
+              title={t('dxf.dialog.cancel')}
+              label={t('dxf.dialog.cancel')}
+              onClick={closeDialog}
+            >
+              <CloseIcon />
+            </ActionIconButton>
+
+            <ActionIconButton
+              title={t('dxf.dialog.import')}
+              label={t('dxf.dialog.import')}
+              onClick={handleImport}
+              disabled={!canImport}
+            >
+              <CheckIcon />
+            </ActionIconButton>
+          </Stack>
+        </DialogActions>
+      </Dialog>
+
+      <DxfImportLogDialog
+        open={isLogDialogOpen}
+        fileName={selectedFileName}
+        previewResult={previewResult}
+        settings={dxfImportSettings}
+        onClose={() => setIsLogDialogOpen(false)}
+      />
+    </>
   );
 }
 
-interface DxfProfileAssignmentTableProps {
-  colorGroups: DxfColorGroup[];
-  assignments: DxfProfileAssignments;
-  onAssignmentChange: (groupKey: string, profileId: DxfAssignedProfileId) => void;
+interface ActionIconButtonProps {
+  title: string;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
 }
 
-function DxfProfileAssignmentTable({
-  colorGroups,
-  assignments,
-  onAssignmentChange,
-}: DxfProfileAssignmentTableProps) {
-  const { t } = useI18n();
-
-  if (colorGroups.length === 0) {
-    return null;
-  }
-
+function ActionIconButton({
+  title,
+  label,
+  onClick,
+  disabled = false,
+  children,
+}: ActionIconButtonProps) {
   return (
-    <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
-      <Box sx={{ p: 2, pb: 1 }}>
-        <Typography variant="subtitle2">{t('dxf.dialog.profileAssignmentTitle')}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('dxf.dialog.profileAssignmentHint')}
-        </Typography>
-      </Box>
-
-      <TableContainer sx={{ maxHeight: 320 }}>
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('dxf.dialog.table.group')}</TableCell>
-              <TableCell align="right">{t('dxf.dialog.table.members')}</TableCell>
-              <TableCell>{t('dxf.dialog.table.temporaryProfile')}</TableCell>
-              <TableCell sx={{ minWidth: 240 }}>{t('dxf.dialog.table.assignedProfile')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {colorGroups.map((group) => (
-              <TableRow key={group.key} hover>
-                <TableCell>
-                  <Stack spacing={0.25}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {group.key}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('dxf.preview.layerLabel', { value: group.layer?.trim() || '-' })}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell align="right">{group.membersCount}</TableCell>
-                <TableCell>
-                  <Stack spacing={0.25}>
-                    <Typography variant="body2">
-                      {group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {group.profileId ?? '-'}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    fullWidth
-                    size="small"
-                    value={assignments[group.key] ?? KEEP_DXF_CUSTOM_PROFILE_ID}
-                    onChange={(event) => {
-                      onAssignmentChange(group.key, event.target.value as DxfAssignedProfileId);
-                    }}
-                  >
-                    <MenuItem value={KEEP_DXF_CUSTOM_PROFILE_ID}>
-                      {t('dxf.dialog.keepCustom', {
-                        name: group.temporaryProfileName ?? group.profileId ?? `DXF ${group.key}`,
-                      })}
-                    </MenuItem>
-                    {PROFILE_CATALOG.map((profile) => (
-                      <MenuItem key={profile.id} value={profile.id}>
-                        {profile.name} ({profile.kind})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+    <Tooltip title={title}>
+      <span>
+        <IconButton aria-label={label} onClick={onClick} disabled={disabled}>
+          {children}
+        </IconButton>
+      </span>
+    </Tooltip>
   );
 }
 
@@ -362,19 +277,7 @@ function getPreviewResult({
   if (fileReadError) {
     return {
       model: null,
-      preview: {
-        linesCount: 0,
-        ignoredEntitiesCount: 0,
-        is3D: false,
-        zRange: null,
-        nodesCount: 0,
-        membersCount: 0,
-        mergedNodesCount: 0,
-        danglingMembersCount: 0,
-        colorGroups: [],
-        warnings: [],
-        errors: [fileReadError],
-      },
+      preview: createFileReadErrorPreview(fileReadError),
     };
   }
 
@@ -388,4 +291,35 @@ function getPreviewResult({
     centerOnXY: settings.centerOnXY,
     force2DToXY: settings.force2DToXY,
   });
+}
+
+function createFileReadErrorPreview(message: string): DxfImportPreview {
+  return {
+    linesCount: 0,
+    ignoredEntitiesCount: 0,
+    is3D: false,
+    zRange: null,
+    nodesCount: 0,
+    membersCount: 0,
+    mergedNodesCount: 0,
+    danglingMembersCount: 0,
+    colorGroups: [],
+    diagnostics: {
+      summary: [createSummaryErrorDiagnostic(message)],
+      lines: [],
+      members: [],
+      nodes: [],
+      groups: [],
+    },
+    warnings: [],
+    errors: [message],
+  };
+}
+
+function createSummaryErrorDiagnostic(message: string): DxfPreviewDiagnostic {
+  return {
+    status: 'error',
+    code: 'file_read_error',
+    message,
+  };
 }

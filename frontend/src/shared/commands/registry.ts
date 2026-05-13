@@ -23,7 +23,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
-import { useLayoutStore, useModelStore, useUiStore } from '../../app/store';
+import { useLayoutStore, useModelStore, useUiStore, type AppThemeMode } from '../../app/store';
 import { downloadGridEngJson } from '../../features/export-json/exportGridEngJson';
 import { useCommandConsoleStore } from '../../features/console/store';
 import { openMaterialsDialog, openProfilesDialog } from '../../features/project-catalogs';
@@ -69,6 +69,21 @@ function applyLanguage(language: AppLanguage) {
       }),
     ],
   });
+}
+
+function getThemeModeLabel(language: AppLanguage, themeMode: AppThemeMode): string {
+  return themeMode === 'light'
+    ? localize(language, 'светлая grayscale', 'light grayscale')
+    : localize(language, 'темная grayscale', 'dark grayscale');
+}
+
+function applyThemeMode(themeMode: AppThemeMode) {
+  useUiStore.getState().setThemeMode(themeMode);
+}
+
+function toggleThemeMode(): AppThemeMode {
+  useUiStore.getState().toggleThemeMode();
+  return useUiStore.getState().themeMode;
 }
 
 function toggleVisibility(key: typeof VISIBILITY_KEYS[number]) {
@@ -139,6 +154,17 @@ function parseBooleanArgument(value: string): boolean | null {
     case 'true':
       return true;
     case 'false':
+      return false;
+    default:
+      return null;
+  }
+}
+
+function parseOnOffArgument(value: string): boolean | null {
+  switch (value.trim().toLowerCase()) {
+    case 'on':
+      return true;
+    case 'off':
       return false;
     default:
       return null;
@@ -257,6 +283,7 @@ function buildSettingsShowLines(language: AppLanguage): string[] {
     `${localize(language, 'UI settings', 'UI settings')}:`,
     ...indentLines(formatJsonLines({
       language: uiState.language,
+      themeMode: uiState.themeMode,
       projectTreeWidth: layoutState.projectTreeWidth,
       projectTreeCollapsed: layoutState.projectTreeCollapsed,
       propertiesWidth: layoutState.propertiesWidth,
@@ -286,6 +313,25 @@ function buildImportMetaLines(language: AppLanguage): string[] {
     `${localize(language, 'Текущие DXF settings', 'Current DXF settings')}:`,
     ...indentLines(formatJsonLines(dxfImportSettings)),
   ];
+}
+
+function buildDxfSettingsLines(): string[] {
+  const { dxfImportSettings } = useModelStore.getState();
+
+  return [
+    `toleranceMm = ${dxfImportSettings.toleranceMm}`,
+    `centerOnXY = ${String(dxfImportSettings.centerOnXY)}`,
+    `force2DToXY = ${String(dxfImportSettings.force2DToXY)}`,
+  ];
+}
+
+function resetDxfSettingsToDefaults() {
+  const { model, updateDxfImportSettings } = useModelStore.getState();
+  updateDxfImportSettings({
+    toleranceMm: model.settings.nodeMergeToleranceMm,
+    centerOnXY: model.settings.centerModelByXYProjection,
+    force2DToXY: true,
+  });
 }
 
 function notifyReservedFeature(title: string, details: string[]) {
@@ -900,6 +946,159 @@ export const CONSOLE_COMMANDS: AppConsoleCommandDefinition[] = [
     },
   },
   {
+    id: 'dxf.settings',
+    names: ['dxf.settings'],
+    syntax: 'dxf.settings [reset]',
+    parameters: ['[reset]: restore DXF import defaults'],
+    examples: ['dxf.settings', 'dxf.settings reset'],
+    execute: (args, context) => {
+      const action = args[0]?.toLowerCase();
+
+      if (action == null) {
+        return {
+          severity: 'info',
+          title: localize(context.language, 'Текущие настройки DXF', 'Current DXF settings'),
+          lines: buildDxfSettingsLines(),
+        };
+      }
+
+      if (action === 'reset') {
+        resetDxfSettingsToDefaults();
+
+        return {
+          severity: 'success',
+          title: localize(context.language, 'Настройки DXF сброшены.', 'DXF settings reset.'),
+          lines: buildDxfSettingsLines(),
+          notify: true,
+        };
+      }
+
+      return {
+        severity: 'warning',
+        title: localize(context.language, 'Неизвестное действие.', 'Unknown action.'),
+        lines: ['dxf.settings [reset]'],
+        notify: true,
+      };
+    },
+  },
+  {
+    id: 'dxf.tolerance',
+    names: ['dxf.tolerance'],
+    syntax: 'dxf.tolerance <number>',
+    parameters: ['<number>: positive tolerance in mm'],
+    examples: ['dxf.tolerance 1', 'dxf.tolerance 0.5'],
+    execute: (args, context) => {
+      const rawValue = args[0];
+
+      if (rawValue == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Не хватает аргументов.', 'Missing arguments.'),
+          lines: ['dxf.tolerance <number>'],
+          notify: true,
+        };
+      }
+
+      const value = parseFiniteNumberArgument(rawValue);
+
+      if (value == null || value <= 0) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Неверное число.', 'Invalid number.'),
+          lines: [rawValue],
+          notify: true,
+        };
+      }
+
+      useModelStore.getState().updateDxfImportSettings({ toleranceMm: value });
+
+      return {
+        severity: 'success',
+        title: localize(context.language, 'Допуск DXF обновлен.', 'DXF tolerance updated.'),
+        lines: buildDxfSettingsLines(),
+        notify: true,
+      };
+    },
+  },
+  {
+    id: 'dxf.center',
+    names: ['dxf.center'],
+    syntax: 'dxf.center <on|off>',
+    parameters: ['<on|off>: toggle centerOnXY'],
+    examples: ['dxf.center on', 'dxf.center off'],
+    execute: (args, context) => {
+      const rawValue = args[0];
+
+      if (rawValue == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Не хватает аргументов.', 'Missing arguments.'),
+          lines: ['dxf.center <on|off>'],
+          notify: true,
+        };
+      }
+
+      const value = parseOnOffArgument(rawValue);
+
+      if (value == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Неверное значение.', 'Invalid value.'),
+          lines: ['on | off'],
+          notify: true,
+        };
+      }
+
+      useModelStore.getState().updateDxfImportSettings({ centerOnXY: value });
+
+      return {
+        severity: 'success',
+        title: localize(context.language, 'Параметр centerOnXY обновлен.', 'centerOnXY updated.'),
+        lines: buildDxfSettingsLines(),
+        notify: true,
+      };
+    },
+  },
+  {
+    id: 'dxf.force2d',
+    names: ['dxf.force2d'],
+    syntax: 'dxf.force2d <on|off>',
+    parameters: ['<on|off>: toggle force2DToXY'],
+    examples: ['dxf.force2d on', 'dxf.force2d off'],
+    execute: (args, context) => {
+      const rawValue = args[0];
+
+      if (rawValue == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Не хватает аргументов.', 'Missing arguments.'),
+          lines: ['dxf.force2d <on|off>'],
+          notify: true,
+        };
+      }
+
+      const value = parseOnOffArgument(rawValue);
+
+      if (value == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Неверное значение.', 'Invalid value.'),
+          lines: ['on | off'],
+          notify: true,
+        };
+      }
+
+      useModelStore.getState().updateDxfImportSettings({ force2DToXY: value });
+
+      return {
+        severity: 'success',
+        title: localize(context.language, 'Параметр force2DToXY обновлен.', 'force2DToXY updated.'),
+        lines: buildDxfSettingsLines(),
+        notify: true,
+      };
+    },
+  },
+  {
     id: 'settings.show',
     names: ['settings.show'],
     syntax: 'settings.show',
@@ -909,6 +1108,64 @@ export const CONSOLE_COMMANDS: AppConsoleCommandDefinition[] = [
       title: localize(context.language, 'Текущие настройки', 'Current settings'),
       lines: buildSettingsShowLines(context.language),
     }),
+  },
+  {
+    id: 'theme',
+    names: ['theme'],
+    syntax: 'theme <light|dark|toggle|status>',
+    parameters: ['<light|dark|toggle|status>: theme mode action'],
+    examples: ['theme status', 'theme dark', 'theme light', 'theme toggle'],
+    execute: (args, context) => {
+      const action = args[0]?.toLowerCase();
+
+      if (action == null) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Не хватает аргументов.', 'Missing arguments.'),
+          lines: ['theme <light|dark|toggle|status>'],
+          notify: true,
+        };
+      }
+
+      if (action === 'status') {
+        const themeMode = useUiStore.getState().themeMode;
+
+        return {
+          severity: 'info',
+          title: localize(context.language, 'Текущая тема', 'Current theme'),
+          lines: [`theme = ${themeMode} (${getThemeModeLabel(context.language, themeMode)})`],
+        };
+      }
+
+      if (action === 'toggle') {
+        const nextThemeMode = toggleThemeMode();
+
+        return {
+          severity: 'success',
+          title: localize(context.language, 'Тема переключена.', 'Theme toggled.'),
+          lines: [`theme = ${nextThemeMode} (${getThemeModeLabel(context.language, nextThemeMode)})`],
+          notify: true,
+        };
+      }
+
+      if (action === 'light' || action === 'dark') {
+        applyThemeMode(action);
+
+        return {
+          severity: 'success',
+          title: localize(context.language, 'Тема обновлена.', 'Theme updated.'),
+          lines: [`theme = ${action} (${getThemeModeLabel(context.language, action)})`],
+          notify: true,
+        };
+      }
+
+      return {
+        severity: 'warning',
+        title: localize(context.language, 'Неизвестная тема.', 'Unknown theme mode.'),
+        lines: ['light | dark | toggle | status'],
+        notify: true,
+      };
+    },
   },
   {
     id: 'settings.set',

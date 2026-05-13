@@ -60,4 +60,34 @@ describe('migrateGridEngModelToCurrentDetailed', () => {
       'Legacy concentrated member force load legacy-member-force was migrated to unsupported placeholder for manual review.',
     );
   });
+
+  it('normalizes legacy pressure units and wind field names in current-schema JSON', () => {
+    const sample = createSampleTowerSegmentModel();
+    const legacyCurrentModel = {
+      ...sample,
+      units: {
+        ...sample.units,
+        pressure: 'kPa' as const,
+      },
+      loadCases: sample.loadCases.map((loadCase) => ({
+        ...loadCase,
+        wind: {
+          direction: { x: 0, y: 1, z: 0 },
+          nominalPressureKPa: 0.85,
+          comment: 'legacy current model',
+        },
+      })),
+    };
+
+    const migrated = migrateGridEngModelToCurrentDetailed(legacyCurrentModel);
+
+    expect(migrated.model.units.pressure).toBe('Pa');
+    expect(migrated.model.loadCases[0].wind).toEqual({
+      direction: { x: 0, y: 1, z: 0 },
+      nominalPressurePa: 850,
+      comment: 'legacy current model',
+    });
+    expect(migrated.warnings).toContain('Legacy units.pressure value "kPa" was normalized to "Pa".');
+    expect(migrated.warnings).toContain('Legacy loadCases[0].wind.nominalPressureKPa was migrated to nominalPressurePa.');
+  });
 });
