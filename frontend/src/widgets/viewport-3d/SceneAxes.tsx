@@ -5,9 +5,10 @@ import { SCENE_LABEL_FONT_SIZE, SceneUprightLabel } from './SceneUprightLabel';
 
 interface SceneAxesProps {
   size?: number;
+  visible?: boolean;
 }
 
-export function SceneAxes({ size = 2000 }: SceneAxesProps) {
+export function SceneAxes({ size = 2000, visible = true }: SceneAxesProps) {
   const theme = useTheme();
   const axisLabelOffset = Math.max(size * 0.06, 0.12);
   const isDark = theme.palette.mode === 'dark';
@@ -18,35 +19,39 @@ export function SceneAxes({ size = 2000 }: SceneAxesProps) {
 
   return (
     <>
-      <axesHelper args={[size]} />
+      {visible && <axesHelper args={[size]} />}
 
-      <group>
-        <SceneUprightLabel
-          position={[size + axisLabelOffset, 0, 0]}
-          text="X"
-          color={axisXColor}
-          fontSize={SCENE_LABEL_FONT_SIZE}
-        />
-        <SceneUprightLabel
-          position={[0, size + axisLabelOffset, 0]}
-          text="Y"
-          color={axisYColor}
-          fontSize={SCENE_LABEL_FONT_SIZE}
-        />
-        <SceneUprightLabel
-          position={[0, 0, size + axisLabelOffset]}
-          text="Z"
-          color={axisZColor}
-          fontSize={SCENE_LABEL_FONT_SIZE}
-        />
-      </group>
+      {visible && (
+        <group>
+          <SceneUprightLabel
+            position={[size + axisLabelOffset, 0, 0]}
+            text="X"
+            color={axisXColor}
+            fontSize={SCENE_LABEL_FONT_SIZE}
+          />
+          <SceneUprightLabel
+            position={[0, size + axisLabelOffset, 0]}
+            text="Y"
+            color={axisYColor}
+            fontSize={SCENE_LABEL_FONT_SIZE}
+          />
+          <SceneUprightLabel
+            position={[0, 0, size + axisLabelOffset]}
+            text="Z"
+            color={axisZColor}
+            fontSize={SCENE_LABEL_FONT_SIZE}
+          />
+        </group>
+      )}
 
       <GizmoHelper alignment="bottom-right" margin={[88, 88]}>
-        <GizmoViewport
-          axisColors={[axisXColor, axisYColor, axisZColor]}
-          labelColor={gizmoLabelColor}
-          axisHeadScale={1}
-        />
+        {visible && (
+          <GizmoViewport
+            axisColors={[axisXColor, axisYColor, axisZColor]}
+            labelColor={gizmoLabelColor}
+            axisHeadScale={1}
+          />
+        )}
       </GizmoHelper>
     </>
   );

@@ -149,7 +149,7 @@ export function Viewport3D() {
         <directionalLight position={[-1, 1, 0.5]} intensity={0.4} color={secondaryLightColor} />
 
         {visibility.grid && <SceneGrid size={sceneMetrics.sceneGridSize} />}
-        {visibility.axes && <SceneAxes size={sceneMetrics.sceneAxesSize} />}
+        <SceneAxes size={sceneMetrics.sceneAxesSize} visible={visibility.axes} />
         <WindOverlay wind={activeLoadCase?.wind} />
 
         <OrbitControls
