@@ -1,0 +1,681 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_2879_88",
+  "generated_at": "2026-05-14",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные параметры вычисляются через API/Crossection."
+  },
+  "standard": {
+    "id": "gost_2879_88",
+    "name": "ГОСТ 2879-88",
+    "title": "Прокат стальной горячекатаный шестигранный. Сортамент",
+    "profile_types": [
+      "hex_hot_rolled"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 2879-88.pdf",
+    "table": "Таблица 1; примечание 1",
+    "basis": "manually_verified_review_xlsx"
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-14",
+    "notes": "Проверено пользователем. Продуктивная БД содержит только нормативную геометрию."
+  },
+  "profiles": [
+    {
+      "id": "gost_2879_88_hex_hot_rolled_8",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "8",
+      "designation": "8",
+      "display_name": "Шестигранник 8",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 8
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_9",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "9",
+      "designation": "9",
+      "display_name": "Шестигранник 9",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 9
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_10",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "10",
+      "designation": "10",
+      "display_name": "Шестигранник 10",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 10
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_11",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "11",
+      "designation": "11",
+      "display_name": "Шестигранник 11",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 11
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_12",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "12",
+      "designation": "12",
+      "display_name": "Шестигранник 12",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 12
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_13",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "13",
+      "designation": "13",
+      "display_name": "Шестигранник 13",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 13
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_14",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "14",
+      "designation": "14",
+      "display_name": "Шестигранник 14",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 14
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_15",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "15",
+      "designation": "15",
+      "display_name": "Шестигранник 15",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 15
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_16",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "16",
+      "designation": "16",
+      "display_name": "Шестигранник 16",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 16
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_17",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "17",
+      "designation": "17",
+      "display_name": "Шестигранник 17",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 17
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_18",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "18",
+      "designation": "18",
+      "display_name": "Шестигранник 18",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 18
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_19",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "19",
+      "designation": "19",
+      "display_name": "Шестигранник 19",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 19
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_20",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "20",
+      "designation": "20",
+      "display_name": "Шестигранник 20",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 20
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_21",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "21",
+      "designation": "21",
+      "display_name": "Шестигранник 21",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 21
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_22",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "22",
+      "designation": "22",
+      "display_name": "Шестигранник 22",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 22
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_23",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "23",
+      "designation": "23",
+      "display_name": "Шестигранник 23",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 23
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_24",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "24",
+      "designation": "24",
+      "display_name": "Шестигранник 24",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 24
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_25",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "25",
+      "designation": "25",
+      "display_name": "Шестигранник 25",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 25
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_26",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "26",
+      "designation": "26",
+      "display_name": "Шестигранник 26",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 26
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_27",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "27",
+      "designation": "27",
+      "display_name": "Шестигранник 27",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 27
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_28",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "28",
+      "designation": "28",
+      "display_name": "Шестигранник 28",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 28
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_29",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "29",
+      "designation": "29",
+      "display_name": "Шестигранник 29",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 29
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_30",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "30",
+      "designation": "30",
+      "display_name": "Шестигранник 30",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 30
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_32",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "32",
+      "designation": "32",
+      "display_name": "Шестигранник 32",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 32
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_34",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "34",
+      "designation": "34",
+      "display_name": "Шестигранник 34",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 34
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_36",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "36",
+      "designation": "36",
+      "display_name": "Шестигранник 36",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 36
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_38",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "38",
+      "designation": "38",
+      "display_name": "Шестигранник 38",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 38
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_40",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "40",
+      "designation": "40",
+      "display_name": "Шестигранник 40",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 40
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_41",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "41",
+      "designation": "41",
+      "display_name": "Шестигранник 41",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 41
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_42",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "42",
+      "designation": "42",
+      "display_name": "Шестигранник 42",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 42
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_43",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "43",
+      "designation": "43",
+      "display_name": "Шестигранник 43",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 43
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_46",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "46",
+      "designation": "46",
+      "display_name": "Шестигранник 46",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 46
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_47",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "47",
+      "designation": "47",
+      "display_name": "Шестигранник 47",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 47
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_48",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "48",
+      "designation": "48",
+      "display_name": "Шестигранник 48",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 48
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_50",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "50",
+      "designation": "50",
+      "display_name": "Шестигранник 50",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 50
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_52",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "52",
+      "designation": "52",
+      "display_name": "Шестигранник 52",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 52
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_53",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "53",
+      "designation": "53",
+      "display_name": "Шестигранник 53",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 53
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_55",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "55",
+      "designation": "55",
+      "display_name": "Шестигранник 55",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 55
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_56",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "56",
+      "designation": "56",
+      "display_name": "Шестигранник 56",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 56
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_57",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "57",
+      "designation": "57",
+      "display_name": "Шестигранник 57",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 57
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_60",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "60",
+      "designation": "60",
+      "display_name": "Шестигранник 60",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 60
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_63",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "63",
+      "designation": "63",
+      "display_name": "Шестигранник 63",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 63
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_65",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "65",
+      "designation": "65",
+      "display_name": "Шестигранник 65",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 65
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_70",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "70",
+      "designation": "70",
+      "display_name": "Шестигранник 70",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 70
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_75",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "75",
+      "designation": "75",
+      "display_name": "Шестигранник 75",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 75
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_80",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "80",
+      "designation": "80",
+      "display_name": "Шестигранник 80",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 80
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_85",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "85",
+      "designation": "85",
+      "display_name": "Шестигранник 85",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 85
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_90",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "90",
+      "designation": "90",
+      "display_name": "Шестигранник 90",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 90
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_95",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "95",
+      "designation": "95",
+      "display_name": "Шестигранник 95",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 95
+        }
+      }
+    },
+    {
+      "id": "gost_2879_88_hex_hot_rolled_100",
+      "profile_type": "hex_hot_rolled",
+      "gost_number": "100",
+      "designation": "100",
+      "display_name": "Шестигранник 100",
+      "shape": {
+        "method": "HexShape",
+        "dimensions_mm": {
+          "h": 100
+        }
+      }
+    }
+  ]
+}

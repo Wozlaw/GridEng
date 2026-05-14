@@ -1,0 +1,941 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_2591_88",
+  "generated_at": "2026-05-14",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные параметры вычисляются через API/Crossection."
+  },
+  "standard": {
+    "id": "gost_2591_88",
+    "name": "ГОСТ 2591-88",
+    "title": "Прокат стальной горячекатаный квадратный. Сортамент",
+    "profile_types": [
+      "square_hot_rolled"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 2591-88.pdf",
+    "table": "Таблица 1",
+    "basis": "manually_verified_review_xlsx"
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-14",
+    "notes": "Проверено пользователем. Продуктивная БД содержит только нормативную геометрию."
+  },
+  "profiles": [
+    {
+      "id": "gost_2591_88_square_hot_rolled_6",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "6",
+      "designation": "6",
+      "display_name": "Квадрат 6",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 6,
+          "b": 6
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_7",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "7",
+      "designation": "7",
+      "display_name": "Квадрат 7",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 7,
+          "b": 7
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_8",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "8",
+      "designation": "8",
+      "display_name": "Квадрат 8",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 8,
+          "b": 8
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_9",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "9",
+      "designation": "9",
+      "display_name": "Квадрат 9",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 9,
+          "b": 9
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_10",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "10",
+      "designation": "10",
+      "display_name": "Квадрат 10",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 10,
+          "b": 10
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_11",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "11",
+      "designation": "11",
+      "display_name": "Квадрат 11",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 11,
+          "b": 11
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_12",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "12",
+      "designation": "12",
+      "display_name": "Квадрат 12",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 12,
+          "b": 12
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_13",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "13",
+      "designation": "13",
+      "display_name": "Квадрат 13",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 13,
+          "b": 13
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_14",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "14",
+      "designation": "14",
+      "display_name": "Квадрат 14",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 14,
+          "b": 14
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_15",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "15",
+      "designation": "15",
+      "display_name": "Квадрат 15",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 15,
+          "b": 15
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_16",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "16",
+      "designation": "16",
+      "display_name": "Квадрат 16",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 16,
+          "b": 16
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_17",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "17",
+      "designation": "17",
+      "display_name": "Квадрат 17",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 17,
+          "b": 17
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_18",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "18",
+      "designation": "18",
+      "display_name": "Квадрат 18",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 18,
+          "b": 18
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_19",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "19",
+      "designation": "19",
+      "display_name": "Квадрат 19",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 19,
+          "b": 19
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_20",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "20",
+      "designation": "20",
+      "display_name": "Квадрат 20",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 20,
+          "b": 20
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_21",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "21",
+      "designation": "21",
+      "display_name": "Квадрат 21",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 21,
+          "b": 21
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_22",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "22",
+      "designation": "22",
+      "display_name": "Квадрат 22",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 22,
+          "b": 22
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_23",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "23",
+      "designation": "23",
+      "display_name": "Квадрат 23",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 23,
+          "b": 23
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_24",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "24",
+      "designation": "24",
+      "display_name": "Квадрат 24",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 24,
+          "b": 24
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_25",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "25",
+      "designation": "25",
+      "display_name": "Квадрат 25",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 25,
+          "b": 25
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_26",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "26",
+      "designation": "26",
+      "display_name": "Квадрат 26",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 26,
+          "b": 26
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_27",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "27",
+      "designation": "27",
+      "display_name": "Квадрат 27",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 27,
+          "b": 27
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_28",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "28",
+      "designation": "28",
+      "display_name": "Квадрат 28",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 28,
+          "b": 28
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_29",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "29",
+      "designation": "29",
+      "display_name": "Квадрат 29",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 29,
+          "b": 29
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_30",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "30",
+      "designation": "30",
+      "display_name": "Квадрат 30",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 30,
+          "b": 30
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_32",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "32",
+      "designation": "32",
+      "display_name": "Квадрат 32",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 32,
+          "b": 32
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_34",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "34",
+      "designation": "34",
+      "display_name": "Квадрат 34",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 34,
+          "b": 34
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_35",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "35",
+      "designation": "35",
+      "display_name": "Квадрат 35",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 35,
+          "b": 35
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_36",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "36",
+      "designation": "36",
+      "display_name": "Квадрат 36",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 36,
+          "b": 36
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_38",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "38",
+      "designation": "38",
+      "display_name": "Квадрат 38",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 38,
+          "b": 38
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_40",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "40",
+      "designation": "40",
+      "display_name": "Квадрат 40",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 40
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_42",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "42",
+      "designation": "42",
+      "display_name": "Квадрат 42",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 42,
+          "b": 42
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_45",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "45",
+      "designation": "45",
+      "display_name": "Квадрат 45",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 45,
+          "b": 45
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_46",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "46",
+      "designation": "46",
+      "display_name": "Квадрат 46",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 46,
+          "b": 46
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_48",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "48",
+      "designation": "48",
+      "display_name": "Квадрат 48",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 48,
+          "b": 48
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_50",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "50",
+      "designation": "50",
+      "display_name": "Квадрат 50",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 50
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_52",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "52",
+      "designation": "52",
+      "display_name": "Квадрат 52",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 52,
+          "b": 52
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_55",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "55",
+      "designation": "55",
+      "display_name": "Квадрат 55",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 55,
+          "b": 55
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_58",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "58",
+      "designation": "58",
+      "display_name": "Квадрат 58",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 58,
+          "b": 58
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_60",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "60",
+      "designation": "60",
+      "display_name": "Квадрат 60",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 60
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_63",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "63",
+      "designation": "63",
+      "display_name": "Квадрат 63",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 63,
+          "b": 63
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_65",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "65",
+      "designation": "65",
+      "display_name": "Квадрат 65",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 65
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_70",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "70",
+      "designation": "70",
+      "display_name": "Квадрат 70",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 70
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_75",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "75",
+      "designation": "75",
+      "display_name": "Квадрат 75",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 75,
+          "b": 75
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_80",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "80",
+      "designation": "80",
+      "display_name": "Квадрат 80",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 80
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_85",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "85",
+      "designation": "85",
+      "display_name": "Квадрат 85",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 85,
+          "b": 85
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_90",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "90",
+      "designation": "90",
+      "display_name": "Квадрат 90",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 90,
+          "b": 90
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_93",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "93",
+      "designation": "93",
+      "display_name": "Квадрат 93",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 93,
+          "b": 93
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_95",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "95",
+      "designation": "95",
+      "display_name": "Квадрат 95",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 95,
+          "b": 95
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_100",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "100",
+      "designation": "100",
+      "display_name": "Квадрат 100",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 100
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_105",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "105",
+      "designation": "105",
+      "display_name": "Квадрат 105",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 105,
+          "b": 105
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_110",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "110",
+      "designation": "110",
+      "display_name": "Квадрат 110",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 110,
+          "b": 110
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_115",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "115",
+      "designation": "115",
+      "display_name": "Квадрат 115",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 115,
+          "b": 115
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_120",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "120",
+      "designation": "120",
+      "display_name": "Квадрат 120",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 120
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_125",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "125",
+      "designation": "125",
+      "display_name": "Квадрат 125",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 125,
+          "b": 125
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_130",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "130",
+      "designation": "130",
+      "display_name": "Квадрат 130",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 130,
+          "b": 130
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_135",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "135",
+      "designation": "135",
+      "display_name": "Квадрат 135",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 135,
+          "b": 135
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_140",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "140",
+      "designation": "140",
+      "display_name": "Квадрат 140",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 140
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_145",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "145",
+      "designation": "145",
+      "display_name": "Квадрат 145",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 145,
+          "b": 145
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_150",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "150",
+      "designation": "150",
+      "display_name": "Квадрат 150",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 150,
+          "b": 150
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_160",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "160",
+      "designation": "160",
+      "display_name": "Квадрат 160",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 160
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_170",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "170",
+      "designation": "170",
+      "display_name": "Квадрат 170",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 170,
+          "b": 170
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_180",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "180",
+      "designation": "180",
+      "display_name": "Квадрат 180",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 180
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_190",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "190",
+      "designation": "190",
+      "display_name": "Квадрат 190",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 190,
+          "b": 190
+        }
+      }
+    },
+    {
+      "id": "gost_2591_88_square_hot_rolled_200",
+      "profile_type": "square_hot_rolled",
+      "gost_number": "200",
+      "designation": "200",
+      "display_name": "Квадрат 200",
+      "shape": {
+        "method": "RectShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 200
+        }
+      }
+    }
+  ]
+}

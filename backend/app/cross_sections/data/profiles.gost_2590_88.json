@@ -1,0 +1,1331 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_2590_88",
+  "generated_at": "2026-05-14",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные и справочные параметры не включаются в продуктивный справочник."
+  },
+  "standard": {
+    "id": "gost_2590_88",
+    "name": "ГОСТ 2590-88",
+    "title": "Прокат стальной горячекатаный круглый. Сортамент",
+    "profile_types": [
+      "round_hot_rolled"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 2590-88.pdf",
+    "table": "Таблица 1",
+    "basis": "manually_verified_review_xlsx"
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-14",
+    "notes": "Проверено пользователем. Продуктивная БД содержит только нормативную геометрию."
+  },
+  "profiles": [
+    {
+      "id": "gost_2590_88_round_hot_rolled_d5",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "5",
+      "designation": "d5",
+      "display_name": "Круг 5",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 5
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d5_5",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "5.5",
+      "designation": "d5.5",
+      "display_name": "Круг 5.5",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 5.5
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d6",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "6",
+      "designation": "d6",
+      "display_name": "Круг 6",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 6
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d6_3",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "6.3",
+      "designation": "d6.3",
+      "display_name": "Круг 6.3",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 6.3
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d6_5",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "6.5",
+      "designation": "d6.5",
+      "display_name": "Круг 6.5",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 6.5
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d7",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "7",
+      "designation": "d7",
+      "display_name": "Круг 7",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 7
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d8",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "8",
+      "designation": "d8",
+      "display_name": "Круг 8",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 8
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d9",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "9",
+      "designation": "d9",
+      "display_name": "Круг 9",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 9
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d10",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "10",
+      "designation": "d10",
+      "display_name": "Круг 10",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 10
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d11",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "11",
+      "designation": "d11",
+      "display_name": "Круг 11",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 11
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d12",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "12",
+      "designation": "d12",
+      "display_name": "Круг 12",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 12
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d13",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "13",
+      "designation": "d13",
+      "display_name": "Круг 13",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 13
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d14",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "14",
+      "designation": "d14",
+      "display_name": "Круг 14",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 14
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d15",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "15",
+      "designation": "d15",
+      "display_name": "Круг 15",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 15
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d16",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "16",
+      "designation": "d16",
+      "display_name": "Круг 16",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 16
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d17",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "17",
+      "designation": "d17",
+      "display_name": "Круг 17",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 17
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d18",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "18",
+      "designation": "d18",
+      "display_name": "Круг 18",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 18
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d19",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "19",
+      "designation": "d19",
+      "display_name": "Круг 19",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 19
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d20",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "20",
+      "designation": "d20",
+      "display_name": "Круг 20",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 20
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d21",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "21",
+      "designation": "d21",
+      "display_name": "Круг 21",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 21
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d22",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "22",
+      "designation": "d22",
+      "display_name": "Круг 22",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 22
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d23",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "23",
+      "designation": "d23",
+      "display_name": "Круг 23",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 23
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d24",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "24",
+      "designation": "d24",
+      "display_name": "Круг 24",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 24
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d25",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "25",
+      "designation": "d25",
+      "display_name": "Круг 25",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 25
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d26",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "26",
+      "designation": "d26",
+      "display_name": "Круг 26",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 26
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d27",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "27",
+      "designation": "d27",
+      "display_name": "Круг 27",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 27
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d28",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "28",
+      "designation": "d28",
+      "display_name": "Круг 28",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 28
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d29",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "29",
+      "designation": "d29",
+      "display_name": "Круг 29",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 29
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d30",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "30",
+      "designation": "d30",
+      "display_name": "Круг 30",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 30
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d31",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "31",
+      "designation": "d31",
+      "display_name": "Круг 31",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 31
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d32",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "32",
+      "designation": "d32",
+      "display_name": "Круг 32",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 32
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d33",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "33",
+      "designation": "d33",
+      "display_name": "Круг 33",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 33
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d34",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "34",
+      "designation": "d34",
+      "display_name": "Круг 34",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 34
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d35",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "35",
+      "designation": "d35",
+      "display_name": "Круг 35",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 35
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d36",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "36",
+      "designation": "d36",
+      "display_name": "Круг 36",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 36
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d37",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "37",
+      "designation": "d37",
+      "display_name": "Круг 37",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 37
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d38",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "38",
+      "designation": "d38",
+      "display_name": "Круг 38",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 38
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d39",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "39",
+      "designation": "d39",
+      "display_name": "Круг 39",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 39
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d40",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "40",
+      "designation": "d40",
+      "display_name": "Круг 40",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 40
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d41",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "41",
+      "designation": "d41",
+      "display_name": "Круг 41",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 41
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d42",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "42",
+      "designation": "d42",
+      "display_name": "Круг 42",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 42
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d43",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "43",
+      "designation": "d43",
+      "display_name": "Круг 43",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 43
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d44",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "44",
+      "designation": "d44",
+      "display_name": "Круг 44",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 44
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d45",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "45",
+      "designation": "d45",
+      "display_name": "Круг 45",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 45
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d46",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "46",
+      "designation": "d46",
+      "display_name": "Круг 46",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 46
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d47",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "47",
+      "designation": "d47",
+      "display_name": "Круг 47",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 47
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d48",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "48",
+      "designation": "d48",
+      "display_name": "Круг 48",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 48
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d50",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "50",
+      "designation": "d50",
+      "display_name": "Круг 50",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 50
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d52",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "52",
+      "designation": "d52",
+      "display_name": "Круг 52",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 52
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d53",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "53",
+      "designation": "d53",
+      "display_name": "Круг 53",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 53
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d54",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "54",
+      "designation": "d54",
+      "display_name": "Круг 54",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 54
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d55",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "55",
+      "designation": "d55",
+      "display_name": "Круг 55",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 55
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d56",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "56",
+      "designation": "d56",
+      "display_name": "Круг 56",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 56
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d58",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "58",
+      "designation": "d58",
+      "display_name": "Круг 58",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 58
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d60",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "60",
+      "designation": "d60",
+      "display_name": "Круг 60",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 60
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d62",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "62",
+      "designation": "d62",
+      "display_name": "Круг 62",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 62
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d63",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "63",
+      "designation": "d63",
+      "display_name": "Круг 63",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 63
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d65",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "65",
+      "designation": "d65",
+      "display_name": "Круг 65",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 65
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d67",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "67",
+      "designation": "d67",
+      "display_name": "Круг 67",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 67
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d68",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "68",
+      "designation": "d68",
+      "display_name": "Круг 68",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 68
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d70",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "70",
+      "designation": "d70",
+      "display_name": "Круг 70",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 70
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d72",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "72",
+      "designation": "d72",
+      "display_name": "Круг 72",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 72
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d75",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "75",
+      "designation": "d75",
+      "display_name": "Круг 75",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 75
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d78",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "78",
+      "designation": "d78",
+      "display_name": "Круг 78",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 78
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d80",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "80",
+      "designation": "d80",
+      "display_name": "Круг 80",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 80
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d82",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "82",
+      "designation": "d82",
+      "display_name": "Круг 82",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 82
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d85",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "85",
+      "designation": "d85",
+      "display_name": "Круг 85",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 85
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d87",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "87",
+      "designation": "d87",
+      "display_name": "Круг 87",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 87
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d90",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "90",
+      "designation": "d90",
+      "display_name": "Круг 90",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 90
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d92",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "92",
+      "designation": "d92",
+      "display_name": "Круг 92",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 92
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d95",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "95",
+      "designation": "d95",
+      "display_name": "Круг 95",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 95
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d97",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "97",
+      "designation": "d97",
+      "display_name": "Круг 97",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 97
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d100",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "100",
+      "designation": "d100",
+      "display_name": "Круг 100",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 100
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d105",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "105",
+      "designation": "d105",
+      "display_name": "Круг 105",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 105
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d110",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "110",
+      "designation": "d110",
+      "display_name": "Круг 110",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 110
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d115",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "115",
+      "designation": "d115",
+      "display_name": "Круг 115",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 115
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d120",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "120",
+      "designation": "d120",
+      "display_name": "Круг 120",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 120
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d125",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "125",
+      "designation": "d125",
+      "display_name": "Круг 125",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 125
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d130",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "130",
+      "designation": "d130",
+      "display_name": "Круг 130",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 130
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d135",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "135",
+      "designation": "d135",
+      "display_name": "Круг 135",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 135
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d140",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "140",
+      "designation": "d140",
+      "display_name": "Круг 140",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 140
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d145",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "145",
+      "designation": "d145",
+      "display_name": "Круг 145",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 145
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d150",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "150",
+      "designation": "d150",
+      "display_name": "Круг 150",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 150
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d155",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "155",
+      "designation": "d155",
+      "display_name": "Круг 155",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 155
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d160",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "160",
+      "designation": "d160",
+      "display_name": "Круг 160",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 160
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d165",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "165",
+      "designation": "d165",
+      "display_name": "Круг 165",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 165
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d170",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "170",
+      "designation": "d170",
+      "display_name": "Круг 170",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 170
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d175",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "175",
+      "designation": "d175",
+      "display_name": "Круг 175",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 175
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d180",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "180",
+      "designation": "d180",
+      "display_name": "Круг 180",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 180
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d185",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "185",
+      "designation": "d185",
+      "display_name": "Круг 185",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 185
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d190",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "190",
+      "designation": "d190",
+      "display_name": "Круг 190",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 190
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d195",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "195",
+      "designation": "d195",
+      "display_name": "Круг 195",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 195
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d200",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "200",
+      "designation": "d200",
+      "display_name": "Круг 200",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 200
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d210",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "210",
+      "designation": "d210",
+      "display_name": "Круг 210",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 210
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d220",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "220",
+      "designation": "d220",
+      "display_name": "Круг 220",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 220
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d230",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "230",
+      "designation": "d230",
+      "display_name": "Круг 230",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 230
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d240",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "240",
+      "designation": "d240",
+      "display_name": "Круг 240",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 240
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d250",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "250",
+      "designation": "d250",
+      "display_name": "Круг 250",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 250
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d260",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "260",
+      "designation": "d260",
+      "display_name": "Круг 260",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 260
+        }
+      }
+    },
+    {
+      "id": "gost_2590_88_round_hot_rolled_d270",
+      "profile_type": "round_hot_rolled",
+      "gost_number": "270",
+      "designation": "d270",
+      "display_name": "Круг 270",
+      "shape": {
+        "method": "CircleShape",
+        "dimensions_mm": {
+          "D": 270
+        }
+      }
+    }
+  ]
+}
