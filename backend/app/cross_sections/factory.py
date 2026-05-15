@@ -33,6 +33,7 @@ class CrossSectionFactory:
         "CShape": {"h", "b", "s", "t", "R", "r"},
         "IShape": {"h", "b", "s", "t", "R", "r"},
         "TShape": {"h", "b", "s", "t", "R", "r"},
+        "CBendShape": {"h", "b", "s", "R"},
     }
 
     @classmethod

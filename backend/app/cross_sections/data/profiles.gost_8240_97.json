@@ -1,0 +1,1596 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_8240_97",
+  "generated_at": "2026-05-15",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные параметры вычисляются через API/Crossection."
+  },
+  "standard": {
+    "id": "gost_8240_97",
+    "name": "ГОСТ 8240-97",
+    "title": "Швеллеры стальные горячекатаные. Сортамент",
+    "profile_types": [
+      "channel_u_slope",
+      "channel_p_parallel",
+      "channel_e_economical",
+      "channel_l_light",
+      "channel_s_special"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 8240-97.pdf",
+    "table": "Таблицы 1–5",
+    "basis": "manually_verified_review_xlsx",
+    "notes": "Продуктивная БД содержит только нормативную геометрию. Параметр delta передается в Crossection.CShape согласно принятой в review-файле расчетной политике."
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-15",
+    "notes": "Проверено пользователем. Строки принудительно приняты как approved по ручному подтверждению в чате."
+  },
+  "profiles": [
+    {
+      "id": "gost_8240_97_channel_5у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "5У",
+      "designation": "5У",
+      "display_name": "Швеллер 5У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 32,
+          "s": 4.4,
+          "t": 7,
+          "R": 6,
+          "r": 2.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_6_5у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "6.5У",
+      "designation": "6.5У",
+      "display_name": "Швеллер 6.5У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 36,
+          "s": 4.4,
+          "t": 7.2,
+          "R": 6,
+          "r": 2.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_8у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "8У",
+      "designation": "8У",
+      "display_name": "Швеллер 8У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 40,
+          "s": 4.5,
+          "t": 7.4,
+          "R": 6.5,
+          "r": 2.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_10у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "10У",
+      "designation": "10У",
+      "display_name": "Швеллер 10У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 46,
+          "s": 4.5,
+          "t": 7.6,
+          "R": 7,
+          "r": 3,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_12у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "12У",
+      "designation": "12У",
+      "display_name": "Швеллер 12У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 52,
+          "s": 4.8,
+          "t": 7.8,
+          "R": 7.5,
+          "r": 3,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "14У",
+      "designation": "14У",
+      "display_name": "Швеллер 14У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 58,
+          "s": 4.9,
+          "t": 8.1,
+          "R": 8,
+          "r": 3,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "16У",
+      "designation": "16У",
+      "display_name": "Швеллер 16У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 64,
+          "s": 5,
+          "t": 8.4,
+          "R": 8.5,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16ау",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "16аУ",
+      "designation": "16аУ",
+      "display_name": "Швеллер 16аУ",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 68,
+          "s": 5,
+          "t": 9,
+          "R": 8.5,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "18У",
+      "designation": "18У",
+      "display_name": "Швеллер 18У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 5.1,
+          "t": 8.7,
+          "R": 9,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18ау",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "18аУ",
+      "designation": "18аУ",
+      "display_name": "Швеллер 18аУ",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 74,
+          "s": 5.1,
+          "t": 9.3,
+          "R": 9,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "20У",
+      "designation": "20У",
+      "display_name": "Швеллер 20У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 76,
+          "s": 5.2,
+          "t": 9,
+          "R": 9.5,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_22у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "22У",
+      "designation": "22У",
+      "display_name": "Швеллер 22У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 220,
+          "b": 82,
+          "s": 5.4,
+          "t": 9.5,
+          "R": 10,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_24у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "24У",
+      "designation": "24У",
+      "display_name": "Швеллер 24У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 90,
+          "s": 5.6,
+          "t": 10,
+          "R": 10.5,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_27у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "27У",
+      "designation": "27У",
+      "display_name": "Швеллер 27У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 95,
+          "s": 6,
+          "t": 10.5,
+          "R": 11,
+          "r": 4.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "30У",
+      "designation": "30У",
+      "display_name": "Швеллер 30У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 100,
+          "s": 6.5,
+          "t": 11,
+          "R": 12,
+          "r": 5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_33у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "33У",
+      "designation": "33У",
+      "display_name": "Швеллер 33У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 330,
+          "b": 105,
+          "s": 7,
+          "t": 11.7,
+          "R": 13,
+          "r": 5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_36у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "36У",
+      "designation": "36У",
+      "display_name": "Швеллер 36У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 360,
+          "b": 110,
+          "s": 7.5,
+          "t": 12.6,
+          "R": 14,
+          "r": 6,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_40у",
+      "profile_type": "channel_u_slope",
+      "series": "У",
+      "gost_number": "40У",
+      "designation": "40У",
+      "display_name": "Швеллер 40У",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 400,
+          "b": 115,
+          "s": 8,
+          "t": 13.5,
+          "R": 15,
+          "r": 6,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_5п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "5П",
+      "designation": "5П",
+      "display_name": "Швеллер 5П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 32,
+          "s": 4.4,
+          "t": 7,
+          "R": 6,
+          "r": 3.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_6_5п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "6.5П",
+      "designation": "6.5П",
+      "display_name": "Швеллер 6.5П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 36,
+          "s": 4.4,
+          "t": 7.2,
+          "R": 6,
+          "r": 3.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_8п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "8П",
+      "designation": "8П",
+      "display_name": "Швеллер 8П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 40,
+          "s": 4.5,
+          "t": 7.4,
+          "R": 6.5,
+          "r": 3.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_10п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "10П",
+      "designation": "10П",
+      "display_name": "Швеллер 10П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 46,
+          "s": 4.5,
+          "t": 7.6,
+          "R": 7,
+          "r": 4,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_12п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "12П",
+      "designation": "12П",
+      "display_name": "Швеллер 12П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 52,
+          "s": 4.8,
+          "t": 7.8,
+          "R": 7.5,
+          "r": 4.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "14П",
+      "designation": "14П",
+      "display_name": "Швеллер 14П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 58,
+          "s": 4.9,
+          "t": 8.1,
+          "R": 8,
+          "r": 4.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "16П",
+      "designation": "16П",
+      "display_name": "Швеллер 16П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 64,
+          "s": 5,
+          "t": 8.4,
+          "R": 8.5,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16ап",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "16аП",
+      "designation": "16аП",
+      "display_name": "Швеллер 16аП",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 68,
+          "s": 5,
+          "t": 9,
+          "R": 8.5,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "18П",
+      "designation": "18П",
+      "display_name": "Швеллер 18П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 5.1,
+          "t": 8.7,
+          "R": 9,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18ап",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "18аП",
+      "designation": "18аП",
+      "display_name": "Швеллер 18аП",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 74,
+          "s": 5.1,
+          "t": 9.3,
+          "R": 9,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "20П",
+      "designation": "20П",
+      "display_name": "Швеллер 20П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 76,
+          "s": 5.2,
+          "t": 9,
+          "R": 9.5,
+          "r": 5.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_22п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "22П",
+      "designation": "22П",
+      "display_name": "Швеллер 22П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 220,
+          "b": 82,
+          "s": 5.4,
+          "t": 9.5,
+          "R": 10,
+          "r": 6,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_24п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "24П",
+      "designation": "24П",
+      "display_name": "Швеллер 24П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 90,
+          "s": 5.6,
+          "t": 10,
+          "R": 10.5,
+          "r": 6,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_27п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "27П",
+      "designation": "27П",
+      "display_name": "Швеллер 27П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 95,
+          "s": 6,
+          "t": 10.5,
+          "R": 11,
+          "r": 6.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "30П",
+      "designation": "30П",
+      "display_name": "Швеллер 30П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 100,
+          "s": 6.5,
+          "t": 11,
+          "R": 12,
+          "r": 7,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_33п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "33П",
+      "designation": "33П",
+      "display_name": "Швеллер 33П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 330,
+          "b": 105,
+          "s": 7,
+          "t": 11.7,
+          "R": 13,
+          "r": 7.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_36п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "36П",
+      "designation": "36П",
+      "display_name": "Швеллер 36П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 360,
+          "b": 110,
+          "s": 7.5,
+          "t": 12.6,
+          "R": 14,
+          "r": 8.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_40п",
+      "profile_type": "channel_p_parallel",
+      "series": "П",
+      "gost_number": "40П",
+      "designation": "40П",
+      "display_name": "Швеллер 40П",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 400,
+          "b": 115,
+          "s": 8,
+          "t": 13.5,
+          "R": 15,
+          "r": 9,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_5э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "5Э",
+      "designation": "5Э",
+      "display_name": "Швеллер 5Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 32,
+          "s": 4.2,
+          "t": 7,
+          "R": 6.5,
+          "r": 2.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_6_5э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "6.5Э",
+      "designation": "6.5Э",
+      "display_name": "Швеллер 6.5Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 36,
+          "s": 4.2,
+          "t": 7.2,
+          "R": 6.5,
+          "r": 2.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_8э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "8Э",
+      "designation": "8Э",
+      "display_name": "Швеллер 8Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 40,
+          "s": 4.2,
+          "t": 7.4,
+          "R": 7.5,
+          "r": 2.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_10э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "10Э",
+      "designation": "10Э",
+      "display_name": "Швеллер 10Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 46,
+          "s": 4.2,
+          "t": 7.6,
+          "R": 9,
+          "r": 3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_12э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "12Э",
+      "designation": "12Э",
+      "display_name": "Швеллер 12Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 52,
+          "s": 4.5,
+          "t": 7.8,
+          "R": 9.5,
+          "r": 3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "14Э",
+      "designation": "14Э",
+      "display_name": "Швеллер 14Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 58,
+          "s": 4.6,
+          "t": 8.1,
+          "R": 10,
+          "r": 3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "16Э",
+      "designation": "16Э",
+      "display_name": "Швеллер 16Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 64,
+          "s": 4.7,
+          "t": 8.4,
+          "R": 11,
+          "r": 3.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "18Э",
+      "designation": "18Э",
+      "display_name": "Швеллер 18Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 4.8,
+          "t": 8.7,
+          "R": 11.5,
+          "r": 3.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "20Э",
+      "designation": "20Э",
+      "display_name": "Швеллер 20Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 76,
+          "s": 4.9,
+          "t": 9,
+          "R": 12,
+          "r": 4,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_22э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "22Э",
+      "designation": "22Э",
+      "display_name": "Швеллер 22Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 220,
+          "b": 82,
+          "s": 5.1,
+          "t": 9.5,
+          "R": 13,
+          "r": 4,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_24э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "24Э",
+      "designation": "24Э",
+      "display_name": "Швеллер 24Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 90,
+          "s": 5.3,
+          "t": 10,
+          "R": 13,
+          "r": 4,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_27э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "27Э",
+      "designation": "27Э",
+      "display_name": "Швеллер 27Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 95,
+          "s": 5.8,
+          "t": 10.5,
+          "R": 13,
+          "r": 4.5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "30Э",
+      "designation": "30Э",
+      "display_name": "Швеллер 30Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 100,
+          "s": 6.3,
+          "t": 11,
+          "R": 13,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_33э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "33Э",
+      "designation": "33Э",
+      "display_name": "Швеллер 33Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 330,
+          "b": 105,
+          "s": 6.9,
+          "t": 11.7,
+          "R": 13,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_36э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "36Э",
+      "designation": "36Э",
+      "display_name": "Швеллер 36Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 360,
+          "b": 110,
+          "s": 7.4,
+          "t": 12.6,
+          "R": 14,
+          "r": 6,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_40э",
+      "profile_type": "channel_e_economical",
+      "series": "Э",
+      "gost_number": "40Э",
+      "designation": "40Э",
+      "display_name": "Швеллер 40Э",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 400,
+          "b": 115,
+          "s": 7.9,
+          "t": 13.5,
+          "R": 15.5,
+          "r": 6,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_12л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "12Л",
+      "designation": "12Л",
+      "display_name": "Швеллер 12Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 30,
+          "s": 3,
+          "t": 4.8,
+          "R": 7,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "14Л",
+      "designation": "14Л",
+      "display_name": "Швеллер 14Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 32,
+          "s": 3.2,
+          "t": 5.6,
+          "R": 7,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "16Л",
+      "designation": "16Л",
+      "display_name": "Швеллер 16Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 35,
+          "s": 3.4,
+          "t": 5.3,
+          "R": 8,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "18Л",
+      "designation": "18Л",
+      "display_name": "Швеллер 18Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 40,
+          "s": 3.6,
+          "t": 5.6,
+          "R": 8,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "20Л",
+      "designation": "20Л",
+      "display_name": "Швеллер 20Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 45,
+          "s": 3.8,
+          "t": 6,
+          "R": 9,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_22л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "22Л",
+      "designation": "22Л",
+      "display_name": "Швеллер 22Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 220,
+          "b": 50,
+          "s": 4,
+          "t": 6.4,
+          "R": 10,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_24л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "24Л",
+      "designation": "24Л",
+      "display_name": "Швеллер 24Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 55,
+          "s": 4.2,
+          "t": 6.8,
+          "R": 10,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_27л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "27Л",
+      "designation": "27Л",
+      "display_name": "Швеллер 27Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 60,
+          "s": 4.5,
+          "t": 7.3,
+          "R": 11,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30л",
+      "profile_type": "channel_l_light",
+      "series": "Л",
+      "gost_number": "30Л",
+      "designation": "30Л",
+      "display_name": "Швеллер 30Л",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 65,
+          "s": 4.8,
+          "t": 7.8,
+          "R": 11,
+          "r": 0,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_8с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "8С",
+      "designation": "8С",
+      "display_name": "Швеллер 8С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 45,
+          "s": 5.5,
+          "t": 9,
+          "R": 9,
+          "r": 1.5,
+          "delta": 0.06
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "14С",
+      "designation": "14С",
+      "display_name": "Швеллер 14С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 58,
+          "s": 6,
+          "t": 9.5,
+          "R": 9.5,
+          "r": 4.75,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_14са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "14Са",
+      "designation": "14Са",
+      "display_name": "Швеллер 14Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 60,
+          "s": 8,
+          "t": 9.5,
+          "R": 9.5,
+          "r": 5,
+          "delta": 0.1
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "16С",
+      "designation": "16С",
+      "display_name": "Швеллер 16С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 63,
+          "s": 6.5,
+          "t": 10,
+          "R": 10,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_16са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "16Са",
+      "designation": "16Са",
+      "display_name": "Швеллер 16Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 65,
+          "s": 8.5,
+          "t": 10,
+          "R": 10,
+          "r": 5,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "18С",
+      "designation": "18С",
+      "display_name": "Швеллер 18С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 68,
+          "s": 7,
+          "t": 10.5,
+          "R": 10.5,
+          "r": 5.3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "18Са",
+      "designation": "18Са",
+      "display_name": "Швеллер 18Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 9,
+          "t": 10.5,
+          "R": 10.5,
+          "r": 5.3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_18сб",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "18Сб",
+      "designation": "18Сб",
+      "display_name": "Швеллер 18Сб",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 100,
+          "s": 8,
+          "t": 10.5,
+          "R": 10.5,
+          "r": 5,
+          "delta": 0.06
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "20С",
+      "designation": "20С",
+      "display_name": "Швеллер 20С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 73,
+          "s": 7,
+          "t": 11,
+          "R": 11,
+          "r": 5.5,
+          "delta": 0.1
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "20Са",
+      "designation": "20Са",
+      "display_name": "Швеллер 20Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 75,
+          "s": 9,
+          "t": 11,
+          "R": 11,
+          "r": 5.5,
+          "delta": 0.1
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_20сб",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "20Сб",
+      "designation": "20Сб",
+      "display_name": "Швеллер 20Сб",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 100,
+          "s": 8,
+          "t": 11,
+          "R": 11,
+          "r": 5.5,
+          "delta": 0.06
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_24с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "24С",
+      "designation": "24С",
+      "display_name": "Швеллер 24С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 85,
+          "s": 9.5,
+          "t": 14,
+          "R": 14,
+          "r": 7,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_26с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "26С",
+      "designation": "26С",
+      "display_name": "Швеллер 26С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 260,
+          "b": 65,
+          "s": 10,
+          "t": 16,
+          "R": 15,
+          "r": 3,
+          "delta": 0
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_26са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "26Са",
+      "designation": "26Са",
+      "display_name": "Швеллер 26Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 260,
+          "b": 90,
+          "s": 10,
+          "t": 15,
+          "R": 15,
+          "r": 7.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30с",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "30С",
+      "designation": "30С",
+      "display_name": "Швеллер 30С",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 85,
+          "s": 7.5,
+          "t": 13.5,
+          "R": 13.5,
+          "r": 7,
+          "delta": 0.1
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30са",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "30Са",
+      "designation": "30Са",
+      "display_name": "Швеллер 30Са",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 87,
+          "s": 9.5,
+          "t": 13.5,
+          "R": 13.5,
+          "r": 7,
+          "delta": 0.1
+        }
+      }
+    },
+    {
+      "id": "gost_8240_97_channel_30сб",
+      "profile_type": "channel_s_special",
+      "series": "С",
+      "gost_number": "30Сб",
+      "designation": "30Сб",
+      "display_name": "Швеллер 30Сб",
+      "shape": {
+        "method": "CShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 89,
+          "s": 11.5,
+          "t": 13.5,
+          "R": 13.5,
+          "r": 7,
+          "delta": 0.1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,3136 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_8278_83",
+  "generated_at": "2026-05-15",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные параметры вычисляются через API/Crossection."
+  },
+  "standard": {
+    "id": "gost_8278_83",
+    "name": "ГОСТ 8278-83",
+    "title": "Швеллеры стальные гнутые равнополочные. Сортамент",
+    "profile_types": [
+      "bent_channel_equal"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 8278-83.pdf",
+    "table": "Таблица 1; таблица 2",
+    "basis": "manually_verified_review_xlsx",
+    "notes": "steel_group исключен из продуктивной БД. Дубли между таблицами схлопнуты по обозначению h×b×s; приоритет сохраненной строки: таблица 1 КП/ПС, затем таблица 2 СП/НЛ."
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-15",
+    "notes": "Проверено пользователем. steel_group исключен, дубли по h×b×s удалены."
+  },
+  "profiles": [
+    {
+      "id": "gost_8278_83_bent_channel_equal_25x26x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "25x26x2",
+      "designation": "25x26x2",
+      "display_name": "Швеллер гнутый равнополочный 25x26x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 25,
+          "b": 26,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_25x30x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "25x30x2",
+      "designation": "25x30x2",
+      "display_name": "Швеллер гнутый равнополочный 25x30x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 25,
+          "b": 30,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_28x27x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "28x27x2.5",
+      "designation": "28x27x2.5",
+      "display_name": "Швеллер гнутый равнополочный 28x27x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 28,
+          "b": 27,
+          "s": 2.5,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_30x25x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "30x25x3",
+      "designation": "30x25x3",
+      "display_name": "Швеллер гнутый равнополочный 30x25x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 30,
+          "b": 25,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_30x30x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "30x30x2",
+      "designation": "30x30x2",
+      "display_name": "Швеллер гнутый равнополочный 30x30x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 30,
+          "b": 30,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_32x25x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "32x25x3",
+      "designation": "32x25x3",
+      "display_name": "Швеллер гнутый равнополочный 32x25x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 32,
+          "b": 25,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_32x32x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "32x32x2",
+      "designation": "32x32x2",
+      "display_name": "Швеллер гнутый равнополочный 32x32x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 32,
+          "b": 32,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_38x95x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "38x95x2.5",
+      "designation": "38x95x2.5",
+      "display_name": "Швеллер гнутый равнополочный 38x95x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 38,
+          "b": 95,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x20x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x20x2",
+      "designation": "40x20x2",
+      "display_name": "Швеллер гнутый равнополочный 40x20x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 20,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x20x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x20x3",
+      "designation": "40x20x3",
+      "display_name": "Швеллер гнутый равнополочный 40x20x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 20,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x30x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x30x2",
+      "designation": "40x30x2",
+      "display_name": "Швеллер гнутый равнополочный 40x30x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 30,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x30x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x30x2.5",
+      "designation": "40x30x2.5",
+      "display_name": "Швеллер гнутый равнополочный 40x30x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 30,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x40x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x40x2",
+      "designation": "40x40x2",
+      "display_name": "Швеллер гнутый равнополочный 40x40x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 40,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x40x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x40x2.5",
+      "designation": "40x40x2.5",
+      "display_name": "Швеллер гнутый равнополочный 40x40x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 40,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_40x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "40x40x3",
+      "designation": "40x40x3",
+      "display_name": "Швеллер гнутый равнополочный 40x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 40,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_42x42x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "42x42x4",
+      "designation": "42x42x4",
+      "display_name": "Швеллер гнутый равнополочный 42x42x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 42,
+          "b": 42,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_43x45x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "43x45x2",
+      "designation": "43x45x2",
+      "display_name": "Швеллер гнутый равнополочный 43x45x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 43,
+          "b": 45,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_45x25x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "45x25x3",
+      "designation": "45x25x3",
+      "display_name": "Швеллер гнутый равнополочный 45x25x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 45,
+          "b": 25,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_45x31x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "45x31x2",
+      "designation": "45x31x2",
+      "display_name": "Швеллер гнутый равнополочный 45x31x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 45,
+          "b": 31,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_48x70x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "48x70x5",
+      "designation": "48x70x5",
+      "display_name": "Швеллер гнутый равнополочный 48x70x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 48,
+          "b": 70,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x30x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x30x2",
+      "designation": "50x30x2",
+      "display_name": "Швеллер гнутый равнополочный 50x30x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 30,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x30x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x30x2.5",
+      "designation": "50x30x2.5",
+      "display_name": "Швеллер гнутый равнополочный 50x30x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 30,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x32x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x32x2.5",
+      "designation": "50x32x2.5",
+      "display_name": "Швеллер гнутый равнополочный 50x32x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 32,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x40x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x40x2",
+      "designation": "50x40x2",
+      "display_name": "Швеллер гнутый равнополочный 50x40x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 40,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x40x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x40x2.5",
+      "designation": "50x40x2.5",
+      "display_name": "Швеллер гнутый равнополочный 50x40x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 40,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x40x3",
+      "designation": "50x40x3",
+      "display_name": "Швеллер гнутый равнополочный 50x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 40,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x40x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x40x4",
+      "designation": "50x40x4",
+      "display_name": "Швеллер гнутый равнополочный 50x40x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 40,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x47x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x47x6",
+      "designation": "50x47x6",
+      "display_name": "Швеллер гнутый равнополочный 50x47x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 47,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x50x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x50x2.5",
+      "designation": "50x50x2.5",
+      "display_name": "Швеллер гнутый равнополочный 50x50x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 50,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x50x3",
+      "designation": "50x50x3",
+      "display_name": "Швеллер гнутый равнополочный 50x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 50,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x50x4",
+      "designation": "50x50x4",
+      "display_name": "Швеллер гнутый равнополочный 50x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_50x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "50x60x4",
+      "designation": "50x60x4",
+      "display_name": "Швеллер гнутый равнополочный 50x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 50,
+          "b": 60,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x26x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x26x2.5",
+      "designation": "60x26x2.5",
+      "display_name": "Швеллер гнутый равнополочный 60x26x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 26,
+          "s": 2.5,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x30x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x30x2.5",
+      "designation": "60x30x2.5",
+      "display_name": "Швеллер гнутый равнополочный 60x30x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 30,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x30x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x30x3",
+      "designation": "60x30x3",
+      "display_name": "Швеллер гнутый равнополочный 60x30x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 30,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x32x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x32x2.5",
+      "designation": "60x32x2.5",
+      "display_name": "Швеллер гнутый равнополочный 60x32x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 32,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x32x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x32x3",
+      "designation": "60x32x3",
+      "display_name": "Швеллер гнутый равнополочный 60x32x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 32,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x32x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x32x4",
+      "designation": "60x32x4",
+      "display_name": "Швеллер гнутый равнополочный 60x32x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 32,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x40x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x40x2",
+      "designation": "60x40x2",
+      "display_name": "Швеллер гнутый равнополочный 60x40x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 40,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x40x3",
+      "designation": "60x40x3",
+      "display_name": "Швеллер гнутый равнополочный 60x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 40,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x50x3",
+      "designation": "60x50x3",
+      "display_name": "Швеллер гнутый равнополочный 60x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 50,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x60x3",
+      "designation": "60x60x3",
+      "display_name": "Швеллер гнутый равнополочный 60x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 60,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x60x4",
+      "designation": "60x60x4",
+      "display_name": "Швеллер гнутый равнополочный 60x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x80x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x80x3",
+      "designation": "60x80x3",
+      "display_name": "Швеллер гнутый равнополочный 60x80x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 80,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_60x90x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "60x90x5",
+      "designation": "60x90x5",
+      "display_name": "Швеллер гнутый равнополочный 60x90x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 60,
+          "b": 90,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_63x21x2_2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "63x21x2.2",
+      "designation": "63x21x2.2",
+      "display_name": "Швеллер гнутый равнополочный 63x21x2.2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 63,
+          "b": 21,
+          "s": 2.2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_65x40x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "65x40x4",
+      "designation": "65x40x4",
+      "display_name": "Швеллер гнутый равнополочный 65x40x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 40,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_65x75x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "65x75x4",
+      "designation": "65x75x4",
+      "display_name": "Швеллер гнутый равнополочный 65x75x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 65,
+          "b": 75,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_68x27x1",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "68x27x1",
+      "designation": "68x27x1",
+      "display_name": "Швеллер гнутый равнополочный 68x27x1",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 68,
+          "b": 27,
+          "s": 1,
+          "R": 2
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x30x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x30x2",
+      "designation": "70x30x2",
+      "display_name": "Швеллер гнутый равнополочный 70x30x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 30,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x40x3",
+      "designation": "70x40x3",
+      "display_name": "Швеллер гнутый равнополочный 70x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x50x3",
+      "designation": "70x50x3",
+      "display_name": "Швеллер гнутый равнополочный 70x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 50,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x50x4",
+      "designation": "70x50x4",
+      "display_name": "Швеллер гнутый равнополочный 70x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x60x4",
+      "designation": "70x60x4",
+      "display_name": "Швеллер гнутый равнополочный 70x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_70x65x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "70x65x4",
+      "designation": "70x65x4",
+      "display_name": "Швеллер гнутый равнополочный 70x65x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 70,
+          "b": 65,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_78x46x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "78x46x6",
+      "designation": "78x46x6",
+      "display_name": "Швеллер гнутый равнополочный 78x46x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 78,
+          "b": 46,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x25x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x25x4",
+      "designation": "80x25x4",
+      "display_name": "Швеллер гнутый равнополочный 80x25x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 25,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x32x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x32x4",
+      "designation": "80x32x4",
+      "display_name": "Швеллер гнутый равнополочный 80x32x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 32,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x35x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x35x4",
+      "designation": "80x35x4",
+      "display_name": "Швеллер гнутый равнополочный 80x35x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 35,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x40x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x40x2.5",
+      "designation": "80x40x2.5",
+      "display_name": "Швеллер гнутый равнополочный 80x40x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 40,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x40x3",
+      "designation": "80x40x3",
+      "display_name": "Швеллер гнутый равнополочный 80x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 40,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x50x4",
+      "designation": "80x50x4",
+      "display_name": "Швеллер гнутый равнополочный 80x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x60x3",
+      "designation": "80x60x3",
+      "display_name": "Швеллер гнутый равнополочный 80x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 60,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x60x4",
+      "designation": "80x60x4",
+      "display_name": "Швеллер гнутый равнополочный 80x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x60x6",
+      "designation": "80x60x6",
+      "display_name": "Швеллер гнутый равнополочный 80x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 60,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x80x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x80x3",
+      "designation": "80x80x3",
+      "display_name": "Швеллер гнутый равнополочный 80x80x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 80,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x80x4",
+      "designation": "80x80x4",
+      "display_name": "Швеллер гнутый равнополочный 80x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x85x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x85x4",
+      "designation": "80x85x4",
+      "display_name": "Швеллер гнутый равнополочный 80x85x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 85,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_80x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "80x100x6",
+      "designation": "80x100x6",
+      "display_name": "Швеллер гнутый равнополочный 80x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 80,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_90x50x3_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "90x50x3.5",
+      "designation": "90x50x3.5",
+      "display_name": "Швеллер гнутый равнополочный 90x50x3.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 90,
+          "b": 50,
+          "s": 3.5,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_90x54x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "90x54x5",
+      "designation": "90x54x5",
+      "display_name": "Швеллер гнутый равнополочный 90x54x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 90,
+          "b": 54,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_90x100x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "90x100x2.5",
+      "designation": "90x100x2.5",
+      "display_name": "Швеллер гнутый равнополочный 90x100x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 90,
+          "b": 100,
+          "s": 2.5,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_90x115x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "90x115x5",
+      "designation": "90x115x5",
+      "display_name": "Швеллер гнутый равнополочный 90x115x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 90,
+          "b": 115,
+          "s": 5,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x40x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x40x2.5",
+      "designation": "100x40x2.5",
+      "display_name": "Швеллер гнутый равнополочный 100x40x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 40,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x40x3",
+      "designation": "100x40x3",
+      "display_name": "Швеллер гнутый равнополочный 100x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x50x3",
+      "designation": "100x50x3",
+      "display_name": "Швеллер гнутый равнополочный 100x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 50,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x50x4",
+      "designation": "100x50x4",
+      "display_name": "Швеллер гнутый равнополочный 100x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x50x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x50x5",
+      "designation": "100x50x5",
+      "display_name": "Швеллер гнутый равнополочный 100x50x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 50,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x50x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x50x6",
+      "designation": "100x50x6",
+      "display_name": "Швеллер гнутый равнополочный 100x50x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 50,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x50x7",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x50x7",
+      "designation": "100x50x7",
+      "display_name": "Швеллер гнутый равнополочный 100x50x7",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 50,
+          "s": 7,
+          "R": 18
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x60x3",
+      "designation": "100x60x3",
+      "display_name": "Швеллер гнутый равнополочный 100x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 60,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x60x4",
+      "designation": "100x60x4",
+      "display_name": "Швеллер гнутый равнополочный 100x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x80x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x80x3",
+      "designation": "100x80x3",
+      "display_name": "Швеллер гнутый равнополочный 100x80x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 80,
+          "s": 3,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x80x4",
+      "designation": "100x80x4",
+      "display_name": "Швеллер гнутый равнополочный 100x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x80x5",
+      "designation": "100x80x5",
+      "display_name": "Швеллер гнутый равнополочный 100x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x100x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x100x3",
+      "designation": "100x100x3",
+      "display_name": "Швеллер гнутый равнополочный 100x100x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 100,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x100x6",
+      "designation": "100x100x6",
+      "display_name": "Швеллер гнутый равнополочный 100x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x120x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x120x8",
+      "designation": "100x120x8",
+      "display_name": "Швеллер гнутый равнополочный 100x120x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 120,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_100x160x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "100x160x4",
+      "designation": "100x160x4",
+      "display_name": "Швеллер гнутый равнополочный 100x160x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 160,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_104x20x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "104x20x2",
+      "designation": "104x20x2",
+      "display_name": "Швеллер гнутый равнополочный 104x20x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 104,
+          "b": 20,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_106x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "106x50x4",
+      "designation": "106x50x4",
+      "display_name": "Швеллер гнутый равнополочный 106x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 106,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_108x70x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "108x70x6",
+      "designation": "108x70x6",
+      "display_name": "Швеллер гнутый равнополочный 108x70x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 108,
+          "b": 70,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_110x26x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "110x26x2.5",
+      "designation": "110x26x2.5",
+      "display_name": "Швеллер гнутый равнополочный 110x26x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 110,
+          "b": 26,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_110x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "110x50x4",
+      "designation": "110x50x4",
+      "display_name": "Швеллер гнутый равнополочный 110x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 110,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_110x50x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "110x50x5",
+      "designation": "110x50x5",
+      "display_name": "Швеллер гнутый равнополочный 110x50x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 110,
+          "b": 50,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_110x100x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "110x100x4",
+      "designation": "110x100x4",
+      "display_name": "Швеллер гнутый равнополочный 110x100x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 110,
+          "b": 100,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x25x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x25x4",
+      "designation": "120x25x4",
+      "display_name": "Швеллер гнутый равнополочный 120x25x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 25,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x50x3",
+      "designation": "120x50x3",
+      "display_name": "Швеллер гнутый равнополочный 120x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 50,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x50x4",
+      "designation": "120x50x4",
+      "display_name": "Швеллер гнутый равнополочный 120x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x50x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x50x6",
+      "designation": "120x50x6",
+      "display_name": "Швеллер гнутый равнополочный 120x50x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 50,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x60x4",
+      "designation": "120x60x4",
+      "display_name": "Швеллер гнутый равнополочный 120x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x60x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x60x5",
+      "designation": "120x60x5",
+      "display_name": "Швеллер гнутый равнополочный 120x60x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 60,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x60x6",
+      "designation": "120x60x6",
+      "display_name": "Швеллер гнутый равнополочный 120x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 60,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x70x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x70x5",
+      "designation": "120x70x5",
+      "display_name": "Швеллер гнутый равнополочный 120x70x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 70,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x75x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x75x4",
+      "designation": "120x75x4",
+      "display_name": "Швеллер гнутый равнополочный 120x75x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 75,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x80x4",
+      "designation": "120x80x4",
+      "display_name": "Швеллер гнутый равнополочный 120x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x80x5",
+      "designation": "120x80x5",
+      "display_name": "Швеллер гнутый равнополочный 120x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x90x7",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x90x7",
+      "designation": "120x90x7",
+      "display_name": "Швеллер гнутый равнополочный 120x90x7",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 90,
+          "s": 7,
+          "R": 18
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_120x105x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "120x105x8",
+      "designation": "120x105x8",
+      "display_name": "Швеллер гнутый равнополочный 120x105x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 105,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_130x135x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "130x135x8",
+      "designation": "130x135x8",
+      "display_name": "Швеллер гнутый равнополочный 130x135x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 130,
+          "b": 135,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x40x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x40x2.5",
+      "designation": "140x40x2.5",
+      "display_name": "Швеллер гнутый равнополочный 140x40x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 40,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x40x3",
+      "designation": "140x40x3",
+      "display_name": "Швеллер гнутый равнополочный 140x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x60x3",
+      "designation": "140x60x3",
+      "display_name": "Швеллер гнутый равнополочный 140x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 60,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x60x4",
+      "designation": "140x60x4",
+      "display_name": "Швеллер гнутый равнополочный 140x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 60,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x60x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x60x5",
+      "designation": "140x60x5",
+      "display_name": "Швеллер гнутый равнополочный 140x60x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 60,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x60x6",
+      "designation": "140x60x6",
+      "display_name": "Швеллер гнутый равнополочный 140x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 60,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x70x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x70x5",
+      "designation": "140x70x5",
+      "display_name": "Швеллер гнутый равнополочный 140x70x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 70,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x80x4",
+      "designation": "140x80x4",
+      "display_name": "Швеллер гнутый равнополочный 140x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_140x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "140x80x5",
+      "designation": "140x80x5",
+      "display_name": "Швеллер гнутый равнополочный 140x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_145x65x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "145x65x3",
+      "designation": "145x65x3",
+      "display_name": "Швеллер гнутый равнополочный 145x65x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 145,
+          "b": 65,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_145x75x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "145x75x5",
+      "designation": "145x75x5",
+      "display_name": "Швеллер гнутый равнополочный 145x75x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 145,
+          "b": 75,
+          "s": 5,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_148x25x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "148x25x4",
+      "designation": "148x25x4",
+      "display_name": "Швеллер гнутый равнополочный 148x25x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 148,
+          "b": 25,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x40x2",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x40x2",
+      "designation": "160x40x2",
+      "display_name": "Швеллер гнутый равнополочный 160x40x2",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 40,
+          "s": 2,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x40x3",
+      "designation": "160x40x3",
+      "display_name": "Швеллер гнутый равнополочный 160x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x40x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x40x5",
+      "designation": "160x40x5",
+      "display_name": "Швеллер гнутый равнополочный 160x40x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 40,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x50x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x50x2.5",
+      "designation": "160x50x2.5",
+      "display_name": "Швеллер гнутый равнополочный 160x50x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 50,
+          "s": 2.5,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x50x4",
+      "designation": "160x50x4",
+      "display_name": "Швеллер гнутый равнополочный 160x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x50x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x50x5",
+      "designation": "160x50x5",
+      "display_name": "Швеллер гнутый равнополочный 160x50x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 50,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x50x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x50x6",
+      "designation": "160x50x6",
+      "display_name": "Швеллер гнутый равнополочный 160x50x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 50,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x60x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x60x2.5",
+      "designation": "160x60x2.5",
+      "display_name": "Швеллер гнутый равнополочный 160x60x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 60,
+          "s": 2.5,
+          "R": 4
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x60x3",
+      "designation": "160x60x3",
+      "display_name": "Швеллер гнутый равнополочный 160x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 60,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x60x4",
+      "designation": "160x60x4",
+      "display_name": "Швеллер гнутый равнополочный 160x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x60x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x60x5",
+      "designation": "160x60x5",
+      "display_name": "Швеллер гнутый равнополочный 160x60x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 60,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x60x6",
+      "designation": "160x60x6",
+      "display_name": "Швеллер гнутый равнополочный 160x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 60,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x70x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x70x4",
+      "designation": "160x70x4",
+      "display_name": "Швеллер гнутый равнополочный 160x70x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 70,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x75x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x75x8",
+      "designation": "160x75x8",
+      "display_name": "Швеллер гнутый равнополочный 160x75x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 75,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x80x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x80x2.5",
+      "designation": "160x80x2.5",
+      "display_name": "Швеллер гнутый равнополочный 160x80x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 80,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x80x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x80x3",
+      "designation": "160x80x3",
+      "display_name": "Швеллер гнутый равнополочный 160x80x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 80,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x80x4",
+      "designation": "160x80x4",
+      "display_name": "Швеллер гнутый равнополочный 160x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x80x5",
+      "designation": "160x80x5",
+      "display_name": "Швеллер гнутый равнополочный 160x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x80x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x80x6",
+      "designation": "160x80x6",
+      "display_name": "Швеллер гнутый равнополочный 160x80x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 80,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x100x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x100x3",
+      "designation": "160x100x3",
+      "display_name": "Швеллер гнутый равнополочный 160x100x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 100,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x100x6",
+      "designation": "160x100x6",
+      "display_name": "Швеллер гнутый равнополочный 160x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x120x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x120x5",
+      "designation": "160x120x5",
+      "display_name": "Швеллер гнутый равнополочный 160x120x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 120,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x120x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x120x6",
+      "designation": "160x120x6",
+      "display_name": "Швеллер гнутый равнополочный 160x120x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 120,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_160x160x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "160x160x6",
+      "designation": "160x160x6",
+      "display_name": "Швеллер гнутый равнополочный 160x160x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 160,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_170x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "170x60x4",
+      "designation": "170x60x4",
+      "display_name": "Швеллер гнутый равнополочный 170x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 170,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_170x70x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "170x70x5",
+      "designation": "170x70x5",
+      "display_name": "Швеллер гнутый равнополочный 170x70x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 170,
+          "b": 70,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_170x70x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "170x70x6",
+      "designation": "170x70x6",
+      "display_name": "Швеллер гнутый равнополочный 170x70x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 170,
+          "b": 70,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x40x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x40x3",
+      "designation": "180x40x3",
+      "display_name": "Швеллер гнутый равнополочный 180x40x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 40,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x40x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x40x4",
+      "designation": "180x40x4",
+      "display_name": "Швеллер гнутый равнополочный 180x40x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 40,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x50x4",
+      "designation": "180x50x4",
+      "display_name": "Швеллер гнутый равнополочный 180x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x70x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x70x5",
+      "designation": "180x70x5",
+      "display_name": "Швеллер гнутый равнополочный 180x70x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 5,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x70x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x70x6",
+      "designation": "180x70x6",
+      "display_name": "Швеллер гнутый равнополочный 180x70x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x70x7",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x70x7",
+      "designation": "180x70x7",
+      "display_name": "Швеллер гнутый равнополочный 180x70x7",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 70,
+          "s": 7,
+          "R": 18
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x80x4",
+      "designation": "180x80x4",
+      "display_name": "Швеллер гнутый равнополочный 180x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x80x5",
+      "designation": "180x80x5",
+      "display_name": "Швеллер гнутый равнополочный 180x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x80x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x80x6",
+      "designation": "180x80x6",
+      "display_name": "Швеллер гнутый равнополочный 180x80x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 80,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x80x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x80x8",
+      "designation": "180x80x8",
+      "display_name": "Швеллер гнутый равнополочный 180x80x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 80,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x100x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x100x5",
+      "designation": "180x100x5",
+      "display_name": "Швеллер гнутый равнополочный 180x100x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 100,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x100x6",
+      "designation": "180x100x6",
+      "display_name": "Швеллер гнутый равнополочный 180x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_180x130x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "180x130x8",
+      "designation": "180x130x8",
+      "display_name": "Швеллер гнутый равнополочный 180x130x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 130,
+          "s": 8,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_185x100x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "185x100x3",
+      "designation": "185x100x3",
+      "display_name": "Швеллер гнутый равнополочный 185x100x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 185,
+          "b": 100,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x50x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x50x3",
+      "designation": "200x50x3",
+      "display_name": "Швеллер гнутый равнополочный 200x50x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 50,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x50x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x50x4",
+      "designation": "200x50x4",
+      "display_name": "Швеллер гнутый равнополочный 200x50x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 50,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x60x4",
+      "designation": "200x60x4",
+      "display_name": "Швеллер гнутый равнополочный 200x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 60,
+          "s": 4,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x80x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x80x4",
+      "designation": "200x80x4",
+      "display_name": "Швеллер гнутый равнополочный 200x80x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 80,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x80x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x80x5",
+      "designation": "200x80x5",
+      "display_name": "Швеллер гнутый равнополочный 200x80x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 80,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x80x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x80x6",
+      "designation": "200x80x6",
+      "display_name": "Швеллер гнутый равнополочный 200x80x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 80,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x100x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x100x3",
+      "designation": "200x100x3",
+      "display_name": "Швеллер гнутый равнополочный 200x100x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 100,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x100x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x100x5",
+      "designation": "200x100x5",
+      "display_name": "Швеллер гнутый равнополочный 200x100x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 100,
+          "s": 5,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x100x6",
+      "designation": "200x100x6",
+      "display_name": "Швеллер гнутый равнополочный 200x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_200x180x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "200x180x6",
+      "designation": "200x180x6",
+      "display_name": "Швеллер гнутый равнополочный 200x180x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 180,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_205x38x2_5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "205x38x2.5",
+      "designation": "205x38x2.5",
+      "display_name": "Швеллер гнутый равнополочный 205x38x2.5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 205,
+          "b": 38,
+          "s": 2.5,
+          "R": 3
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_206x75x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "206x75x6",
+      "designation": "206x75x6",
+      "display_name": "Швеллер гнутый равнополочный 206x75x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 206,
+          "b": 75,
+          "s": 6,
+          "R": 14
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_210x57x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "210x57x4",
+      "designation": "210x57x4",
+      "display_name": "Швеллер гнутый равнополочный 210x57x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 210,
+          "b": 57,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x25x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x25x3",
+      "designation": "250x25x3",
+      "display_name": "Швеллер гнутый равнополочный 250x25x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 25,
+          "s": 3,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x35x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x35x3",
+      "designation": "250x35x3",
+      "display_name": "Швеллер гнутый равнополочный 250x35x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 35,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x60x3",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x60x3",
+      "designation": "250x60x3",
+      "display_name": "Швеллер гнутый равнополочный 250x60x3",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 60,
+          "s": 3,
+          "R": 5
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x60x4",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x60x4",
+      "designation": "250x60x4",
+      "display_name": "Швеллер гнутый равнополочный 250x60x4",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 60,
+          "s": 4,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x60x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x60x5",
+      "designation": "250x60x5",
+      "display_name": "Швеллер гнутый равнополочный 250x60x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 60,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x60x6",
+      "designation": "250x60x6",
+      "display_name": "Швеллер гнутый равнополочный 250x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 60,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x90x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x90x8",
+      "designation": "250x90x8",
+      "display_name": "Швеллер гнутый равнополочный 250x90x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 90,
+          "s": 8,
+          "R": 20
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_250x125x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "250x125x6",
+      "designation": "250x125x6",
+      "display_name": "Швеллер гнутый равнополочный 250x125x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 250,
+          "b": 125,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_270x100x7",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "270x100x7",
+      "designation": "270x100x7",
+      "display_name": "Швеллер гнутый равнополочный 270x100x7",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 100,
+          "s": 7,
+          "R": 10
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_280x60x3_9",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "280x60x3.9",
+      "designation": "280x60x3.9",
+      "display_name": "Швеллер гнутый равнополочный 280x60x3.9",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 280,
+          "b": 60,
+          "s": 3.9,
+          "R": 6
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_280x60x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "280x60x6",
+      "designation": "280x60x6",
+      "display_name": "Швеллер гнутый равнополочный 280x60x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 280,
+          "b": 60,
+          "s": 6,
+          "R": 14
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_280x140x5",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "280x140x5",
+      "designation": "280x140x5",
+      "display_name": "Швеллер гнутый равнополочный 280x140x5",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 280,
+          "b": 140,
+          "s": 5,
+          "R": 7
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_300x80x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "300x80x6",
+      "designation": "300x80x6",
+      "display_name": "Швеллер гнутый равнополочный 300x80x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 80,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_300x100x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "300x100x8",
+      "designation": "300x100x8",
+      "display_name": "Швеллер гнутый равнополочный 300x100x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 100,
+          "s": 8,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_310x100x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "310x100x6",
+      "designation": "310x100x6",
+      "display_name": "Швеллер гнутый равнополочный 310x100x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 310,
+          "b": 100,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_380x65x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "380x65x6",
+      "designation": "380x65x6",
+      "display_name": "Швеллер гнутый равнополочный 380x65x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 380,
+          "b": 65,
+          "s": 6,
+          "R": 9
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_400x95x8",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "400x95x8",
+      "designation": "400x95x8",
+      "display_name": "Швеллер гнутый равнополочный 400x95x8",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 400,
+          "b": 95,
+          "s": 8,
+          "R": 12
+        }
+      }
+    },
+    {
+      "id": "gost_8278_83_bent_channel_equal_410x65x6",
+      "profile_type": "bent_channel_equal",
+      "gost_number": "410x65x6",
+      "designation": "410x65x6",
+      "display_name": "Швеллер гнутый равнополочный 410x65x6",
+      "shape": {
+        "method": "CBendShape",
+        "dimensions_mm": {
+          "h": 410,
+          "b": 65,
+          "s": 6,
+          "R": 9
+        }
+      }
+    }
+  ]
+}

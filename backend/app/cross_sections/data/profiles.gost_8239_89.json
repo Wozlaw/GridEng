@@ -1,0 +1,355 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "profiles.gost_8239_89",
+  "generated_at": "2026-05-15",
+  "unit_system": "mm",
+  "storage_policy": {
+    "geometry_only": true,
+    "calculated_values_included": false,
+    "note": "БД хранит нормативную геометрию и источник ГОСТ. Расчетные параметры вычисляются через API/Crossection."
+  },
+  "standard": {
+    "id": "gost_8239_89",
+    "name": "ГОСТ 8239-89",
+    "title": "Двутавры стальные горячекатаные. Сортамент",
+    "profile_types": [
+      "i_beam_hot_rolled"
+    ]
+  },
+  "source": {
+    "file": "ГОСТ 8239-89.pdf",
+    "table": "Таблица 1",
+    "basis": "manually_verified_review_xlsx",
+    "notes": "Продуктивная БД содержит только нормативную геометрию. Параметр delta передается в Crossection.IShape согласно принятой в review-файле расчетной политике."
+  },
+  "validation": {
+    "status": "approved",
+    "checked_at": "2026-05-15",
+    "notes": "Проверено пользователем. Продуктивная БД содержит только нормативную геометрию."
+  },
+  "profiles": [
+    {
+      "id": "gost_8239_89_i_beam_10",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "10",
+      "designation": "10",
+      "display_name": "Двутавр 10",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 100,
+          "b": 55,
+          "s": 4.5,
+          "t": 7.2,
+          "R": 7,
+          "r": 2.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_12",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "12",
+      "designation": "12",
+      "display_name": "Двутавр 12",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 120,
+          "b": 64,
+          "s": 4.8,
+          "t": 7.3,
+          "R": 7.5,
+          "r": 3,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_14",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "14",
+      "designation": "14",
+      "display_name": "Двутавр 14",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 140,
+          "b": 73,
+          "s": 4.9,
+          "t": 7.5,
+          "R": 8,
+          "r": 3,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_16",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "16",
+      "designation": "16",
+      "display_name": "Двутавр 16",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 160,
+          "b": 81,
+          "s": 5,
+          "t": 7.8,
+          "R": 8.5,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_18",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "18",
+      "designation": "18",
+      "display_name": "Двутавр 18",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 180,
+          "b": 90,
+          "s": 5.1,
+          "t": 8.1,
+          "R": 9,
+          "r": 3.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_20",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "20",
+      "designation": "20",
+      "display_name": "Двутавр 20",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 200,
+          "b": 100,
+          "s": 5.2,
+          "t": 8.4,
+          "R": 9.5,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_22",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "22",
+      "designation": "22",
+      "display_name": "Двутавр 22",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 220,
+          "b": 110,
+          "s": 5.4,
+          "t": 8.7,
+          "R": 10,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_24",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "24",
+      "designation": "24",
+      "display_name": "Двутавр 24",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 240,
+          "b": 115,
+          "s": 5.6,
+          "t": 9.5,
+          "R": 10.5,
+          "r": 4,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_27",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "27",
+      "designation": "27",
+      "display_name": "Двутавр 27",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 270,
+          "b": 125,
+          "s": 6,
+          "t": 9.8,
+          "R": 11,
+          "r": 4.5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_30",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "30",
+      "designation": "30",
+      "display_name": "Двутавр 30",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 300,
+          "b": 135,
+          "s": 6.5,
+          "t": 10.2,
+          "R": 12,
+          "r": 5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_33",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "33",
+      "designation": "33",
+      "display_name": "Двутавр 33",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 330,
+          "b": 140,
+          "s": 7,
+          "t": 11.2,
+          "R": 13,
+          "r": 5,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_36",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "36",
+      "designation": "36",
+      "display_name": "Двутавр 36",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 360,
+          "b": 145,
+          "s": 7.5,
+          "t": 12.3,
+          "R": 14,
+          "r": 6,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_40",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "40",
+      "designation": "40",
+      "display_name": "Двутавр 40",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 400,
+          "b": 155,
+          "s": 8.3,
+          "t": 13,
+          "R": 15,
+          "r": 6,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_45",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "45",
+      "designation": "45",
+      "display_name": "Двутавр 45",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 450,
+          "b": 160,
+          "s": 9,
+          "t": 14.2,
+          "R": 16,
+          "r": 7,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_50",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "50",
+      "designation": "50",
+      "display_name": "Двутавр 50",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 500,
+          "b": 170,
+          "s": 10,
+          "t": 15.2,
+          "R": 17,
+          "r": 7,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_55",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "55",
+      "designation": "55",
+      "display_name": "Двутавр 55",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 550,
+          "b": 180,
+          "s": 11,
+          "t": 16.5,
+          "R": 18,
+          "r": 7,
+          "delta": 0.08
+        }
+      }
+    },
+    {
+      "id": "gost_8239_89_i_beam_60",
+      "profile_type": "i_beam_hot_rolled",
+      "gost_number": "60",
+      "designation": "60",
+      "display_name": "Двутавр 60",
+      "shape": {
+        "method": "IShape",
+        "dimensions_mm": {
+          "h": 600,
+          "b": 190,
+          "s": 12,
+          "t": 17.8,
+          "R": 20,
+          "r": 8,
+          "delta": 0.08
+        }
+      }
+    }
+  ]
+}

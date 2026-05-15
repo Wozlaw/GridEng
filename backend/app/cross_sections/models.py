@@ -49,8 +49,8 @@ class ShapeSpec(BaseModel):
                 raise ValueError("dimension name must be a non-empty string")
             if not isinstance(raw, (int, float)):
                 raise ValueError(f"dimension {key!r} must be numeric")
-            if float(raw) <= 0:
-                raise ValueError(f"dimension {key!r} must be > 0")
+            if float(raw) < 0:
+                raise ValueError(f"dimension {key!r} must be >= 0")
         return {key: float(raw) for key, raw in value.items()}
 
 
@@ -65,6 +65,7 @@ class CrossSectionProfile(BaseModel):
     designation: str = Field(..., min_length=1)
     display_name: str = Field(..., min_length=1)
     shape: ShapeSpec
+    series: str | None = None
 
     # Enriched by registry at load time. These fields are intentionally absent in JSON elements.
     standard: StandardInfo | None = None
