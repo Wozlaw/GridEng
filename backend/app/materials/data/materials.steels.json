@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0.0",
+  "database_id": "grideng_materials_gost_base",
+  "description": "Практический минимум расчетных параметров сталей для GridEng. Значения Rt/Rb заданы по нормативным диапазонам толщины/размера проката. Rb хранится как нижняя граница временного сопротивления, если в ГОСТ указан диапазон.",
+  "units": {
+    "thickness": "mm",
+    "Rt": "MPa",
+    "Rb": "MPa",
+    "E": "MPa",
+    "G": "MPa",
+    "alpha": "1/C",
+    "rho": "kg/m3"
+  },
+  "defaults": {
+    "E": 206000,
+    "G": 79000,
+    "alpha": 0.000012,
+    "rho": 7850
+  },
+  "product_types": {
+    "sheet": "листовой прокат",
+    "wide_flat": "широкополосный универсальный прокат",
+    "bent_profile": "гнутые профили / заготовки для гнутых профилей",
+    "hot_rolled_shape": "фасонный горячекатаный прокат: уголки, швеллеры, двутавры, тавры",
+    "bar": "сортовой прокат: круг, квадрат, шестигранник, полоса"
+  },
+  "materials": [
+    {
+      "key": "C235",
+      "display_name": "С235",
+      "aliases": ["С235"],
+      "kind": "structural_steel",
+      "properties_by_thickness": [
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 2.0, "max": 3.9, "min_inclusive": true, "max_inclusive": true}, "Rt": 235, "Rb": 360, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 4.0, "max": 4.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 235, "Rb": 360, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]}
+      ]
+    },
+    {
+      "key": "C245",
+      "display_name": "С245",
+      "aliases": ["С245"],
+      "kind": "structural_steel",
+      "properties_by_thickness": [
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 2.0, "max": 3.9, "min_inclusive": true, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 4.0, "max": 30.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 4.0, "max": 20.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]}
+      ]
+    },
+    {
+      "key": "C255",
+      "display_name": "С255",
+      "aliases": ["С255"],
+      "kind": "structural_steel",
+      "properties_by_thickness": [
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 2.0, "max": 3.9, "min_inclusive": true, "max_inclusive": true}, "Rt": 255, "Rb": 380, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 4.0, "max": 10.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 245, "Rb": 380, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 4.0, "max": 10.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 255, "Rb": 380, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]}
+      ]
+    },
+    {
+      "key": "C345",
+      "display_name": "С345",
+      "aliases": ["С345"],
+      "kind": "structural_steel",
+      "properties_by_thickness": [
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 2.0, "max": 3.9, "min_inclusive": true, "max_inclusive": true}, "Rt": 345, "Rb": 490, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 4.0, "max": 10.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 345, "Rb": 490, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 325, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 305, "Rb": 460, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 40.0, "max": 60.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 285, "Rb": 450, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 60.0, "max": 80.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 275, "Rb": 440, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 80.0, "max": 160.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 265, "Rb": 430, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 4.0, "max": 10.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 345, "Rb": 480, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 325, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 305, "Rb": 460, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]}
+      ]
+    },
+    {
+      "key": "C355",
+      "display_name": "С355",
+      "aliases": ["С355"],
+      "kind": "structural_steel",
+      "properties_by_thickness": [
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 8.0, "max": 16.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 355, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 16.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 40.0, "max": 60.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 335, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 60.0, "max": 80.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 325, "Rb": 460, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 80.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 315, "Rb": 460, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 100.0, "max": 160.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 295, "Rb": 460, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 8.0, "max": 16.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 355, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+        {"product_types": ["hot_rolled_shape"], "thickness": {"min": 16.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 470, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]}
+      ]
+    },
+    {"key": "C390", "display_name": "С390", "aliases": ["С390"], "kind": "structural_steel", "properties_by_thickness": [
+      {"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 8.0, "max": 50.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 390, "Rb": 520, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]},
+      {"product_types": ["hot_rolled_shape"], "thickness": {"min": 8.0, "max": 10.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 390, "Rb": 520, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+      {"product_types": ["hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 380, "Rb": 500, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]},
+      {"product_types": ["hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 370, "Rb": 490, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 5"}]}
+    ]},
+    {"key": "C440", "display_name": "С440", "aliases": ["С440"], "kind": "structural_steel", "properties_by_thickness": [{"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 8.0, "max": 50.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 440, "Rb": 540, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]}]},
+    {"key": "C550", "display_name": "С550", "aliases": ["С550"], "kind": "structural_steel", "properties_by_thickness": [{"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 8.0, "max": 50.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 540, "Rb": 640, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4", "note": "В таблице 4 для С550 указан предел текучести 540 Н/мм²"}]}]},
+    {"key": "C590", "display_name": "С590", "aliases": ["С590"], "kind": "structural_steel", "properties_by_thickness": [{"product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 8.0, "max": 40.0, "min_inclusive": true, "max_inclusive": true}, "Rt": 590, "Rb": 685, "sources": [{"standard": "ГОСТ 27772-2015", "table": "таблица 4"}]}]},
+    {
+      "key": "St3kp",
+      "display_name": "Ст3кп",
+      "aliases": ["Ст3кп"],
+      "kind": "common_quality_carbon_steel",
+      "properties_by_thickness": [
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 360, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 360, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 225, "Rb": 360, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 40.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 215, "Rb": 360, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 100.0, "max": null, "min_inclusive": false, "max_inclusive": false}, "Rt": 195, "Rb": 360, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]}
+      ]
+    },
+    {
+      "key": "St3ps",
+      "display_name": "Ст3пс",
+      "aliases": ["Ст3пс"],
+      "kind": "common_quality_carbon_steel",
+      "properties_by_thickness": [
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 40.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 225, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 100.0, "max": null, "min_inclusive": false, "max_inclusive": false}, "Rt": 205, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]}
+      ]
+    },
+    {
+      "key": "St3sp",
+      "display_name": "Ст3сп",
+      "aliases": ["Ст3сп"],
+      "kind": "common_quality_carbon_steel",
+      "properties_by_thickness": [
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 255, "Rb": 380, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 245, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 235, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 40.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 225, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 100.0, "max": null, "min_inclusive": false, "max_inclusive": false}, "Rt": 205, "Rb": 370, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]}
+      ]
+    },
+    {
+      "key": "St5ps",
+      "display_name": "Ст5пс",
+      "aliases": ["Ст5пс"],
+      "kind": "common_quality_carbon_steel",
+      "properties_by_thickness": [
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 285, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 285, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 275, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 40.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 265, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 100.0, "max": null, "min_inclusive": false, "max_inclusive": false}, "Rt": 255, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]}
+      ]
+    },
+    {
+      "key": "St5sp",
+      "display_name": "Ст5сп",
+      "aliases": ["Ст5сп"],
+      "kind": "common_quality_carbon_steel",
+      "properties_by_thickness": [
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 295, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 20.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 285, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 20.0, "max": 40.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 275, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 40.0, "max": 100.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 265, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]},
+        {"product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 100.0, "max": null, "min_inclusive": false, "max_inclusive": false}, "Rt": 255, "Rb": 490, "sources": [{"standard": "ГОСТ 535-2005", "table": "таблица 2"}]}
+      ]
+    },
+    {
+      "key": "09G2S",
+      "display_name": "09Г2С",
+      "aliases": ["09Г2С"],
+      "kind": "high_strength_steel",
+      "resolver_policy": "overlapping_strength_classes_require_strength_class_or_explicit_property_id",
+      "properties_by_thickness": [
+        {"property_id": "09G2S_19281_265_bar_shape", "strength_class": 265, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 250.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 265, "Rb": 430, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "09G2S_19281_345_bar_shape", "strength_class": 345, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 140.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 480, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "09G2S_19281_375_bar_shape", "strength_class": 375, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 50.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 375, "Rb": 510, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "09G2S_19281_265_sheet_bent", "strength_class": 265, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 160.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 265, "Rb": 430, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]},
+        {"property_id": "09G2S_19281_345_sheet_bent", "strength_class": 345, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 50.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 490, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]},
+        {"property_id": "09G2S_19281_355_sheet_bent", "strength_class": 355, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 50.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 355, "Rb": 490, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]}
+      ]
+    },
+    {
+      "key": "10G2S1",
+      "display_name": "10Г2С1",
+      "aliases": ["10Г2С1"],
+      "kind": "high_strength_steel",
+      "resolver_policy": "overlapping_strength_classes_require_strength_class_or_explicit_property_id",
+      "properties_by_thickness": [
+        {"property_id": "10G2S1_19281_295_bar_shape", "strength_class": 295, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 32.0, "max": 160.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 295, "Rb": 430, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "10G2S1_19281_325_bar_shape", "strength_class": 325, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 10.0, "max": 140.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 325, "Rb": 450, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "10G2S1_19281_345_bar_shape", "strength_class": 345, "product_types": ["bar", "hot_rolled_shape"], "thickness": {"min": 0.0, "max": 10.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 480, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 2 + приложение А, таблица А.1"}]},
+        {"property_id": "10G2S1_19281_345_sheet_bent", "strength_class": 345, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 50.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 345, "Rb": 490, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]},
+        {"property_id": "10G2S1_19281_355_sheet_bent", "strength_class": 355, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 50.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 355, "Rb": 490, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]},
+        {"property_id": "10G2S1_19281_390_sheet_bent", "strength_class": 390, "product_types": ["sheet", "wide_flat", "bent_profile"], "thickness": {"min": 0.0, "max": 32.0, "min_inclusive": false, "max_inclusive": true}, "Rt": 390, "Rb": 510, "sources": [{"standard": "ГОСТ 19281-2014", "table": "таблица 3 + приложение А, таблица А.2"}]}
+      ]
+    }
+  ]
+}

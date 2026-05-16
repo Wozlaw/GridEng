@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class CrossSectionValidationError(ValueError):
-    """Raised when a sortament dataset is structurally invalid."""
+    """Raised when a sortament dataset or profile is structurally invalid."""
 
 
 class StandardInfo(BaseModel):
+    """Metadata for one standard. One JSON file contains one standard."""
+
     model_config = ConfigDict(extra="allow")
 
     id: str = Field(..., min_length=1)
@@ -20,14 +21,19 @@ class StandardInfo(BaseModel):
 
 
 class SourceInfo(BaseModel):
+    """Source metadata for a dataset file."""
+
     model_config = ConfigDict(extra="allow")
 
     file: str | None = None
     table: str | None = None
     basis: str | None = None
+    notes: str | None = None
 
 
 class ValidationInfo(BaseModel):
+    """Validation status for a whole dataset."""
+
     model_config = ConfigDict(extra="allow")
 
     status: Literal["pending", "approved", "rejected", "manual", "auto_extracted"] = "pending"
@@ -36,6 +42,8 @@ class ValidationInfo(BaseModel):
 
 
 class ShapeSpec(BaseModel):
+    """Shape-constructor specification for Crossection factory."""
+
     model_config = ConfigDict(extra="forbid")
 
     method: str = Field(..., min_length=1)
@@ -43,15 +51,23 @@ class ShapeSpec(BaseModel):
 
     @field_validator("dimensions_mm")
     @classmethod
-    def dimensions_must_be_positive(cls, value: dict[str, float]) -> dict[str, float]:
+    def dimensions_must_be_numeric_and_valid(cls, value: dict[str, float]) -> dict[str, float]:
+        zero_allowed = {"delta", "r"}
+        normalized: dict[str, float] = {}
         for key, raw in value.items():
             if not isinstance(key, str) or not key:
                 raise ValueError("dimension name must be a non-empty string")
             if not isinstance(raw, (int, float)):
                 raise ValueError(f"dimension {key!r} must be numeric")
-            if float(raw) < 0:
-                raise ValueError(f"dimension {key!r} must be >= 0")
-        return {key: float(raw) for key, raw in value.items()}
+
+            number = float(raw)
+            if key in zero_allowed:
+                if number < 0:
+                    raise ValueError(f"dimension {key!r} must be >= 0")
+            elif number <= 0:
+                raise ValueError(f"dimension {key!r} must be > 0")
+            normalized[key] = number
+        return normalized
 
 
 class CrossSectionProfile(BaseModel):
@@ -64,8 +80,9 @@ class CrossSectionProfile(BaseModel):
     gost_number: str = Field(..., min_length=1)
     designation: str = Field(..., min_length=1)
     display_name: str = Field(..., min_length=1)
-    shape: ShapeSpec
+    # Optional profile subtype marker, currently used by ГОСТ 8240-97 швеллеры: У, П, Э, Л, С.
     series: str | None = None
+    shape: ShapeSpec
 
     # Enriched by registry at load time. These fields are intentionally absent in JSON elements.
     standard: StandardInfo | None = None
@@ -103,13 +120,47 @@ class CrossSectionDataset(BaseModel):
         return self
 
 
+class StandardCatalogItem(BaseModel):
+    """DTO for future GET /cross-sections/standards."""
+
+    id: str
+    name: str
+    title: str
+    dataset_id: str
+    profile_types: list[str]
+    profile_count: int
+
+    @classmethod
+    def from_dataset(cls, dataset: CrossSectionDataset) -> "StandardCatalogItem":
+        actual_types = sorted({profile.profile_type for profile in dataset.profiles})
+        return cls(
+            id=dataset.standard.id,
+            name=dataset.standard.name,
+            title=dataset.standard.title,
+            dataset_id=dataset.dataset_id,
+            profile_types=actual_types,
+            profile_count=len(dataset.profiles),
+        )
+
+
+class ProfileTypeCatalogItem(BaseModel):
+    """DTO for future GET /cross-sections/profile-types."""
+
+    id: str
+    profile_count: int
+    standard_ids: list[str]
+    standard_names: list[str]
+
+
 class CrossSectionCatalogItem(BaseModel):
     """Lightweight DTO for catalog/search use before API layer exists."""
 
     id: str
     standard_id: str
     standard_name: str
+    dataset_id: str
     profile_type: str
+    series: str | None = None
     gost_number: str
     designation: str
     display_name: str
@@ -118,16 +169,27 @@ class CrossSectionCatalogItem(BaseModel):
 
     @classmethod
     def from_profile(cls, profile: CrossSectionProfile) -> "CrossSectionCatalogItem":
-        if profile.standard is None:
-            raise CrossSectionValidationError(f"profile {profile.id} is not attached to a standard")
+        if profile.standard is None or profile.dataset_id is None:
+            raise CrossSectionValidationError(f"profile {profile.id} is not attached to a dataset/standard")
         return cls(
             id=profile.id,
             standard_id=profile.standard.id,
             standard_name=profile.standard.name,
+            dataset_id=profile.dataset_id,
             profile_type=profile.profile_type,
+            series=profile.series,
             gost_number=profile.gost_number,
             designation=profile.designation,
             display_name=profile.display_name,
             shape_method=profile.shape.method,
             dimensions_mm=profile.shape.dimensions_mm,
         )
+
+
+class CalculatedProfile(BaseModel):
+    """DTO for future GET /cross-sections/{profile_id}."""
+
+    catalog_item: CrossSectionCatalogItem
+    geometry: dict[str, float]
+    calculated: dict[str, float | str]
+    dataframe_row: dict[str, Any]

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
 from typing import Any
 
 from .models import CrossSectionProfile, CrossSectionValidationError
@@ -22,7 +21,6 @@ else:
 class CrossSectionFactory:
     """Builds Crossection instances from normalized JSON profile records."""
 
-    # Methods already available in the uploaded Crossection.py.
     METHOD_REQUIRED_DIMENSIONS: dict[str, set[str]] = {
         "LShape": {"h", "b", "t", "R", "r"},
         "CircleShape": {"D"},
@@ -42,9 +40,7 @@ class CrossSectionFactory:
         dims = profile.shape.dimensions_mm
         required = cls.METHOD_REQUIRED_DIMENSIONS.get(method)
         if required is None:
-            raise CrossSectionValidationError(
-                f"profile {profile.id}: unsupported shape.method={method!r}"
-            )
+            raise CrossSectionValidationError(f"profile {profile.id}: unsupported shape.method={method!r}")
         missing = required - set(dims)
         if missing:
             raise CrossSectionValidationError(
@@ -64,9 +60,7 @@ class CrossSectionFactory:
         method_name = profile.shape.method
         method = getattr(cs, method_name, None)
         if method is None:
-            raise CrossSectionValidationError(
-                f"profile {profile.id}: Crossection has no method {method_name!r}"
-            )
+            raise CrossSectionValidationError(f"profile {profile.id}: Crossection has no method {method_name!r}")
         kwargs: dict[str, Any] = dict(profile.shape.dimensions_mm)
         if res is not None:
             kwargs["res"] = res
