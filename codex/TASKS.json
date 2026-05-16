@@ -1,6 +1,6 @@
 {
   "project": "GridEng",
-  "kit": "codex-implementation-kit-ui-revision-3",
+  "kit": "codex-implementation-kit-ui-revision-3-1",
   "created_at": "2026-05-10T12:06:23",
   "tasks": [
     {
@@ -511,6 +511,51 @@
       "id": "22-06-wind-dialog-polish-and-final-docs",
       "title": "Task 22.6 — Wind dialog polish and UI revision 3 docs",
       "prompt_file": "prompts/22-06-wind-dialog-polish-and-final-docs.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "23-01-dxf-dialog-tabs-layout",
+      "title": "Task 23.1 — DXF import dialog tabs layout",
+      "prompt_file": "prompts/23-01-dxf-dialog-tabs-layout.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "23-02-dxf-preview-normalization-and-rotation",
+      "title": "Task 23.2 — DXF preview normalization and rotation controls",
+      "prompt_file": "prompts/23-02-dxf-preview-normalization-and-rotation.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "23-03-dxf-profiles-tab-color-profile-table",
+      "title": "Task 23.3 — DXF profiles tab color-profile table",
+      "prompt_file": "prompts/23-03-dxf-profiles-tab-color-profile-table.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "23-04-dxf-logs-tab-compact-grouped-messages",
+      "title": "Task 23.4 — DXF logs tab compact grouped messages",
+      "prompt_file": "prompts/23-04-dxf-logs-tab-compact-grouped-messages.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "23-05-wind-dialog-final-cleanup-and-docs",
+      "title": "Task 23.5 — Wind dialog final cleanup and UI revision 3.1 docs",
+      "prompt_file": "prompts/23-05-wind-dialog-final-cleanup-and-docs.md",
       "default_checks": [
         "cd frontend && npm run build",
         "cd frontend && npm run lint"

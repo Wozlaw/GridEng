@@ -143,11 +143,25 @@ frontend/src/
 
 Исходник согласованных требований: `codex/reference/UI_REVISION_3_CHECKED_REQUIREMENTS.md`.
 
-| № | Статус | Prompt | Суть |
+| № | Статус | Файл промпта | Смысл |
 |---|---|---|---|
-| 22.1 | done | `prompts/22-01-theme-console-commands.md` | Консольные команды темы: light/dark/toggle/status в grayscale-эстетике |
+| 22.1 | done | `prompts/22-01-theme-console-commands.md` | Консольные команды темы: `light` / `dark` / `toggle` / `status` в grayscale-эстетике |
 | 22.2 | done | `prompts/22-02-dxf-settings-console-and-log-dialog.md` | DXF settings через консоль и отдельное окно логов импорта |
 | 22.3 | done | `prompts/22-03-dxf-preview-diagnostics-model.md` | Структурированные diagnostics DXF preview для поэлементной подсветки |
 | 22.4 | done | `prompts/22-04-dxf-3d-preview-color-modes.md` | 3D preview DXF и режимы окраски `Диагностика` / `Профили` |
 | 22.5 | done | `prompts/22-05-dxf-profile-assignment-by-color.md` | Назначение профилей по DXF color/color group с фильтром по типу профиля |
 | 22.6 | done | `prompts/22-06-wind-dialog-polish-and-final-docs.md` | Диалог `Ветер`, давление в Па, `Z=0` в UI и документация ревизии 3 |
+
+## Примечание по интерфейсной ревизии 3.1
+
+Задачи 23.1–23.5 выполняются поверх завершенных задач 22.1–22.6. Они не меняют онтологию проекта и концентрируются на полировке `DXF import dialog`, `DXF preview`, вкладок `Модель | Профили | Логи` и финальной очистке диалога `Ветер`.
+
+Исходник согласованных требований: `codex/reference/UI_REVISION_3_1_REQUIREMENTS.md`.
+
+| № | Статус | Файл промпта | Смысл |
+|---|---|---|---|
+| 23.1 | done | `prompts/23-01-dxf-dialog-tabs-layout.md` | Перестроить окно импорта DXF: шапка, вкладки `Модель | Профили | Логи` и нижний блок icon-кнопок |
+| 23.2 | done | `prompts/23-02-dxf-preview-normalization-and-rotation.md` | Нормализация DXF preview, повороты вокруг осей и reset с повторной нормализацией |
+| 23.3 | todo | `prompts/23-03-dxf-profiles-tab-color-profile-table.md` | Вкладка `Профили` как таблица `Цвет | Тип профиля | Стандарт | Профиль` без служебных данных |
+| 23.4 | todo | `prompts/23-04-dxf-logs-tab-compact-grouped-messages.md` | Вкладка `Логи`: компактные агрегированные сообщения без raw JSON |
+| 23.5 | todo | `prompts/23-05-wind-dialog-final-cleanup-and-docs.md` | Финальная очистка диалога `Ветер`, документация и checklist UI revision 3.1 |

@@ -24,8 +24,6 @@
 - legacy nodal force/moment -> `nodal_concentrated`;
 - legacy concentrated member force -> placeholder `member_distributed`;
 - legacy concentrated member moment -> placeholder `member_distributed`;
-- legacy `units.pressure: "kPa"` -> `"Pa"`;
-- legacy `wind.nominalPressureKPa` -> `wind.nominalPressurePa`;
 - legacy single `results` object -> нормализуется в `results: AnalysisResults[]`.
 
 ## Верхнеуровневая структура
@@ -70,7 +68,7 @@ type GridEngModel = {
 - сила: `N`
 - момент: `Nmm`
 - напряжение: `MPa`
-- давление: `Pa`
+- давление: `kPa`
 - масса: `kg`
 
 ## Координатная система
@@ -224,7 +222,7 @@ type LoadCase = {
 ```ts
 type WindLoadDefinition = {
   direction: Vec3;
-  nominalPressurePa: number;
+  nominalPressureKPa: number;
   comment?: string;
 };
 ```
@@ -397,7 +395,7 @@ type ModelValidationResult = {
     "force": "N",
     "moment": "Nmm",
     "stress": "MPa",
-    "pressure": "Pa",
+    "pressure": "kPa",
     "mass": "kg"
   },
   "settings": {
@@ -471,7 +469,7 @@ type ModelValidationResult = {
       ],
       "wind": {
         "direction": { "x": 0, "y": 0, "z": 0 },
-        "nominalPressurePa": 0
+        "nominalPressureKPa": 0
       }
     }
   ],

@@ -11,7 +11,6 @@
    - `codex/docs/grideng-model-v0.2.md`
    - `codex/docs/dxf-import-spec-v0.1.md`
    - `codex/docs/ui-revision-2-implementation-notes.md`
-   - `codex/docs/ui-revision-3-implementation-notes.md`
 5. Выполняй frontend-задачи последовательно, без пропуска зависимостей между блоками.
 
 ## Структура нумерации
@@ -87,3 +86,10 @@ cd frontend && npm run lint
 - `22.6` — диалог `Ветер`, давление в Па, `Z=0` в UI и финальная документация.
 
 Согласованные требования сохранены в `codex/reference/UI_REVISION_3_CHECKED_REQUIREMENTS.md`.
+
+## UI revision 3.1
+
+Этот пакет расширяет ревизию 3 блоком `23.1–23.5`. Работать поверх выполненных задач до `22.6` включительно. Основной фокус: DXF import dialog с вкладками `Модель | Профили | Логи`, нормализация/повороты preview, чистая таблица назначения профилей по цветам, компактные агрегированные логи и финальная очистка диалога `Ветер`.
+
+Новые требования лежат в `codex/reference/UI_REVISION_3_1_REQUIREMENTS.md`.
+

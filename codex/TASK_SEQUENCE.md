@@ -99,3 +99,21 @@ cd frontend && npm run lint
 ```
 
 Минимальная ручная проверка блока 22: консольные команды темы и DXF-настроек, DXF preview без изменения основной модели до импорта, режимы `Диагностика`/`Профили`, назначение профиля по цвету, окно логов, диалог `Ветер` с давлением в Па и `Z=0`.
+
+## Блок 23 — интерфейсная ревизия 3.1 поверх выполненной ревизии 3
+
+- `codex/prompts/23-01-dxf-dialog-tabs-layout.md` — DXF import dialog: шапка, tabs `Модель | Профили | Логи`, нижний button block
+- `codex/prompts/23-02-dxf-preview-normalization-and-rotation.md` — DXF preview normalization: `Z >= 0`, ось `Z` по центру, поворот вокруг осей и reset
+- `codex/prompts/23-03-dxf-profiles-tab-color-profile-table.md` — Вкладка `Профили`: таблица `Цвет | Тип профиля | Стандарт | Профиль`, swatch + палитра
+- `codex/prompts/23-04-dxf-logs-tab-compact-grouped-messages.md` — Вкладка `Логи`: компактные агрегированные сообщения без JSON
+- `codex/prompts/23-05-wind-dialog-final-cleanup-and-docs.md` — Диалог `Ветер`: убрать подпись `Загружение` и info-поле, документация/checklist ревизии 3.1
+
+После каждой задачи блока 23 проверить:
+
+```bash
+cd frontend && npm run build
+cd frontend && npm run lint
+```
+
+Минимальная ручная проверка блока 23: tabs `Модель | Профили | Логи`, нормализация preview по `Z`, повороты preview, таблица профилей без счетчиков, цветовой swatch с палитрой, компактные логи без JSON, очищенный диалог `Ветер`.
+

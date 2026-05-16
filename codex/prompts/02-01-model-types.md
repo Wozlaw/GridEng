@@ -12,7 +12,7 @@
 - `Member`: `id`, `startNodeId`, `endNodeId`, `profileId`, `materialId`, optional `localAxisRotationDeg`, `offsetYmm`, `offsetZmm`, `source`.
 - `Material`: `id`, `name`, `densityKgM3`, `elasticModulusMPa`, `shearModulusMPa`, optional `poissonRatio`.
 - `Profile`: `id`, `name`, `kind`, `params`, `areaMm2`, `IyMm4`, `IzMm4`, `JxMm4`, `WyMm3`, `WzMm3`, `WxMm3`, `massKgPerM`, `defaultLocalAxisRotationDeg`, `defaultOffsetYmm`, `defaultOffsetZmm`, `color`.
-- `WindLoad`: `direction: Vec3`, `nominalPressurePa`, optional `comment`; нулевой direction означает отсутствие ветра.
+- `WindLoad`: `direction: Vec3`, `nominalPressureKPa`, optional `comment`; нулевой direction означает отсутствие ветра.
 - `NodeLoad`: `id`, `nodeId`, optional `force`, `moment`, `loadCaseId`.
 - `LoadCase`: `id`, `name`, optional `wind`, `nodeLoads`.
 - `DxfEntitySource`: `entityType: "LINE"`, optional `color`, `colorIndex`, `trueColor`, `layer`, `handle`.
