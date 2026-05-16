@@ -246,6 +246,122 @@ class Crossection:
         self.name = f'C{h}x{b}x{s}x{t}'
         return self
 
+
+    def CBendShape(self, h, b, s, R=0, res=None):
+        """
+        Гнутый равнополочный швеллер.
+
+        Параметры:
+            h - наружная высота профиля, мм
+            b - наружная ширина полки, мм
+            s - толщина профиля, мм
+            R - внутренний радиус гиба, мм
+
+        Геометрия:
+            - стенка слева
+            - полки сверху и снизу направлены вправо
+            - наружные габариты профиля: h x b
+        """
+        if h <= 0 or b <= 0 or s <= 0 or R < 0:
+            raise ValueError("h, b, s должны быть > 0, R должен быть >= 0")
+
+        if 2 * s >= h:
+            raise ValueError("Должно выполняться 2*s < h")
+
+        if s >= b:
+            raise ValueError("Должно выполняться s < b")
+
+        if R > 0:
+            if h <= 2 * (R + s):
+                raise ValueError("Слишком большой радиус: требуется h > 2*(R+s)")
+            if b <= R + s:
+                raise ValueError("Слишком большой радиус: требуется b > R+s")
+
+        self.newShape(h, b, res=res)
+
+        # координаты центров ячеек
+        x = (np.arange(self.b) + 0.5) * self.res
+        y = (np.flip(np.arange(self.h)) + 0.5) * self.res
+
+        X = np.ones((self.h, self.b)) * x
+        Y = np.array([y]).T * np.ones((self.h, self.b))
+
+        # Базовый sharp-U случай без скруглений
+        if R == 0:
+            web = X <= s
+            bottom_flange = (Y <= s) & (X >= s)
+            top_flange = (Y >= h - s) & (X >= s)
+
+            mask = web | bottom_flange | top_flange
+
+            self.arr = mask.astype(float)
+            self.fillSpaces()
+            self.name = f"CBend{h}x{b}x{s}"
+            return self
+
+        # ---------------------------
+        # Прямые участки УКОРОЧЕНЫ
+        # ---------------------------
+
+        # стенка
+        web = (
+            (X <= s) &
+            (Y >= s + R) &
+            (Y <= h - s - R)
+        )
+
+        # нижняя полка
+        bottom_flange = (
+            (Y <= s) &
+            (X >= s + R) &
+            (X <= b)
+        )
+
+        # верхняя полка
+        top_flange = (
+            (Y >= h - s) &
+            (X >= s + R) &
+            (X <= b)
+        )
+
+        # ---------------------------
+        # Нижний гиб
+        # ---------------------------
+        cx_bot = s + R
+        cy_bot = s + R
+        dist_bot = np.hypot(X - cx_bot, Y - cy_bot)
+
+        bottom_bend = (
+            (X <= cx_bot) &
+            (Y <= cy_bot) &
+            (dist_bot >= R) &
+            (dist_bot <= R + s)
+        )
+
+        # ---------------------------
+        # Верхний гиб
+        # ---------------------------
+        cx_top = s + R
+        cy_top = h - s - R
+        dist_top = np.hypot(X - cx_top, Y - cy_top)
+
+        top_bend = (
+            (X <= cx_top) &
+            (Y >= cy_top) &
+            (dist_top >= R) &
+            (dist_top <= R + s)
+        )
+
+        mask = web | bottom_flange | top_flange | bottom_bend | top_bend
+
+        self.arr = mask.astype(float)
+        self.fillSpaces()
+
+        self.name = f"CBend{h}x{b}x{s}x{R}"
+        return self
+
+
+
     def IShape(self, h, b, s, t, R=0, r=0, delta=0.0, res=None):
         '''
         Профиль двутавра
@@ -418,7 +534,7 @@ class Crossection:
             raise ValueError('Недопустимое значение высоты профиля (h)')
         if b < min(2 * r, 2 * t):
             raise ValueError('Недопустимое значение ширины профиля (b)')
-        if r > t:
+        if r > t * 2: # Доработка согласно ГОСТ (r > t * 1.5), было r > t
             raise ValueError(
                 'Недопустимое значение радиуса скругления угловых частей профиля (r)')
         if 2 * t > h or 2 * t > b:
@@ -716,6 +832,59 @@ class Crossection:
             self.subRect(self.h * self.res, d, c0 - d / 2, 0)
             self.subRect(d, self.b * self.res, 0, c0 - d / 2)
         return self
+
+
+    def getProjectionWidth(self, direction=(1.0, 0.0)):
+        """
+        Расчет эффективной ширины поперечного сечения, мм.
+
+        direction:
+            Двухмерный вектор направления ветра в плоскости сечения.
+            Для Beam при axis='YZ':
+                direction[0] соответствует локальной оси Y;
+                direction[1] соответствует локальной оси Z.
+
+        Возвращает:
+            Ширину ортогональной проекции фактической растровой геометрии сечения, мм.
+        """
+        if self.axis != 'YZ':
+            raise ValueError(
+                "Расчет эффективной ширины для Beam поддерживается только для axis='YZ'"
+            )
+
+        d = np.array(direction, dtype=float)
+
+        if d.shape != (2,):
+            raise ValueError('direction должен быть двухмерным вектором [y, z]')
+
+        norm = np.linalg.norm(d)
+        if norm == 0:
+            return 0.0
+
+        d = d / norm
+
+        # Ось проекции силуэта перпендикулярна направлению ветра в плоскости YZ.
+        p = np.array([-d[1], d[0]], dtype=float)
+
+        rows, cols = np.where(self.arr > 0)
+        if len(rows) == 0:
+            return 0.0
+
+        # Для axis='YZ':
+        # cols -> локальная ось Y;
+        # rows -> локальная ось Z.
+        y = (cols + 0.5) * self.res
+        z = (self.h - rows - 0.5) * self.res
+
+        points = np.column_stack((y, z))
+        projections = points @ p
+
+        # + self.res — компенсация того, что проецируются центры ячеек,
+        # а не внешняя граница растровой геометрии.
+        return float(projections.max() - projections.min() + self.res)
+
+
+
 
     @property
     def literals(self):

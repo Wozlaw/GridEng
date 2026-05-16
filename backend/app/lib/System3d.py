@@ -354,8 +354,7 @@ class Beam:
                 Матрицу жесткости стержня в локальной системе координат
         '''
         # исходные величины стержня
-        if self.crossection.axis != 'YZ':
-            raise ValueError('Недопустимое значение осей')
+        self._requireCrossectionAxisYZ()
         csParams = self.crossection.calculateParams()
         S = csParams['A']
         l = self.length
@@ -405,6 +404,117 @@ class Beam:
         val = 2 * E * Jz / l
         valR[11, 5] = val
         return np.where(valR, valR, valR.T)
+
+
+    def _normalizeVector(self, vector, name='vector'):
+        """
+        Нормализация трехмерного вектора.
+        """
+        v = np.array(vector, dtype=float)
+
+        if v.shape != (3,):
+            raise ValueError(f'{name} должен быть трехмерным вектором [x, y, z]')
+
+        norm = np.linalg.norm(v)
+        if norm == 0:
+            raise ValueError(f'{name} не должен быть нулевым вектором')
+
+        return v / norm
+
+
+    def _requireCrossectionAxisYZ(self):
+        """
+        Проверка, что сечение стержня задано в плоскости YZ.
+
+        Для Beam локальная ось X является продольной осью стержня,
+        поэтому поперечное сечение должно иметь axis='YZ'.
+        """
+        if self.crossection.axis != 'YZ':
+            raise ValueError(
+                "Для Beam поперечное сечение должно иметь axis='YZ', "
+                "так как локальная ось X является продольной осью стержня"
+            )
+
+
+    def getWindDirectionLCS(self, windDirection=(1.0, 0.0, 0.0)):
+        """
+        Перевод направления ветра из глобальной системы координат в локальную
+        систему координат стержня.
+
+        windDirection:
+            Единичный или произвольный ненулевой вектор направления ветра в ГСК.
+
+        Возвращает:
+            Единичный вектор направления ветра в ЛСК стержня [x, y, z].
+        """
+        wind = self._normalizeVector(windDirection, name='windDirection')
+        return self.rotateMatrix.dot(wind)
+
+
+    def getWindDirectionCrossection(self, windDirection=(1.0, 0.0, 0.0)):
+        """
+        Получение направления ветра в плоскости поперечного сечения Beam.
+
+        Для Beam поддерживается только crossection.axis='YZ'.
+
+        Возвращает:
+            Двухмерный вектор [wind_y, wind_z] в локальной плоскости YZ.
+        """
+        self._requireCrossectionAxisYZ()
+
+        wind_lcs = self.getWindDirectionLCS(windDirection)
+        return np.array([wind_lcs[1], wind_lcs[2]], dtype=float)
+
+
+    def getWindProjectionFactor(self, windDirection=(1.0, 0.0, 0.0)):
+        """
+        Расчет коэффициента проекции длины стержня на плоскость,
+        перпендикулярную направлению ветра.
+
+        Возвращает:
+            sin(alpha), где alpha - угол между локальной осью X стержня
+            и направлением ветра.
+        """
+        wind_cs = self.getWindDirectionCrossection(windDirection)
+        return float(np.linalg.norm(wind_cs))
+
+
+    def getEffectiveWindWidth(self, windDirection=(1.0, 0.0, 0.0)):
+        """
+        Расчет эффективной ширины поперечного сечения стержня, мм.
+        """
+        wind_cs = self.getWindDirectionCrossection(windDirection)
+
+        if np.linalg.norm(wind_cs) == 0:
+            return 0.0
+
+        return self.crossection.getProjectionWidth(wind_cs)
+
+
+    def getEffectiveWindArea(self, windDirection=(1.0, 0.0, 0.0)):
+        """
+        Расчет эффективной ветровой площади стержня, мм2.
+
+        A_eff = L * sin(alpha) * b_eff
+
+        где:
+            L - длина стержня, мм;
+            sin(alpha) - коэффициент проекции длины стержня;
+            b_eff - эффективная ширина сечения, мм.
+        """
+        projection_factor = self.getWindProjectionFactor(windDirection)
+
+        if projection_factor == 0:
+            return 0.0
+
+        width = self.getEffectiveWindWidth(windDirection)
+        return float(self.length * projection_factor * width)
+
+
+
+
+
+
 
     def clearCache(self):
         '''
