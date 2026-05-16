@@ -93,3 +93,14 @@ cd frontend && npm run lint
 
 Новые требования лежат в `codex/reference/UI_REVISION_3_1_REQUIREMENTS.md`.
 
+## Ревизия требований 2026-05-16
+
+Добавлены:
+
+- `UNIFIED_GRIDENG_SPECIFICATION.md` — единая спецификация требований;
+- `REQUIREMENTS_REVIEW.md` — краткий отчет ревизии и снятых противоречий;
+- `docs/catalogs-api-integration-spec.md` — спецификация интеграции frontend с API `cross_sections` и `materials`;
+- задачи 24.1–24.5 и prompts к ним.
+
+Рекомендуемый порядок: закрыть todo 23.3–23.5, затем выполнять 24.1–24.5.
+

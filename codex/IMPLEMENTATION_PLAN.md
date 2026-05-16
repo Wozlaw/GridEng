@@ -165,3 +165,23 @@ frontend/src/
 | 23.3 | todo | `prompts/23-03-dxf-profiles-tab-color-profile-table.md` | Вкладка `Профили` как таблица `Цвет | Тип профиля | Стандарт | Профиль` без служебных данных |
 | 23.4 | todo | `prompts/23-04-dxf-logs-tab-compact-grouped-messages.md` | Вкладка `Логи`: компактные агрегированные сообщения без raw JSON |
 | 23.5 | todo | `prompts/23-05-wind-dialog-final-cleanup-and-docs.md` | Финальная очистка диалога `Ветер`, документация и checklist UI revision 3.1 |
+
+## Примечание по каталогам профилей и материалов / API integration
+
+Задачи 24.1–24.5 выполняются после закрытия 23.3–23.5. Они связывают уже оформленные backend-блоки `cross_sections` и `materials` с frontend, не меняют расчетное ядро и не вводят SQL-БД.
+
+Исходники требований:
+
+- `UNIFIED_GRIDENG_SPECIFICATION.md`;
+- `docs/catalogs-api-integration-spec.md`;
+- `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+- `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+
+| № | Статус | Файл промпта | Смысл |
+|---|---|---|---|
+| 24.1 | todo | `prompts/24-01-catalog-api-contracts-and-adapters.md` | Frontend API-контракты и adapters для `cross_sections` / `materials` |
+| 24.2 | todo | `prompts/24-02-profile-catalog-frontend-integration.md` | Подключить frontend-каталог профилей к `cross_sections` API с fallback |
+| 24.3 | todo | `prompts/24-03-material-selector-by-profile-thickness.md` | Селектор материалов по выбранному профилю, толщине и типу проката |
+| 24.4 | todo | `prompts/24-04-dxf-profile-assignment-api-catalog.md` | DXF assignment профилей через API-каталог без записи в модель до `Импорт` |
+| 24.5 | todo | `prompts/24-05-docs-cleanup-unified-spec.md` | Очистка документации, дублей reference и фиксация единой спецификации |
+

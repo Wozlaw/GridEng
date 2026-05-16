@@ -117,3 +117,13 @@ cd frontend && npm run lint
 
 Минимальная ручная проверка блока 23: tabs `Модель | Профили | Логи`, нормализация preview по `Z`, повороты preview, таблица профилей без счетчиков, цветовой swatch с палитрой, компактные логи без JSON, очищенный диалог `Ветер`.
 
+## Блок 24 — интеграция frontend с backend-каталогами профилей и материалов
+
+| № | Файл промпта | Смысл |
+|---|---|---|
+| 24.1 | `prompts/24-01-catalog-api-contracts-and-adapters.md` | API contracts/adapters для `cross_sections` и `materials` |
+| 24.2 | `prompts/24-02-profile-catalog-frontend-integration.md` | Frontend-каталог профилей через backend API |
+| 24.3 | `prompts/24-03-material-selector-by-profile-thickness.md` | Фильтрация материалов по профилю/толщине/типу проката |
+| 24.4 | `prompts/24-04-dxf-profile-assignment-api-catalog.md` | DXF profile assignment через API-каталог |
+| 24.5 | `prompts/24-05-docs-cleanup-unified-spec.md` | Очистка документации и фиксация единой спецификации |
+

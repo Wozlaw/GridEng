@@ -33,3 +33,15 @@ ls codex/prompts | sort
 sed -n '1,220p' codex/IMPLEMENTATION_PLAN.md
 cat codex/TASKS.json
 ```
+
+## Frontend/API integration catalogs
+
+После UI revision 3.1 добавлен следующий слой задач 24.1–24.5. Его цель — не новая онтология, а подключение уже оформленных backend-блоков `cross_sections` и `materials` к frontend:
+
+```text
+cross_sections API → frontend profile catalog / DXF assignment
+materials API → material selector after profile selection
+```
+
+Ключевое решение: материал остается свойством элемента, профиль остается геометрией/сечением.
+
