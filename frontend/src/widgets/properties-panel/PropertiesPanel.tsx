@@ -179,7 +179,6 @@ export function PropertiesPanel() {
             profile={memberProfile}
             material={memberMaterial}
             availableProfiles={model.profiles}
-            availableMaterials={model.materials}
             memberLoads={selectedMemberDistributedLoads}
             units={model.units}
           />

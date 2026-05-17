@@ -14,10 +14,10 @@
 
 Источники требований:
 
-- `UNIFIED_GRIDENG_SPECIFICATION.md`;
-- `docs/catalogs-api-integration-spec.md`;
-- `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
-- `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md`;
+- `codex/docs/catalogs-api-integration-spec.md`;
+- `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+- `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
 
 # Task 24.1 — Catalog API contracts and frontend adapters
 
@@ -29,8 +29,8 @@
 
 1. Найти существующие frontend-типы/заглушки каталогов профилей и материалов.
 2. Сверить их с backend summary-документами:
-   - `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
-   - `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+   - `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+   - `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
 3. Создать frontend domain types для:
    - элемента каталога профиля;
    - детального ответа профиля с геометрией и расчетными характеристиками;

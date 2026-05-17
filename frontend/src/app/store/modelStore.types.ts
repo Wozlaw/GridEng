@@ -3,11 +3,13 @@ import type {
   Id,
   Load,
   LoadCase,
+  Material,
   Member,
   MemberDistributedLoad,
   ModelSettings,
   ModelValidationResult,
   NodalConcentratedLoad,
+  Profile,
   Restraint,
   Vec3,
   WindLoadDefinition,
@@ -102,6 +104,8 @@ export interface ModelStoreState {
   updateNodeLabel: (nodeId: Id, label: string | undefined) => StoreActionResult;
   updateNodePosition: (nodeId: Id, position: Vec3) => StoreActionResult;
   updateNodeComment: (nodeId: Id, comment: string | undefined) => StoreActionResult;
+  upsertProfile: (profile: Profile) => StoreActionResult;
+  upsertMaterial: (material: Material) => StoreActionResult;
   updateMemberProfile: (memberId: Id, profileId: Id) => StoreActionResult;
   updateMemberMaterial: (memberId: Id, materialId: Id) => StoreActionResult;
   updateMemberGeometryOverrides: (

@@ -4,9 +4,11 @@ import {
   createSampleTowerSegmentModel,
   type GridEngModel,
   type Load,
+  type Material,
   type Member,
   type MemberDistributedLoad,
   type NodalConcentratedLoad,
+  type Profile,
   type Restraint,
 } from '../../entities/model';
 import { EMPTY_SELECTION } from '../../features/selection';
@@ -284,6 +286,48 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
             }
             : node
         ),
+      });
+    },
+    upsertProfile: (profile) => {
+      const { model } = get();
+
+      const nextProfile: Profile = {
+        ...profile,
+        name: profile.name.trim() || profile.id,
+        comment: normalizeOptionalText(profile.comment),
+        params: { ...profile.params },
+        section: { ...profile.section },
+      };
+
+      const hasExistingProfile = findProfile(model, nextProfile.id) != null;
+
+      return commitModel({
+        ...model,
+        profiles: hasExistingProfile
+          ? model.profiles.map((candidate) => (
+            candidate.id === nextProfile.id ? nextProfile : candidate
+          ))
+          : [...model.profiles, nextProfile],
+      });
+    },
+    upsertMaterial: (material) => {
+      const { model } = get();
+
+      const nextMaterial: Material = {
+        ...material,
+        name: material.name.trim() || material.id,
+        comment: normalizeOptionalText(material.comment),
+      };
+
+      const hasExistingMaterial = findMaterial(model, nextMaterial.id) != null;
+
+      return commitModel({
+        ...model,
+        materials: hasExistingMaterial
+          ? model.materials.map((candidate) => (
+            candidate.id === nextMaterial.id ? nextMaterial : candidate
+          ))
+          : [...model.materials, nextMaterial],
       });
     },
     updateMemberProfile: (memberId, profileId) => {

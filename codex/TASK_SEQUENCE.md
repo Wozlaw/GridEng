@@ -127,3 +127,11 @@ cd frontend && npm run lint
 | 24.4 | `prompts/24-04-dxf-profile-assignment-api-catalog.md` | DXF profile assignment через API-каталог |
 | 24.5 | `prompts/24-05-docs-cleanup-unified-spec.md` | Очистка документации и фиксация единой спецификации |
 
+Опорные документы блока 24 и следующих итераций:
+
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md`
+- `codex/docs/catalogs-api-integration-spec.md`
+- `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`
+- `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`
+
+Блок 24 завершен. Актуальные статусы задач смотри в `codex/IMPLEMENTATION_PLAN.md`.

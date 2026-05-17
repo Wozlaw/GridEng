@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   Box,
@@ -15,6 +15,11 @@ import {
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
+import {
+  formatCatalogProfileType,
+  type CrossSectionDetailsResponse,
+} from '../../entities/section';
+import { crossSectionsApi, isAbortError } from '../../shared/api';
 import type { AppLanguage } from '../../shared/i18n';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText } from '../../shared/utils';
@@ -34,6 +39,54 @@ export function ProjectProfilesDialog() {
     () => (activeProfile == null ? null : getProfileUsageStats(model, activeProfile.id)),
     [activeProfile, model],
   );
+  const [catalogDetailsState, setCatalogDetailsState] = useState<{
+    details: CrossSectionDetailsResponse | null;
+    profileId: string;
+  } | null>(null);
+  const activeProfileCatalogId = activeProfile?.id ?? null;
+  const catalogDetails = activeProfileCatalogId != null && catalogDetailsState?.profileId === activeProfileCatalogId
+    ? catalogDetailsState.details
+    : null;
+  const catalogDetailsLoading = open
+    && activeProfileCatalogId != null
+    && catalogDetailsState?.profileId !== activeProfileCatalogId;
+
+  useEffect(() => {
+    if (!open || activeProfileCatalogId == null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void crossSectionsApi.getProfileDetails(activeProfileCatalogId, {
+      signal: controller.signal,
+      notifyOnError: false,
+    })
+      .then((details) => {
+        if (isCurrent) {
+          setCatalogDetailsState({
+            details,
+            profileId: activeProfileCatalogId,
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setCatalogDetailsState({
+          details: null,
+          profileId: activeProfileCatalogId,
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [activeProfileCatalogId, open]);
 
   return (
     <Dialog
@@ -126,7 +179,59 @@ export function ProjectProfilesDialog() {
                   <Typography variant="h6">{activeProfile.name}</Typography>
                   <Chip size="small" label={activeProfile.kind} variant="outlined" />
                   <Chip size="small" label={activeProfile.id} variant="outlined" />
+                  {catalogDetails && (
+                    <>
+                      <Chip
+                        size="small"
+                        label={formatCatalogProfileType(catalogDetails.catalogItem.profileType)}
+                        variant="outlined"
+                      />
+                      <Chip
+                        size="small"
+                        label={catalogDetails.catalogItem.standardName}
+                        variant="outlined"
+                      />
+                    </>
+                  )}
                 </Stack>
+
+                {catalogDetailsLoading && (
+                  <Typography variant="caption" color="text.secondary">
+                    {localize(language, 'Загрузка данных каталога...', 'Loading catalog data...')}
+                  </Typography>
+                )}
+
+                {catalogDetails && (
+                  <Paper variant="outlined" sx={{ p: 1.5 }}>
+                    <Stack spacing={1}>
+                      <Typography variant="overline" color="text.secondary">
+                        {localize(language, 'Данные каталога', 'Catalog data')}
+                      </Typography>
+                      <PropertyRow
+                        label={localize(language, 'Тип профиля', 'Profile type')}
+                        value={formatCatalogProfileType(catalogDetails.catalogItem.profileType)}
+                      />
+                      <PropertyRow
+                        label={localize(language, 'Стандарт', 'Standard')}
+                        value={catalogDetails.catalogItem.standardName}
+                      />
+                      <PropertyRow
+                        label={localize(language, 'ГОСТ', 'GOST')}
+                        value={catalogDetails.catalogItem.gostNumber}
+                      />
+                      <PropertyRow
+                        label={localize(language, 'Обозначение', 'Designation')}
+                        value={catalogDetails.catalogItem.designation}
+                      />
+                      {catalogDetails.catalogItem.series && (
+                        <PropertyRow
+                          label={localize(language, 'Серия', 'Series')}
+                          value={catalogDetails.catalogItem.series}
+                        />
+                      )}
+                    </Stack>
+                  </Paper>
+                )}
 
                 <Paper variant="outlined" sx={{ p: 1.5 }}>
                   <Stack spacing={1}>

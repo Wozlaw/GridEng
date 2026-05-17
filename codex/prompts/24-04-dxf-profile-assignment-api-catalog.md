@@ -14,10 +14,10 @@
 
 Источники требований:
 
-- `UNIFIED_GRIDENG_SPECIFICATION.md`;
-- `docs/catalogs-api-integration-spec.md`;
-- `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
-- `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md`;
+- `codex/docs/catalogs-api-integration-spec.md`;
+- `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+- `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
 
 # Task 24.4 — DXF profile assignment via API catalog
 

@@ -2,6 +2,8 @@
 
 Дата ревизии: 2026-05-16
 
+Примечание: это исторический срез на дату ревизии. Актуальные статусы задач и закрытие блока `24.1–24.5` смотри в `codex/IMPLEMENTATION_PLAN.md`; главным source of truth по требованиям считается `codex/UNIFIED_GRIDENG_SPECIFICATION.md`.
+
 ## 1. Что проверено
 
 Проверены и сведены следующие группы материалов:
@@ -17,8 +19,8 @@
 - `reference/UI_REVISION_2_CHECKED_REQUIREMENTS.md`;
 - `reference/UI_REVISION_3_CHECKED_REQUIREMENTS.md`;
 - `reference/UI_REVISION_3_1_REQUIREMENTS.md`;
-- `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
-- `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+- `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+- `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
 
 Live-проверка GitHub-репозитория из sandbox не выполнена: окружение не смогло разрешить `github.com`. Поэтому ревизия основана на приложенном архиве и проектном контексте.
 
@@ -45,10 +47,10 @@ Live-проверка GitHub-репозитория из sandbox не выпол
 
 Добавлены файлы:
 
-- `UNIFIED_GRIDENG_SPECIFICATION.md` — единая спецификация требований.
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md` — единая спецификация требований.
 - `REQUIREMENTS_REVIEW.md` — отчет ревизии и снятых противоречий.
-- `docs/catalogs-api-integration-spec.md` — спецификация frontend-интеграции `cross_sections`/`materials`.
-- `docs/documentation-cleanup-notes.md` — правила очистки документации и дублей.
+- `codex/docs/catalogs-api-integration-spec.md` — спецификация frontend-интеграции `cross_sections`/`materials`.
+- `codex/docs/documentation-cleanup-notes.md` — правила очистки документации и дублей.
 - `prompts/24-01-catalog-api-contracts-and-adapters.md`.
 - `prompts/24-02-profile-catalog-frontend-integration.md`.
 - `prompts/24-03-material-selector-by-profile-thickness.md`.
@@ -63,7 +65,7 @@ Live-проверка GitHub-репозитория из sandbox не выпол
 - `TASK_SEQUENCE.md` — добавлен блок 24.
 - `INTEGRATION_NOTES.md` — добавлено примечание по frontend/API-интеграции каталогов.
 
-## 5. Рекомендуемый порядок выполнения
+## 5. Рекомендуемый порядок выполнения на дату ревизии
 
 1. Закрыть текущие todo: 23.3, 23.4, 23.5.
 2. Выполнить 24.1: API contracts/adapters.

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Alert,
@@ -25,7 +25,15 @@ import {
   type Restraint,
   type UnitSystem,
 } from '../../entities/model';
+import {
+  buildMaterialProfileContext,
+  createMaterialFromResolvedProperties,
+  findMatchingMaterialOption,
+  type SteelMaterialResolvedProperties,
+} from '../../entities/material';
+import { createProfileFromCatalogDetails, type CrossSectionDetailsResponse } from '../../entities/section';
 import { useModelStore, type RestraintPreset } from '../../app/store';
+import { crossSectionsApi, isAbortError, materialsApi } from '../../shared/api';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText, formatVector } from '../../shared/utils';
 import {
@@ -291,7 +299,6 @@ export function MemberEditorSection({
   profile,
   material,
   availableProfiles,
-  availableMaterials,
   memberLoads,
   units,
 }: {
@@ -301,11 +308,12 @@ export function MemberEditorSection({
   profile: Profile | undefined;
   material: Material | undefined;
   availableProfiles: Profile[];
-  availableMaterials: Material[];
   memberLoads: Array<{ loadCaseName: string; load: Load }>;
   units: UnitSystem;
 }) {
   const { t } = useI18n();
+  const upsertProfile = useModelStore((state) => state.upsertProfile);
+  const upsertMaterial = useModelStore((state) => state.upsertMaterial);
   const updateMemberProfile = useModelStore((state) => state.updateMemberProfile);
   const updateMemberMaterial = useModelStore((state) => state.updateMemberMaterial);
   const updateMemberGeometryOverrides = useModelStore((state) => state.updateMemberGeometryOverrides);
@@ -321,6 +329,138 @@ export function MemberEditorSection({
   const [materialDialogOpen, setMaterialDialogOpen] = useState(false);
   const [profileCardOpen, setProfileCardOpen] = useState(false);
   const [materialCardOpen, setMaterialCardOpen] = useState(false);
+  const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
+  const [pendingMaterialId, setPendingMaterialId] = useState<string | null>(null);
+  const [profileDetailsState, setProfileDetailsState] = useState<{
+    details: CrossSectionDetailsResponse | null;
+    profileId: string;
+  } | null>(null);
+  const [materialOptionsState, setMaterialOptionsState] = useState<{
+    error: string | null;
+    options: SteelMaterialResolvedProperties[];
+    requestKey: string;
+  } | null>(null);
+  const profileId = profile?.id ?? null;
+  const profileDetails = profileId != null && profileDetailsState?.profileId === profileId
+    ? profileDetailsState.details
+    : null;
+  const materialProfileContext = profile == null ? null : buildMaterialProfileContext(profile, profileDetails);
+  const materialProfileMethod = materialProfileContext?.profileMethod ?? null;
+  const materialProductType = materialProfileContext?.productType ?? null;
+  const materialThicknessMm = materialProfileContext?.thicknessMm ?? null;
+  const materialDimensionsJson = JSON.stringify(materialProfileContext?.dimensionsMm ?? {});
+  const materialRequestKey =
+    materialProfileMethod == null || materialProductType == null || materialThicknessMm == null
+      ? null
+      : `${materialProfileMethod}|${materialProductType}|${materialThicknessMm}|${materialDimensionsJson}`;
+  const materialOptions = materialRequestKey != null && materialOptionsState?.requestKey === materialRequestKey
+    ? materialOptionsState.options
+    : [];
+  const materialOptionsError = materialRequestKey != null && materialOptionsState?.requestKey === materialRequestKey
+    ? materialOptionsState.error
+    : null;
+  const materialOptionsLoading = materialRequestKey != null && materialOptionsState?.requestKey !== materialRequestKey;
+  const currentMaterialOption = findMatchingMaterialOption(material, materialOptions);
+  const showMaterialCompatibilityWarning =
+    material != null
+    && materialRequestKey != null
+    && !materialOptionsLoading
+    && materialOptionsError == null
+    && materialOptions.length > 0
+    && currentMaterialOption == null;
+  const showMaterialContextWarning =
+    profile != null
+    && materialRequestKey == null
+    && materialProfileContext != null
+    && !materialOptionsLoading;
+
+  useEffect(() => {
+    if (profileId == null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void crossSectionsApi.getProfileDetails(profileId, {
+      signal: controller.signal,
+      notifyOnError: false,
+    })
+      .then((details) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setProfileDetailsState({
+          details,
+          profileId,
+        });
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setProfileDetailsState({
+          details: null,
+          profileId,
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [profileId]);
+
+  useEffect(() => {
+    if (materialRequestKey == null || materialProfileMethod == null || materialProductType == null || materialThicknessMm == null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void materialsApi.listSteelOptionsByProfile(
+      {
+        dimensionsMm: JSON.parse(materialDimensionsJson) as Record<string, number>,
+        productType: materialProductType,
+        profileMethod: materialProfileMethod,
+        thicknessMm: materialThicknessMm,
+      },
+      {
+        signal: controller.signal,
+        notifyOnError: false,
+      },
+    )
+      .then((options) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setMaterialOptionsState({
+          error: null,
+          options,
+          requestKey: materialRequestKey,
+        });
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setMaterialOptionsState({
+          error: resolveAsyncErrorMessage(error, t('properties.messages.materialSelectionFailed')),
+          options: [],
+          requestKey: materialRequestKey,
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [materialDimensionsJson, materialProductType, materialProfileMethod, materialRequestKey, materialThicknessMm, t]);
 
   function handleApplyMember() {
     const rotation = parseNumberDraft(geometryDraft.localAxisRotationDeg, t('properties.rows.localXRotation'), t);
@@ -361,20 +501,51 @@ export function MemberEditorSection({
     setError(null);
   }
 
-  function handleProfileSelect(profileId: string) {
-    const result = updateMemberProfile(member.id, profileId);
-    setError(result.ok ? null : result.error);
-    if (result.ok) {
-      setProfileDialogOpen(false);
+  async function handleProfileSelect(profileId: string) {
+    setPendingProfileId(profileId);
+
+    try {
+      if (!availableProfiles.some((candidate) => candidate.id === profileId)) {
+        const details = await crossSectionsApi.getProfileDetails(profileId);
+        const upsertResult = upsertProfile(createProfileFromCatalogDetails(details));
+
+        if (!upsertResult.ok) {
+          setError(upsertResult.error);
+          return;
+        }
+      }
+
+      const result = updateMemberProfile(member.id, profileId);
+      setError(result.ok ? null : result.error);
+
+      if (result.ok) {
+        setProfileDialogOpen(false);
+      }
+    } catch (error: unknown) {
+      setError(resolveAsyncErrorMessage(error, t('properties.messages.profileCatalogSelectionFailed')));
+    } finally {
+      setPendingProfileId(null);
     }
   }
 
-  function handleMaterialSelect(materialId: string) {
-    const result = updateMemberMaterial(member.id, materialId);
+  function handleMaterialSelect(option: SteelMaterialResolvedProperties) {
+    const nextMaterial = createMaterialFromResolvedProperties(option);
+    setPendingMaterialId(nextMaterial.id);
+
+    const upsertResult = upsertMaterial(nextMaterial);
+    if (!upsertResult.ok) {
+      setError(upsertResult.error);
+      setPendingMaterialId(null);
+      return;
+    }
+
+    const result = updateMemberMaterial(member.id, nextMaterial.id);
     setError(result.ok ? null : result.error);
     if (result.ok) {
       setMaterialDialogOpen(false);
     }
+
+    setPendingMaterialId(null);
   }
 
   return (
@@ -407,6 +578,38 @@ export function MemberEditorSection({
           onOpen={() => setMaterialCardOpen(true)}
           openDisabled={!material}
         />
+        {materialOptionsLoading && (
+          <Typography variant="caption" color="text.secondary">
+            {t('properties.messages.loadingCompatibleMaterials')}
+          </Typography>
+        )}
+        {showMaterialContextWarning && (
+          <Alert severity="info">
+            {t('properties.messages.materialFiltersUnavailable')}
+          </Alert>
+        )}
+        {materialOptionsError && !materialOptionsLoading && (
+          <Alert severity="warning">
+            {materialOptionsError}
+          </Alert>
+        )}
+        {materialRequestKey != null && !materialOptionsLoading && materialOptionsError == null && materialOptions.length === 0 && (
+          <Alert severity="warning">
+            {t('properties.messages.noCompatibleMaterialsFound')}
+          </Alert>
+        )}
+        {showMaterialCompatibilityWarning && (
+          <Alert
+            severity="warning"
+            action={(
+              <Button color="inherit" size="small" onClick={() => setMaterialDialogOpen(true)}>
+                {t('properties.actions.choose')}
+              </Button>
+            )}
+          >
+            {t('properties.messages.materialCompatibilityInvalid')}
+          </Alert>
+        )}
 
         <TextField
           label={t('properties.rows.localXRotation')}
@@ -479,16 +682,24 @@ export function MemberEditorSection({
 
       <ProfileSelectionDialog
         open={profileDialogOpen}
-        profiles={availableProfiles}
+        projectProfiles={availableProfiles}
         currentProfileId={member.profileId}
+        pendingProfileId={pendingProfileId}
         onClose={() => setProfileDialogOpen(false)}
-        onSelect={handleProfileSelect}
+        onSelect={(profileId) => {
+          void handleProfileSelect(profileId);
+        }}
       />
 
       <MaterialSelectionDialog
         open={materialDialogOpen}
-        materials={availableMaterials}
+        materialProfileContext={materialProfileContext}
+        materialOptions={materialOptions}
+        materialOptionsError={materialOptionsError}
+        materialOptionsLoading={materialOptionsLoading}
         currentMaterialId={member.materialId}
+        invalidCurrentMaterial={showMaterialCompatibilityWarning}
+        pendingMaterialId={pendingMaterialId}
         onClose={() => setMaterialDialogOpen(false)}
         onSelect={handleMaterialSelect}
       />
@@ -497,6 +708,17 @@ export function MemberEditorSection({
       <MaterialCardDialog open={materialCardOpen} material={material} onClose={() => setMaterialCardOpen(false)} />
     </>
   );
+}
+
+function resolveAsyncErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error) {
+    const message = error.message.trim();
+    if (message.length > 0) {
+      return message;
+    }
+  }
+
+  return fallback;
 }
 
 export function LoadCaseSummarySection({

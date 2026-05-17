@@ -510,12 +510,6 @@ class Beam:
         width = self.getEffectiveWindWidth(windDirection)
         return float(self.length * projection_factor * width)
 
-
-
-
-
-
-
     def clearCache(self):
         '''
         Функция очистки кеша
@@ -530,7 +524,350 @@ class Beam:
         return f'<Beam: {self.id}>'
     
 
+class BeamSystem3D:
+    def __init__(self, df, alphaInRad=False, cacheProps=True, **kwargs):
+        self._cache = {}
+        self.cacheProps = cacheProps
+        self.beams = []
+        self.knots = []
+        self.crossections = []
+        self.materials = []
+        self.conditions = df.get('conditions', {'Tr': 20, 'Tb': 20})
+        self.momentFactor = kwargs.get('momentFactor', 1000.0)
+        self.forceFactor = kwargs.get('forceFactor', 1.0)
 
+        for item in df.get('knots', []):
+            self.knots.append(BeamKnot(**item))
+        for item in df.get('beams', []):
+            id = item['id']
+            material = self.getMaterial(item['material'])
+            
+            if material is None:
+                raise Exception('Материал не задан или не найден!')
+            '''
+                material = Steel.getSteel(item['material'])
+                self.materials.append(material)
+            '''
+            crossection = self.getCrossection(item['crossection'])
+            
+            if crossection is None:
+                raise Exception('Поперечное сечение не задано или не найдено!')
+            '''
+                crossection = Sortament.getSortament(
+                    item['crossection'], cacheProps=cacheProps)
+                crossection.setAxis('YZ')
+                self.crossections.append(crossection)
+            '''
+            alpha = 0.0
+            if alphaInRad:
+                alpha = item['alpha']
+            else:
+                alpha = math.radians(item['alpha'])
+            startKnot = self.getKnotById(item['knots'][0])
+            endKnot = self.getKnotById(item['knots'][1])
+
+            self.beams.append(Beam(id=id, alpha=alpha, crossection=crossection,
+                              material=material, startKnot=startKnot, endKnot=endKnot, cacheProps=cacheProps))
+
+    @property
+    def nBeams(self):
+        return len(self.beams)
+
+    @property
+    def nKnots(self):
+        return len(self.knots)
+
+    def assignBoundaryCondition(self, A: np.array, i: int):
+        ''' 
+        Функция, определяющая граничные условия
+            Аргументы:
+                A - матрица жесткости
+                i - номер строки/столбца, где необходимо задать граничное условие
+        Возвращает:
+            A - матрица жесткости с заданным граничным условием
+        '''
+        retA = A.copy()
+        retA[i, :] = 0
+        retA[:, i] = 0
+        retA[i, i] = 1
+        return retA
+
+    def getCrossection(self, name: str) -> Crossection:
+        try:
+            return next(filter(lambda x: x.name == name, self.crossections))
+        except StopIteration:
+            return None
+
+    def getMaterial(self, name: str) -> Steel:
+        try:
+            return next(filter(lambda x: x.name == name, self.materials))
+        except StopIteration:
+            return None
+
+    def getKnotById(self, id):
+        '''
+        Получить узел по его идентификатору
+            Параметры:
+                id - идентификатор узла
+            Возвращает:
+                Узел по его идентификатору
+        '''
+        try:
+            return next(filter(lambda x: x.id == id, self.knots))
+        except StopIteration:
+            raise Exception(f'Не найден узел с id = {id}')
+
+    def getBeamById(self, id):
+        '''
+        Получить балку по ее идентификатору
+            Параметры:
+                id - идентификатор балки
+            Возвращает:
+                Балка по ее идентификатору
+        '''
+        try:
+            return next(filter(lambda x: x.id == id, self.beams))
+        except StopIteration:
+            raise Exception(f'Не найдена балка с id = {id}')
+
+    def getKnotIdex(self, id):
+        '''
+        Получить индекс узла по его идентификатору
+            Параметры:
+                id - идентификатор узла
+            Возвращает:
+                Индекс узла по его идентификатору
+        '''
+        try:
+            return next((i for i, knot in enumerate(self.knots) if knot.id == id), None)
+        except StopIteration:
+            raise Exception(f'Не найден узел с id = {id}')
+
+    def getBeamIdex(self, id):
+        '''
+        Получить индекс балки по ее идентификатору
+            Параметры:
+                id - идентификатор балки
+            Возвращает:
+                Индекс балки по ее идентификатору
+        '''
+        try:
+            return next((i for i, beam in enumerate(self.beams) if beam.id == id), None)
+        except StopIteration:
+            raise Exception(f'Не найдена балка с id = {id}')
+
+    def getAGCS(self):
+        ''' 
+        Функция определения матрицы жесткости конструкции в общей системе координат (GCS)
+        '''
+        A = np.zeros((self.nKnots * 6, self.nKnots * 6))
+        for beam in self.beams:
+            tempA = np.zeros((self.nKnots * 6, self.nKnots * 6))
+            R = beam.stiffnessMatrixGCS
+            knoti = self.knots.index(beam.startKnot) * 6
+            knotj = self.knots.index(beam.endKnot) * 6
+            tempA[knoti:knoti + 6, knoti:knoti + 6] = R[0:6, 0:6]  # ii
+            tempA[knotj:knotj + 6, knotj:knotj + 6] = R[6:12, 6:12]  # jj
+            tempA[knoti:knoti + 6, knotj:knotj + 6] = R[0:6, 6:12]  # ij
+            tempA[knotj:knotj + 6, knoti:knoti + 6] = R[6:12, 0:6]  # ji
+            A += tempA
+        for i, Knot in enumerate(self.knots):
+            for val in Knot.getBaseIndexes():
+                A = self.assignBoundaryCondition(A, i * 6 + val)
+        return A
+
+    @property
+    def AGCS(self):
+        ''' 
+        Матрица жесткости конструкции в общей системе координат (GCS) (результат кешируется)
+        '''
+        A = self._cache.get('AGCS', None)
+        if A is None:
+            A = self.getAGCS()
+            if self.cacheProps:
+                self._cache['AGCS'] = A
+        return A
+
+    def getP(self):
+        ''' 
+        Функция определения массива с заданными силами и моментами в узлах конструкции (GCS)
+            Возвращает:
+                Массив с силами и моментами в узлах конструкции
+        '''
+        return np.array([Knot.getForces(self.forceFactor, self.momentFactor) for Knot in self.knots])
+
+    @property
+    def P(self):
+        ''' 
+        Массив с заданными силами и моментами в узлах конструкции (GCS), (результат кешируется)
+        '''
+        P = self._cache.get('P', None)
+        if P is None:
+            P = self.getP()
+            if self.cacheProps:
+                self._cache['P'] = P
+        return P
+
+    def getUGCS(self):
+        ''' 
+        Функция определения узловых перемещений в общей системе координат (GCS)
+            Возвращает:
+                Матрицу перемещений в общей системе координат (GCS)
+        '''
+        U = np.linalg.solve(self.AGCS, np.hstack(
+            self.P))  # + np.hstack(self.Ft) + np.hstack(self.G)) суммарные силы нужно определять в узлах, а не на концах балок!!! TODO
+        return U.reshape(self.nKnots, 6)
+
+    @property
+    def UGCS(self):
+        ''' 
+        Матрица перемещений в общей системе координат (GCS) (результат кешируется)
+
+        '''
+        U = self._cache.get('UGCS', None)
+        if U is None:
+            U = self.getUGCS()
+            if self.cacheProps:
+                self._cache['UGCS'] = U
+        return U
+
+    def getF(self):
+        '''
+        Функция определения усилий на концах стержней в местной системе координат    
+        Возвращает:
+            Матрицу усилий на концах стержней в местной системе координат
+        '''
+        UGCS = self.UGCS
+        F = []
+        for beam in self.beams:
+            knoti = self.getKnotIdex(beam.startKnot.id)
+            knotj = self.getKnotIdex(beam.endKnot.id)
+            zk = (np.hstack(np.array([UGCS[knoti], UGCS[knotj]])))
+            V = np.zeros((12, 12))
+            V[0:3, 0:3] = beam.rotateMatrix
+            V[3:6, 3:6] = beam.rotateMatrix
+            V[6:9, 6:9] = beam.rotateMatrix
+            V[9:12, 9:12] = beam.rotateMatrix
+            F.append(beam.stiffnessMatrix.dot(V.dot(zk)))
+        return F
+
+    @property
+    def F(self):
+        '''
+            Матрица усилий на концах стержней в местной системе координат, (результат кешируется)
+        '''
+        F = self._cache.get('F', None)
+        if F is None:
+            F = self.getF()
+            if self.cacheProps:
+                self._cache['F'] = F
+        return F
+
+    def getFDict(self, tol=None):
+        '''
+            Словарь усилий на концах стержней в локальной системе координат
+        '''
+        F = []
+        keys = ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']
+        k = [1 / self.forceFactor, 1 / self.forceFactor, 1 / self.forceFactor, 1 / self.momentFactor, 1 / self.momentFactor, 1 / self.momentFactor]
+        for values in self.F:
+            startForces = values[0:6] * k
+            endForces = values[6:12] * k
+            if tol is not None:
+                startForces = np.round(startForces, tol)
+                endForces = np.round(endForces, tol)
+            F.append([dict(zip(keys, startForces.astype(type('float', (float,), {})))), dict(
+                zip(keys, endForces.astype(type('float', (float,), {}))))])
+        return F
+
+    def getKnotF(self):
+        '''
+        Функция определения узловых усилий в общей системе координат (GCS)
+        Возвращает:
+            Матрицу узловых усилий в общей системе координат (GCS)
+        '''
+        F = self.F
+        retF = np.zeros([self.nKnots, 6])
+        for i, beam in enumerate(self.beams):
+            V = np.zeros((12, 12))
+            V[0:3, 0:3] = beam.rotateMatrix
+            V[3:6, 3:6] = beam.rotateMatrix
+            V[6:9, 6:9] = beam.rotateMatrix
+            V[9:12, 9:12] = beam.rotateMatrix
+            beamFGCS = V.T.dot(F[i])
+            knoti = self.getKnotIdex(beam.startKnot.id)
+            knotj = self.getKnotIdex(beam.endKnot.id)
+            retF[knoti] += beamFGCS[0:6]
+            retF[knotj] += beamFGCS[6:12]
+        return retF
+
+    @property
+    def KnotF(self):
+        '''
+            Матрица узловых усилий в общей системе координат (GCS), (результат кешируется)
+        '''
+        KnotF = self._cache.get('KnotF', None)
+        if KnotF is None:
+            KnotF = self.getKnotF()
+            if self.cacheProps:
+                self._cache['KnotF'] = KnotF
+        return KnotF
+
+    def getKnotFDict(self, tol=None):
+        '''
+            Словарь узловых усилий на концах стержней в общей системе координат, (GCS)
+        '''
+        F = []
+        keys = ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']
+        k = [1 / self.forceFactor, 1 / self.forceFactor, 1 / self.forceFactor, 1 / self.momentFactor, 1 / self.momentFactor, 1 / self.momentFactor]
+        for values in self.KnotF:
+            if tol is None:
+                F.append(
+                    dict(zip(keys, k * values.astype(type('float', (float,), {})))))
+            else:
+                F.append(
+                    dict(zip(keys, np.round(k * values, tol).astype(type('float', (float,), {})))))
+        return F
+
+    def calculateTensions(self, theory=3,tol=None):
+        ''' 
+        Получение главных напряжений
+            Параметры:
+                theory - Теория расчета касательных напряжений (по умолчанию 3 - теория наибольших касательных напряжений)
+                    так же имплементированы:
+                    - первая (1) теория - теория наибольших нормальных напряжений
+                    - четвертая (4) теория - энергетическая
+
+            Возвращает: список значений опасных напряжения для балок, МПа
+        '''
+        tensions = []
+        F = self.getFDict()
+        for i, beam in enumerate(self.beams):
+            T = max(beam.crossection.calculateTensions(
+                F[i][0], theory), beam.crossection.calculateTensions(F[i][1], theory))
+            if tol is None:
+                tensions.append(T)
+            else:
+                tensions.append(round(T, tol))
+        return tensions
+
+
+
+    def clearCache(self):
+        ''' 
+        Очистка кэша
+        '''
+        self._cache = {}
+        for beam in self.beams:
+            beam.clearCache()
+        for crossection in self.crossections:
+            crossection.clearCache()
+
+    def __str__(self):
+        return f'BeamSystem3D | beams: {self.nBeams} | knots: {self.nKnots}'
+
+    def __repr__(self):
+        return f'<BeamSystem3D | beams: {self.nBeams} | knots: {self.nKnots}>'
 
 
 

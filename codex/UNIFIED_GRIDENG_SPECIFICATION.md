@@ -9,11 +9,11 @@
 
 Спецификация не заменяет исходные рабочие документы, но задает приоритет при противоречиях:
 
-1. `IMPLEMENTATION_PLAN.md` — порядок выполнения и статус задач.
-2. `UNIFIED_GRIDENG_SPECIFICATION.md` — консолидированная целевая архитектура и снятые противоречия.
-3. `reference/*_CHECKED_REQUIREMENTS.md` — исходные проверенные UI-требования с комментариями.
-4. `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md` и `IMPLEMENTATION_MATERIALS_STRUCTURE.md` — backend-онтология каталогов профилей и материалов.
-5. `docs/*.md` — технические заметки по конкретным итерациям.
+1. `codex/IMPLEMENTATION_PLAN.md` — порядок выполнения и статус задач.
+2. `codex/UNIFIED_GRIDENG_SPECIFICATION.md` — консолидированная целевая архитектура и снятые противоречия.
+3. `codex/reference/*_CHECKED_REQUIREMENTS.md` — исходные проверенные UI-требования с комментариями.
+4. `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md` и `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md` — backend-онтология каталогов профилей и материалов.
+5. `codex/docs/*.md` — технические заметки по конкретным итерациям.
 
 ## 2. Архитектурные инварианты
 
@@ -242,12 +242,19 @@ Frontend material selector должен вызывать backend resolver/endpoi
 4. Расширение DXF beyond `LINE`: не входит в текущую спецификацию.
 5. SQL-БД для нормативных справочников: не вводится до отдельного решения.
 
-## 12. Следующая рекомендуемая итерация
+## 12. Статус блока 24 и правило для следующих задач
 
-После закрытия 23.3–23.5 выполнить блок 24:
+Блок `24.1–24.5` закрыт 2026-05-17. В его рамках выполнены:
 
-1. Синхронизировать frontend-контракты с backend API `cross_sections` и `materials`.
-2. Заменить локальные каталожные заглушки на API adapters с fallback.
-3. Реализовать фильтрацию материалов после выбора профиля по расчетной толщине и типу проката.
-4. Подключить API-каталог профилей к DXF assignment table.
-5. Очистить документацию от дублей и закрепить единую спецификацию как главный reference.
+1. Синхронизация frontend-контрактов с backend API `cross_sections` и `materials`.
+2. Замена локальных каталожных заглушек на API adapters с fallback.
+3. Фильтрация материалов после выбора профиля по расчетной толщине и типу проката.
+4. Подключение API-каталога профилей к DXF assignment table без записи в модель до `Импорт`.
+5. Очистка документации и фиксация `codex/UNIFIED_GRIDENG_SPECIFICATION.md` как главного source of truth.
+
+Для следующих задач:
+
+- статус и очередность брать из `codex/IMPLEMENTATION_PLAN.md`;
+- архитектурные ограничения брать из `codex/UNIFIED_GRIDENG_SPECIFICATION.md`;
+- специфику каталогов брать из `codex/docs/catalogs-api-integration-spec.md`;
+- backend-онтологию сверять по `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md` и `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.

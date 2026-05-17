@@ -122,6 +122,7 @@ export interface DxfToGridEngModelOptions extends DxfImportSettings {
 export type DxfLineInput = DxfLineEntity;
 export type DxfImportOptions = DxfToGridEngModelOptions;
 export type DxfProfileAssignments = Partial<Record<string, Id>>;
+export type DxfGroupDisplayColors = Partial<Record<string, string>>;
 
 export interface DxfToGridEngModelResult {
   model: GridEngModel | null;

@@ -1,4 +1,5 @@
-import type { Id, Profile, SectionProperties } from '../model';
+import type { Id, Profile, ProfileKind, SectionProperties } from '../model';
+import type { CrossSectionCatalogItem, CrossSectionDetailsResponse } from './apiTypes';
 
 export interface CreateCustomProfileInput {
   id?: Id;
@@ -11,6 +12,17 @@ export interface CreateCustomProfileInput {
   defaultOffsetZmm?: number;
   color?: string;
 }
+
+const CATALOG_PROFILE_COLORS: Partial<Record<ProfileKind, string>> = {
+  L_equal: '#58a6ff',
+  L_unequal: '#2a9d8f',
+  U: '#4cc9f0',
+  I: '#dd6b20',
+  pipe: '#f6ad55',
+  rect_pipe: '#805ad5',
+  round_bar: '#2cb1bc',
+  flat_bar: '#9f7aea',
+};
 
 export const LOCAL_PROFILE_CATALOG: readonly Readonly<Profile>[] = [
   {
@@ -261,6 +273,64 @@ export function createCustomProfile(input: CreateCustomProfileInput): Profile {
   };
 }
 
+export function createProfileFromCatalogDetails(details: CrossSectionDetailsResponse): Profile {
+  const dimensions = {
+    ...filterFiniteNumbers(details.catalogItem.dimensionsMm),
+    ...filterFiniteNumbers(details.geometry),
+  };
+  const kind = resolveCatalogProfileKind(
+    details.catalogItem.profileType,
+    details.catalogItem.shapeMethod,
+    dimensions,
+  );
+  const section = buildSectionProperties(details);
+  const estimatedMassKgPerM = section.areaMm2 == null
+    ? undefined
+    : Number((section.areaMm2 * 0.00785).toFixed(6));
+
+  return {
+    id: details.catalogItem.id,
+    name: details.catalogItem.displayName.trim() || details.catalogItem.designation,
+    kind,
+    params: buildProfileParams(kind, dimensions),
+    defaultLocalAxisRotationDeg: 0,
+    defaultOffsetYmm: 0,
+    defaultOffsetZmm: 0,
+    massKgPerM: getNumericValue(
+      [details.dataframeRow, details.calculated],
+      ['massKgPerM', 'kgPerM', 'mass', 'm'],
+    ) ?? estimatedMassKgPerM,
+    section,
+    color: CATALOG_PROFILE_COLORS[kind],
+  };
+}
+
+export function resolveCatalogProfileColor(catalogItem: Pick<
+  CrossSectionCatalogItem,
+  'profileType' | 'shapeMethod' | 'dimensionsMm'
+>): string | undefined {
+  const kind = resolveCatalogProfileKind(
+    catalogItem.profileType,
+    catalogItem.shapeMethod,
+    catalogItem.dimensionsMm,
+  );
+
+  return CATALOG_PROFILE_COLORS[kind];
+}
+
+export function formatCatalogProfileType(profileType: string): string {
+  const normalized = profileType.trim();
+  if (normalized.length === 0) {
+    return '-';
+  }
+
+  return normalized
+    .replace(/[_-]+/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim()
+    .replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
+}
+
 function cloneProfile(profile: Readonly<Profile>): Profile {
   return {
     ...profile,
@@ -283,4 +353,188 @@ function buildCustomProfileId(name: string): string {
   const suffix = Math.random().toString(36).slice(2, 8);
 
   return `profile-custom-${slug || 'section'}-${suffix}`;
+}
+
+function resolveCatalogProfileKind(
+  profileType: string,
+  shapeMethod: string,
+  dimensions: Record<string, number>,
+): ProfileKind {
+  const normalizedType = profileType.trim().toLowerCase();
+  const normalizedShape = shapeMethod.trim().toLowerCase();
+
+  if (normalizedType.includes('angle_equal')) {
+    return 'L_equal';
+  }
+
+  if (normalizedType.includes('angle_unequal')) {
+    return 'L_unequal';
+  }
+
+  if (normalizedType.includes('channel') || normalizedShape === 'cshape' || normalizedShape === 'cbendshape') {
+    return 'U';
+  }
+
+  if (normalizedType.includes('i_beam') || normalizedShape === 'ishape') {
+    return 'I';
+  }
+
+  if (normalizedType.includes('round_bar') || normalizedType.includes('rod') || normalizedShape === 'circleshape') {
+    return 'round_bar';
+  }
+
+  if (
+    normalizedType.includes('square_pipe')
+    || normalizedType.includes('rect_pipe')
+    || normalizedType.includes('rectangular_pipe')
+    || normalizedType.includes('rectangular_tube')
+    || normalizedShape === 'squarepipeshape'
+  ) {
+    return 'rect_pipe';
+  }
+
+  if (
+    normalizedType.includes('flat')
+    || normalizedType.includes('strip')
+    || (normalizedShape === 'rectshape' && getDimension(dimensions, ['t']) == null)
+  ) {
+    return 'flat_bar';
+  }
+
+  if (normalizedType.includes('pipe') || normalizedShape === 'pipeshape') {
+    return 'pipe';
+  }
+
+  if (normalizedShape === 'lshape') {
+    const height = getDimension(dimensions, ['h']);
+    const width = getDimension(dimensions, ['b']);
+    if (height != null && width != null) {
+      return Math.abs(height - width) <= 1e-6 ? 'L_equal' : 'L_unequal';
+    }
+  }
+
+  return 'custom';
+}
+
+function buildProfileParams(kind: ProfileKind, dimensions: Record<string, number>): Record<string, number> {
+  const params = filterFiniteNumbers(dimensions);
+  const width = getDimension(dimensions, ['b', 'B', 'width']);
+  const height = getDimension(dimensions, ['h', 'H', 'height']);
+  const thickness = getDimension(dimensions, ['t', 'T', 'thickness']);
+
+  switch (kind) {
+    case 'L_equal':
+      setNumericParam(params, 'b', width ?? height);
+      setNumericParam(params, 'h', height ?? width);
+      setNumericParam(params, 't', thickness);
+      break;
+    case 'L_unequal':
+      setNumericParam(params, 'b', width);
+      setNumericParam(params, 'h', height);
+      setNumericParam(params, 't', thickness);
+      break;
+    case 'U':
+      setNumericParam(params, 'b', width);
+      setNumericParam(params, 'h', height);
+      setNumericParam(params, 't', thickness);
+      setNumericParam(params, 'tw', getDimension(dimensions, ['s', 'tw']));
+      break;
+    case 'I':
+      setNumericParam(params, 'b', width);
+      setNumericParam(params, 'h', height);
+      setNumericParam(params, 't', thickness);
+      setNumericParam(params, 'tf', thickness);
+      setNumericParam(params, 'tw', getDimension(dimensions, ['s', 'tw']));
+      break;
+    case 'pipe': {
+      const diameter = getDimension(dimensions, ['D', 'd', 'diameter']);
+      setNumericParam(params, 'D', diameter);
+      setNumericParam(params, 'd', diameter);
+      setNumericParam(params, 'diameter', diameter);
+      setNumericParam(params, 't', thickness);
+      break;
+    }
+    case 'rect_pipe':
+      setNumericParam(params, 'b', width);
+      setNumericParam(params, 'h', height);
+      setNumericParam(params, 'width', width);
+      setNumericParam(params, 'height', height);
+      setNumericParam(params, 't', thickness);
+      break;
+    case 'round_bar': {
+      const diameter = getDimension(dimensions, ['D', 'd', 'diameter', 'h']);
+      setNumericParam(params, 'D', diameter);
+      setNumericParam(params, 'd', diameter);
+      setNumericParam(params, 'diameter', diameter);
+      break;
+    }
+    case 'flat_bar': {
+      const flatWidth = width ?? getDimension(dimensions, ['width']);
+      const flatThickness = thickness ?? height;
+      setNumericParam(params, 'b', flatWidth);
+      setNumericParam(params, 'width', flatWidth);
+      setNumericParam(params, 't', flatThickness);
+      setNumericParam(params, 'thickness', flatThickness);
+      setNumericParam(params, 'h', height);
+      break;
+    }
+    case 'custom':
+    default:
+      break;
+  }
+
+  return params;
+}
+
+function buildSectionProperties(details: CrossSectionDetailsResponse): SectionProperties {
+  return {
+    areaMm2: getNumericValue([details.calculated, details.dataframeRow], ['areaMm2', 'A']),
+    IyMm4: getNumericValue([details.calculated, details.dataframeRow], ['Iy', 'Jx']),
+    IzMm4: getNumericValue([details.calculated, details.dataframeRow], ['Iz', 'Jy']),
+    JxMm4: getNumericValue([details.calculated, details.dataframeRow], ['Jp', 'JxMm4', 'Jx']),
+    WyMm3: getNumericValue([details.calculated, details.dataframeRow], ['Wy', 'Wx']),
+    WzMm3: getNumericValue([details.calculated, details.dataframeRow], ['Wz', 'Wy']),
+    WxMm3: getNumericValue([details.calculated, details.dataframeRow], ['Wp', 'Wx']),
+  };
+}
+
+function getNumericValue(
+  sources: Array<Record<string, string | number | boolean | null>>,
+  keys: string[],
+): number | undefined {
+  for (const source of sources) {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function filterFiniteNumbers(input: Record<string, number>): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(input).filter((entry): entry is [string, number] => Number.isFinite(entry[1])),
+  );
+}
+
+function getDimension(dimensions: Record<string, number>, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = dimensions[key];
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function setNumericParam(params: Record<string, number>, key: string, value: number | undefined) {
+  if (value == null || !Number.isFinite(value) || value <= 0) {
+    return;
+  }
+
+  params[key] = value;
 }

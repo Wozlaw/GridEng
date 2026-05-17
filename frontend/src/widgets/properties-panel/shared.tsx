@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -8,6 +8,8 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -16,6 +18,7 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  MenuItem,
   Paper,
   Stack,
   TextField,
@@ -31,6 +34,22 @@ import {
   type Profile,
   type UnitSystem,
 } from '../../entities/model';
+import {
+  createMaterialFromResolvedProperties,
+  formatMaterialSourceRefs,
+  formatMaterialThicknessRangeLabel,
+  parseCatalogMaterialId,
+  type MaterialProfileContext,
+  type SteelMaterialResolvedProperties,
+} from '../../entities/material';
+import {
+  formatCatalogProfileType,
+  type CrossSectionCatalogItem,
+  type CrossSectionDetailsResponse,
+  type CrossSectionProfileTypeCatalogItem,
+  type CrossSectionStandardCatalogItem,
+} from '../../entities/section';
+import { crossSectionsApi, isAbortError, materialsApi } from '../../shared/api';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText, formatVector } from '../../shared/utils';
 
@@ -236,37 +255,310 @@ export function AssignmentCard({
 
 export function ProfileSelectionDialog({
   open,
-  profiles,
+  projectProfiles,
   currentProfileId,
+  pendingProfileId,
   onClose,
   onSelect,
 }: {
   open: boolean;
-  profiles: Profile[];
+  projectProfiles: Profile[];
   currentProfileId: string;
+  pendingProfileId?: string | null;
   onClose: () => void;
   onSelect: (profileId: string) => void;
 }) {
   const { t } = useI18n();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProfileType, setSelectedProfileType] = useState('');
+  const [selectedStandardId, setSelectedStandardId] = useState('');
+  const [filterState, setFilterState] = useState<{
+    error: string | null;
+    profileTypes: CrossSectionProfileTypeCatalogItem[];
+    standards: CrossSectionStandardCatalogItem[];
+  } | null>(null);
+  const [catalogState, setCatalogState] = useState<{
+    error: string | null;
+    filterKey: string;
+    items: CrossSectionCatalogItem[];
+  } | null>(null);
+  const deferredSearchQuery = useDeferredValue(searchQuery.trim());
+  const catalogFilterKey = `${selectedStandardId}::${selectedProfileType}::${deferredSearchQuery}`;
+  const standards = filterState?.standards ?? [];
+  const profileTypes = filterState?.profileTypes ?? [];
+  const catalogProfiles = catalogState?.filterKey === catalogFilterKey ? catalogState.items : [];
+  const catalogError = filterState?.error ?? (
+    catalogState?.filterKey === catalogFilterKey ? catalogState.error : null
+  );
+  const filtersLoading = open && filterState == null;
+  const catalogLoading = open && catalogState?.filterKey !== catalogFilterKey;
+
+  const projectProfileIds = useMemo(
+    () => new Set(projectProfiles.map((profile) => profile.id)),
+    [projectProfiles],
+  );
+  const filteredProjectProfiles = useMemo(() => {
+    if (deferredSearchQuery.length === 0) {
+      return projectProfiles;
+    }
+
+    const normalizedQuery = deferredSearchQuery.toLowerCase();
+    return projectProfiles.filter((profile) =>
+      [profile.name, profile.kind, profile.id].some((value) => value.toLowerCase().includes(normalizedQuery))
+    );
+  }, [deferredSearchQuery, projectProfiles]);
+
+  useEffect(() => {
+    if (!open || filterState != null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void Promise.all([
+      crossSectionsApi.listStandards({ signal: controller.signal }),
+      crossSectionsApi.listProfileTypes({ signal: controller.signal }),
+    ])
+      .then(([nextStandards, nextProfileTypes]) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setFilterState({
+          error: null,
+          profileTypes: nextProfileTypes,
+          standards: nextStandards,
+        });
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setFilterState({
+          error: resolveAsyncErrorMessage(error, t('properties.messages.profileCatalogSelectionFailed')),
+          profileTypes: [],
+          standards: [],
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [filterState, open, t]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void crossSectionsApi.listCatalog(
+      {
+        query: deferredSearchQuery.length > 0 ? deferredSearchQuery : undefined,
+        profileType: selectedProfileType || undefined,
+        standardId: selectedStandardId || undefined,
+      },
+      { signal: controller.signal },
+    )
+      .then((items) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setCatalogState({
+          error: null,
+          filterKey: catalogFilterKey,
+          items,
+        });
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setCatalogState({
+          error: resolveAsyncErrorMessage(error, t('properties.messages.profileCatalogSelectionFailed')),
+          filterKey: catalogFilterKey,
+          items: [],
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [catalogFilterKey, deferredSearchQuery, open, selectedProfileType, selectedStandardId, t]);
+
+  function handleClose() {
+    setSearchQuery('');
+    setSelectedProfileType('');
+    setSelectedStandardId('');
+    setFilterState(null);
+    setCatalogState(null);
+    onClose();
+  }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle>{t('properties.dialog.profileSelectTitle')}</DialogTitle>
       <DialogContent dividers>
-        <List disablePadding>
-          {profiles.map((profile) => (
-            <ListItemButton
-              key={profile.id}
-              selected={profile.id === currentProfileId}
-              onClick={() => onSelect(profile.id)}
+        <Stack spacing={2}>
+          <TextField
+            label={t('properties.fields.profileSearch')}
+            size="small"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
+
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 1,
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+            }}
+          >
+            <TextField
+              select
+              label={t('properties.rows.profileType')}
+              size="small"
+              value={selectedProfileType}
+              onChange={(event) => setSelectedProfileType(event.target.value)}
             >
-              <ListItemText primary={profile.name} secondary={profile.kind} />
-            </ListItemButton>
-          ))}
-        </List>
+              <MenuItem value="">{t('dxf.assignment.type.all')}</MenuItem>
+              {profileTypes.map((profileType) => (
+                <MenuItem key={profileType.id} value={profileType.id}>
+                  {formatCatalogProfileType(profileType.id)}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              select
+              label={t('properties.rows.standard')}
+              size="small"
+              value={selectedStandardId}
+              onChange={(event) => setSelectedStandardId(event.target.value)}
+            >
+              <MenuItem value="">{t('dxf.assignment.standard.all')}</MenuItem>
+              {standards.map((standard) => (
+                <MenuItem key={standard.id} value={standard.id}>
+                  {standard.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+
+          {(filtersLoading || catalogLoading) && (
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <CircularProgress size={16} />
+              <Typography variant="caption" color="text.secondary">
+                {t('properties.messages.loadingCatalogProfiles')}
+              </Typography>
+            </Stack>
+          )}
+
+          <Stack spacing={1}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: '0.04em' }}>
+              {t('properties.catalog.projectProfiles')}
+            </Typography>
+            <Paper variant="outlined" sx={{ maxHeight: 180, overflowY: 'auto' }}>
+              {filteredProjectProfiles.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ p: 1.5 }}>
+                  {t('properties.messages.noProjectProfiles')}
+                </Typography>
+              ) : (
+                <List disablePadding>
+                  {filteredProjectProfiles.map((profile) => (
+                    <ListItemButton
+                      key={profile.id}
+                      disabled={pendingProfileId != null}
+                      selected={profile.id === currentProfileId}
+                      onClick={() => onSelect(profile.id)}
+                    >
+                      <ListItemText
+                        primary={profile.name}
+                        secondary={`${profile.kind} · ${profile.id}`}
+                      />
+                    </ListItemButton>
+                  ))}
+                </List>
+              )}
+            </Paper>
+          </Stack>
+
+          <Stack spacing={1}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: '0.04em' }}>
+              {t('properties.catalog.catalogProfiles')}
+            </Typography>
+            <Paper variant="outlined" sx={{ maxHeight: 300, overflowY: 'auto' }}>
+              {catalogError ? (
+                <Alert severity="warning" sx={{ m: 1.5 }}>
+                  {catalogError}
+                </Alert>
+              ) : catalogProfiles.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ p: 1.5 }}>
+                  {t('properties.messages.noCatalogProfilesFound')}
+                </Typography>
+              ) : (
+                <List disablePadding>
+                  {catalogProfiles.map((item) => {
+                    const alreadyInProject = projectProfileIds.has(item.id);
+                    const isPending = pendingProfileId === item.id;
+
+                    return (
+                      <ListItemButton
+                        key={item.id}
+                        disabled={pendingProfileId != null}
+                        selected={item.id === currentProfileId}
+                        onClick={() => onSelect(item.id)}
+                        sx={{ alignItems: 'flex-start' }}
+                      >
+                        <ListItemText
+                          primary={(
+                            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                {item.displayName}
+                              </Typography>
+                              {alreadyInProject && (
+                                <Chip
+                                  size="small"
+                                  label={t('properties.badges.inProject')}
+                                  variant="outlined"
+                                />
+                              )}
+                              {isPending && <CircularProgress size={14} />}
+                            </Stack>
+                          )}
+                          secondary={(
+                            <Stack spacing={0.35} sx={{ mt: 0.5 }}>
+                              <Typography variant="caption" color="text.secondary" component="span">
+                                {formatCatalogProfileType(item.profileType)}
+                                {' · '}
+                                {item.standardName}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" component="span">
+                                {item.designation}
+                                {item.series ? ` · ${item.series}` : ''}
+                              </Typography>
+                            </Stack>
+                          )}
+                        />
+                      </ListItemButton>
+                    );
+                  })}
+                </List>
+              )}
+            </Paper>
+          </Stack>
+        </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button onClick={handleClose}>{t('common.cancel')}</Button>
       </DialogActions>
     </Dialog>
   );
@@ -274,37 +566,134 @@ export function ProfileSelectionDialog({
 
 export function MaterialSelectionDialog({
   open,
-  materials,
+  materialProfileContext,
+  materialOptions,
+  materialOptionsError,
+  materialOptionsLoading = false,
   currentMaterialId,
+  invalidCurrentMaterial = false,
+  pendingMaterialId,
   onClose,
   onSelect,
 }: {
   open: boolean;
-  materials: Material[];
+  materialProfileContext: MaterialProfileContext | null;
+  materialOptions: SteelMaterialResolvedProperties[];
+  materialOptionsError?: string | null;
+  materialOptionsLoading?: boolean;
   currentMaterialId: string;
+  invalidCurrentMaterial?: boolean;
+  pendingMaterialId?: string | null;
   onClose: () => void;
-  onSelect: (materialId: string) => void;
+  onSelect: (material: SteelMaterialResolvedProperties) => void;
 }) {
   const { t } = useI18n();
+  const hasReadyContext =
+    materialProfileContext?.profileMethod != null
+    && materialProfileContext.productType != null
+    && materialProfileContext.thicknessMm != null;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{t('properties.dialog.materialSelectTitle')}</DialogTitle>
       <DialogContent dividers>
-        <List disablePadding>
-          {materials.map((material) => (
-            <ListItemButton
-              key={material.id}
-              selected={material.id === currentMaterialId}
-              onClick={() => onSelect(material.id)}
-            >
-              <ListItemText
-                primary={material.name}
-                secondary={`${formatNumber(material.elasticModulusMPa, 0)} MPa`}
+        <Stack spacing={1.5}>
+          {materialProfileContext != null && (
+            <Stack spacing={0.75}>
+              <PropertyRow
+                label={t('properties.rows.materialThickness')}
+                value={materialProfileContext.thicknessMm == null
+                  ? '-'
+                  : `${formatNumber(materialProfileContext.thicknessMm, 3)} mm`}
               />
-            </ListItemButton>
-          ))}
-        </List>
+              <PropertyRow
+                label={t('properties.rows.productType')}
+                value={materialProfileContext.productType == null
+                  ? '-'
+                  : t(`properties.values.materialProductType.${materialProfileContext.productType}` as never)}
+              />
+            </Stack>
+          )}
+
+          {invalidCurrentMaterial && (
+            <Alert severity="warning">
+              {t('properties.messages.materialCompatibilityInvalid')}
+            </Alert>
+          )}
+
+          {!hasReadyContext ? (
+            <Alert severity="info">
+              {t('properties.messages.materialFiltersUnavailable')}
+            </Alert>
+          ) : (
+            <>
+              {materialOptionsLoading && (
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                  <CircularProgress size={16} />
+                  <Typography variant="caption" color="text.secondary">
+                    {t('properties.messages.loadingCompatibleMaterials')}
+                  </Typography>
+                </Stack>
+              )}
+
+              {materialOptionsError ? (
+                <Alert severity="warning">{materialOptionsError}</Alert>
+              ) : materialOptions.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  {t('properties.messages.noCompatibleMaterialsFound')}
+                </Typography>
+              ) : (
+                <Paper variant="outlined" sx={{ maxHeight: 360, overflowY: 'auto' }}>
+                  <List disablePadding>
+                    {materialOptions.map((option) => {
+                      const nextMaterial = createMaterialFromResolvedProperties(option);
+                      const isPending = pendingMaterialId === nextMaterial.id;
+                      const sourceLabel = formatMaterialSourceRefs(option)[0] ?? null;
+
+                      return (
+                        <ListItemButton
+                          key={nextMaterial.id}
+                          disabled={pendingMaterialId != null}
+                          selected={nextMaterial.id === currentMaterialId}
+                          onClick={() => onSelect(option)}
+                          sx={{ alignItems: 'flex-start' }}
+                        >
+                          <ListItemText
+                            primary={(
+                              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                  {option.displayName}
+                                </Typography>
+                                {isPending && <CircularProgress size={14} />}
+                              </Stack>
+                            )}
+                            secondary={(
+                              <Stack spacing={0.35} sx={{ mt: 0.5 }}>
+                                <Typography variant="caption" color="text.secondary" component="span">
+                                  {`Rt ${formatNumber(option.Rt, 0)} MPa · Rb ${formatNumber(option.Rb, 0)} MPa`}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" component="span">
+                                  {formatMaterialProductTypesLabel(option.productTypes, t)}
+                                  {' · '}
+                                  {formatMaterialThicknessRangeLabel(option.thickness)}
+                                </Typography>
+                                {sourceLabel && (
+                                  <Typography variant="caption" color="text.secondary" component="span">
+                                    {sourceLabel}
+                                  </Typography>
+                                )}
+                              </Stack>
+                            )}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
+                  </List>
+                </Paper>
+              )}
+            </>
+          )}
+        </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('common.cancel')}</Button>
@@ -323,6 +712,52 @@ export function ProfileCardDialog({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const [catalogDetailsState, setCatalogDetailsState] = useState<{
+    details: CrossSectionDetailsResponse | null;
+    profileId: string;
+  } | null>(null);
+  const profileId = profile?.id ?? null;
+  const catalogDetails = profileId != null && catalogDetailsState?.profileId === profileId
+    ? catalogDetailsState.details
+    : null;
+  const catalogDetailsLoading = open && profileId != null && catalogDetailsState?.profileId !== profileId;
+
+  useEffect(() => {
+    if (!open || profileId == null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void crossSectionsApi.getProfileDetails(profileId, {
+      signal: controller.signal,
+      notifyOnError: false,
+    })
+      .then((details) => {
+        if (isCurrent) {
+          setCatalogDetailsState({
+            details,
+            profileId,
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setCatalogDetailsState({
+          details: null,
+          profileId,
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [open, profileId]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -330,6 +765,41 @@ export function ProfileCardDialog({
       <DialogContent dividers>
         {profile ? (
           <Stack spacing={1.25}>
+            {catalogDetailsLoading && (
+              <Typography variant="caption" color="text.secondary">
+                {t('properties.messages.loadingCatalogProfiles')}
+              </Typography>
+            )}
+            {catalogDetails && (
+              <>
+                <PropertyRow
+                  label={t('properties.rows.profileType')}
+                  value={formatCatalogProfileType(catalogDetails.catalogItem.profileType)}
+                />
+                <PropertyRow
+                  label={t('properties.rows.standard')}
+                  value={catalogDetails.catalogItem.standardName}
+                />
+                <PropertyRow
+                  label={t('properties.rows.gost')}
+                  value={catalogDetails.catalogItem.gostNumber}
+                />
+                <PropertyRow
+                  label={t('properties.rows.designation')}
+                  value={catalogDetails.catalogItem.designation}
+                />
+                {catalogDetails.catalogItem.series && (
+                  <PropertyRow
+                    label={t('properties.rows.series')}
+                    value={catalogDetails.catalogItem.series}
+                  />
+                )}
+                <PropertyRow
+                  label={t('properties.rows.sourceId')}
+                  value={catalogDetails.catalogItem.id}
+                />
+              </>
+            )}
             <PropertyRow label={t('properties.rows.name')} value={profile.name} />
             <PropertyRow label={t('properties.rows.kind')} value={profile.kind} />
             <PropertyRow label={t('properties.rows.comment')} value={formatOptionalText(profile.comment)} />
@@ -363,6 +833,56 @@ export function MaterialCardDialog({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const materialIdentity = material == null ? null : parseCatalogMaterialId(material.id);
+  const materialId = material?.id ?? null;
+  const materialIdentityKey = materialIdentity == null ? null : `${materialIdentity.key}|${materialIdentity.propertyId}`;
+  const [catalogMaterialState, setCatalogMaterialState] = useState<{
+    materialId: string;
+    option: SteelMaterialResolvedProperties | null;
+  } | null>(null);
+  const catalogMaterialOption = materialId != null && catalogMaterialState?.materialId === materialId
+    ? catalogMaterialState.option
+    : null;
+  const catalogMaterialLoading = open && materialId != null && materialIdentity != null && catalogMaterialState?.materialId !== materialId;
+
+  useEffect(() => {
+    if (!open || materialId == null || materialIdentityKey == null || materialIdentity == null) {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCurrent = true;
+
+    void materialsApi.getSteelDetails(materialIdentity.key, {
+      signal: controller.signal,
+      notifyOnError: false,
+    })
+      .then((details) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setCatalogMaterialState({
+          materialId,
+          option: details.propertiesByThickness.find((candidate) => candidate.propertyId === materialIdentity.propertyId) ?? null,
+        });
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error) || !isCurrent) {
+          return;
+        }
+
+        setCatalogMaterialState({
+          materialId,
+          option: null,
+        });
+      });
+
+    return () => {
+      isCurrent = false;
+      controller.abort();
+    };
+  }, [materialId, materialIdentity, materialIdentityKey, open]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -370,6 +890,39 @@ export function MaterialCardDialog({
       <DialogContent dividers>
         {material ? (
           <Stack spacing={1.25}>
+            {catalogMaterialLoading && (
+              <Typography variant="caption" color="text.secondary">
+                {t('properties.messages.loadingCatalogMaterials')}
+              </Typography>
+            )}
+            {catalogMaterialOption && (
+              <>
+                <PropertyRow
+                  label={t('properties.rows.productType')}
+                  value={formatMaterialProductTypesLabel(catalogMaterialOption.productTypes, t)}
+                />
+                <PropertyRow
+                  label={t('properties.rows.materialThickness')}
+                  value={formatMaterialThicknessRangeLabel(catalogMaterialOption.thickness)}
+                />
+                {catalogMaterialOption.strengthClass != null && (
+                  <PropertyRow
+                    label={t('properties.rows.strengthClass')}
+                    value={`${catalogMaterialOption.strengthClass}`}
+                  />
+                )}
+                <PropertyRow
+                  label={t('properties.rows.propertyId')}
+                  value={catalogMaterialOption.propertyId}
+                />
+                {formatMaterialSourceRefs(catalogMaterialOption).length > 0 && (
+                  <PropertyRow
+                    label={t('properties.rows.source')}
+                    value={formatMaterialSourceRefs(catalogMaterialOption).join(' | ')}
+                  />
+                )}
+              </>
+            )}
             <PropertyRow label={t('properties.rows.name')} value={material.name} />
             <PropertyRow label={t('properties.rows.comment')} value={formatOptionalText(material.comment)} />
             <PropertyRow label={t('properties.rows.elasticModulus')} value={`${formatNumber(material.elasticModulusMPa)} MPa`} />
@@ -447,4 +1000,21 @@ export function LoadDetails({ load, units }: { load: Load; units: UnitSystem }) 
       <PropertyRow label={t('properties.rows.comment')} value={formatOptionalText(load.comment)} />
     </>
   );
+}
+
+function resolveAsyncErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error) {
+    const message = error.message.trim();
+    if (message.length > 0) {
+      return message;
+    }
+  }
+
+  return fallback;
+}
+
+function formatMaterialProductTypesLabel(productTypes: string[], t: ReturnType<typeof useI18n>['t']): string {
+  return productTypes
+    .map((productType) => t(`properties.values.materialProductType.${productType}` as never))
+    .join(', ');
 }

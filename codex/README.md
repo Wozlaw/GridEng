@@ -5,13 +5,16 @@
 ## Как использовать
 
 1. Ориентируйся на `codex/IMPLEMENTATION_PLAN.md` как на основной источник порядка выполнения и статусов.
-2. Для краткой последовательности блоков используй `codex/TASK_SEQUENCE.md`.
-3. Для machine-readable списка задач используй `codex/TASKS.json`.
-4. Для канонического описания данных и импорта используй:
-   - `codex/docs/grideng-model-v0.2.md`
-   - `codex/docs/dxf-import-spec-v0.1.md`
-   - `codex/docs/ui-revision-2-implementation-notes.md`
-5. Выполняй frontend-задачи последовательно, без пропуска зависимостей между блоками.
+2. Для формулировки новых задач и снятия противоречий используй `codex/UNIFIED_GRIDENG_SPECIFICATION.md`.
+3. Для интеграции каталогов профилей и материалов используй `codex/docs/catalogs-api-integration-spec.md`.
+4. Для backend-онтологии каталогов используй:
+   - `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`
+   - `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`
+5. Для краткой последовательности блоков используй `codex/TASK_SEQUENCE.md`.
+6. Для machine-readable списка задач используй `codex/TASKS.json`.
+7. Исторические checked requirements и обзор ревизии держи как справочный слой:
+   - `codex/reference/*.md`
+   - `codex/REQUIREMENTS_REVIEW.md`
 
 ## Структура нумерации
 
@@ -97,10 +100,9 @@ cd frontend && npm run lint
 
 Добавлены:
 
-- `UNIFIED_GRIDENG_SPECIFICATION.md` — единая спецификация требований;
-- `REQUIREMENTS_REVIEW.md` — краткий отчет ревизии и снятых противоречий;
-- `docs/catalogs-api-integration-spec.md` — спецификация интеграции frontend с API `cross_sections` и `materials`;
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md` — единая спецификация требований;
+- `codex/REQUIREMENTS_REVIEW.md` — краткий отчет ревизии и снятых противоречий;
+- `codex/docs/catalogs-api-integration-spec.md` — спецификация интеграции frontend с API `cross_sections` и `materials`;
 - задачи 24.1–24.5 и prompts к ним.
 
-Рекомендуемый порядок: закрыть todo 23.3–23.5, затем выполнять 24.1–24.5.
-
+Блок `24.1–24.5` закрыт. Для следующих задач опирайся на актуальные статусы в `codex/IMPLEMENTATION_PLAN.md`, а source of truth по требованиям считай `codex/UNIFIED_GRIDENG_SPECIFICATION.md`.

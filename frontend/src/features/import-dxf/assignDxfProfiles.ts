@@ -15,6 +15,7 @@ import type {
 export function applyDxfProfileAssignments(
   model: GridEngModel,
   assignments: DxfProfileAssignments,
+  resolvedProfilesById: ReadonlyMap<Id, Profile> = new Map(),
 ): GridEngModel {
   const nextMembers = model.members.map((member) => {
     const selectedProfileId = member.groupId == null ? undefined : assignments[member.groupId];
@@ -33,6 +34,12 @@ export function applyDxfProfileAssignments(
   const nextProfiles: Profile[] = [];
 
   for (const profileId of usedProfileIds) {
+    const resolvedProfile = resolvedProfilesById.get(profileId);
+    if (resolvedProfile != null) {
+      nextProfiles.push(cloneProfile(resolvedProfile));
+      continue;
+    }
+
     const existingProfile = existingProfilesById.get(profileId);
     if (existingProfile != null) {
       nextProfiles.push(cloneProfile(existingProfile));
@@ -104,11 +111,12 @@ export function applyDxfProfileAssignmentsToPreview(
 export function applyDxfProfileAssignmentsToResult(
   result: DxfToGridEngModelResult,
   assignments: DxfProfileAssignments,
+  resolvedProfilesById: ReadonlyMap<Id, Profile> = new Map(),
 ): DxfToGridEngModelResult {
   const preview = applyDxfProfileAssignmentsToPreview(result.preview, assignments);
 
   return {
-    model: result.model == null ? null : applyDxfProfileAssignments(result.model, assignments),
+    model: result.model == null ? null : applyDxfProfileAssignments(result.model, assignments, resolvedProfilesById),
     preview,
   };
 }

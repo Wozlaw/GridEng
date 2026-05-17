@@ -14,32 +14,32 @@
 
 Источники требований:
 
-- `UNIFIED_GRIDENG_SPECIFICATION.md`;
-- `docs/catalogs-api-integration-spec.md`;
-- `IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
-- `IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
+- `codex/UNIFIED_GRIDENG_SPECIFICATION.md`;
+- `codex/docs/catalogs-api-integration-spec.md`;
+- `codex/IMPLEMENTATION_CROSS_SECTIONS_STRUCTURE.md`;
+- `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`.
 
 # Task 24.5 — Documentation cleanup and unified specification
 
 ## Цель
 
-Очистить комплект Codex от дублей/устаревших reference-файлов и закрепить `UNIFIED_GRIDENG_SPECIFICATION.md` как главный source of truth для следующих задач.
+Очистить комплект Codex от дублей/устаревших reference-файлов и закрепить `codex/UNIFIED_GRIDENG_SPECIFICATION.md` как главный source of truth для следующих задач.
 
 ## Сделать
 
 1. Проверить ссылки в:
-   - `README.md`;
-   - `IMPLEMENTATION_PLAN.md`;
-   - `TASK_SEQUENCE.md`;
+   - `codex/README.md`;
+   - `codex/IMPLEMENTATION_PLAN.md`;
+   - `codex/TASK_SEQUENCE.md`;
    - prompts 23.x–24.x.
 2. Убедиться, что новые задачи ссылаются на:
-   - `UNIFIED_GRIDENG_SPECIFICATION.md`;
-   - `docs/catalogs-api-integration-spec.md`;
+   - `codex/UNIFIED_GRIDENG_SPECIFICATION.md`;
+   - `codex/docs/catalogs-api-integration-spec.md`;
    - backend implementation summaries.
 3. Найти дубли reference-файлов с поврежденной кодировкой имени.
-4. Не удаляя информацию без проверки, нормализовать один актуальный файл как `reference/UI_REVISION_1_CHECKED_REQUIREMENTS.md` или оставить TODO-инструкцию, если прямое удаление рискованно.
-5. Обновить `README.md` кратким порядком работы с комплектом.
-6. Обновить `docs/documentation-cleanup-notes.md`, если фактическая структура отличается.
+4. Не удаляя информацию без проверки, нормализовать один актуальный файл как `codex/reference/UI_REVISION_1_CHECKED_REQUIREMENTS.md` или оставить TODO-инструкцию, если прямое удаление рискованно.
+5. Обновить `codex/README.md` кратким порядком работы с комплектом.
+6. Обновить `codex/docs/documentation-cleanup-notes.md`, если фактическая структура отличается.
 
 ## Ограничения
 

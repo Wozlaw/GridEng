@@ -1,5 +1,5 @@
 import type { FormEvent, ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,7 +14,6 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography,
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
@@ -75,25 +74,20 @@ export function WindEditorDialog() {
             </Alert>
           ) : (
             <>
-              <Stack spacing={0.5}>
-                <Typography variant="caption" color="text.secondary">
-                  {localize(language, 'Загружение', 'Load case')}
-                </Typography>
-                <TextField
-                  select
-                  fullWidth
-                  value={activeLoadCase?.id ?? ''}
-                  onChange={(event) => {
-                    setActiveLoadCaseId(event.target.value);
-                  }}
-                >
-                  {model.loadCases.map((loadCase) => (
-                    <MenuItem key={loadCase.id} value={loadCase.id} title={loadCase.id}>
-                      {loadCase.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Stack>
+              <TextField
+                select
+                fullWidth
+                value={activeLoadCase?.id ?? ''}
+                onChange={(event) => {
+                  setActiveLoadCaseId(event.target.value);
+                }}
+              >
+                {model.loadCases.map((loadCase) => (
+                  <MenuItem key={loadCase.id} value={loadCase.id}>
+                    {loadCase.name}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               {activeLoadCase != null ? (
                 <WindEditorForm
@@ -164,13 +158,6 @@ function WindEditorForm({
     getPressureFieldError(language, initialDraft.nominalPressurePa),
   );
 
-  const windDisabled = useMemo(() => {
-    const x = Number(draft.x);
-    const y = Number(draft.y);
-
-    return Number.isFinite(x) && Number.isFinite(y) && x === 0 && y === 0;
-  }, [draft.x, draft.y]);
-
   function handlePressureChange(value: string) {
     setDraft((state) => ({ ...state, nominalPressurePa: value }));
     setPressureFieldError(getPressureFieldError(language, value));
@@ -208,7 +195,7 @@ function WindEditorForm({
     }
 
     notifySuccess({
-        title: localize(language, 'Параметры ветра обновлены.', 'Wind parameters updated.'),
+      title: localize(language, 'Параметры ветра обновлены.', 'Wind parameters updated.'),
       details: [
         `${localize(language, 'Загружение', 'Load case')}: ${loadCaseName}`,
         `${localize(language, 'Давление', 'Pressure')}: ${formatNumber(parsedDraft.value.nominalPressurePa, 3)} Па`,
@@ -274,20 +261,6 @@ function WindEditorForm({
           setSubmitErrorText(null);
         }}
       />
-
-      <Alert severity={windDisabled ? 'info' : 'success'} variant="outlined">
-        {windDisabled
-          ? localize(
-            language,
-            'Нулевой вектор XY означает, что ветер отключен для этого загружения.',
-            'A zero XY direction vector means wind is disabled for this load case.',
-          )
-          : localize(
-            language,
-            'Направление будет нормализовано при сохранении. Нормативный расчет ветра в этой итерации не реализуется.',
-            'Direction will be normalized on save. Normative wind calculation is not implemented in this iteration.',
-          )}
-      </Alert>
 
       {submitErrorText != null ? (
         <Alert severity="error" variant="outlined">

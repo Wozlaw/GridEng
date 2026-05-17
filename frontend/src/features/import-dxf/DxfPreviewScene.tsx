@@ -1,13 +1,22 @@
 import type { ReactNode } from 'react';
 
-import { Box, Paper, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import {
+  Box,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Line, OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Color } from 'three';
 
-import { calculateBoundingBox } from '../../entities/model';
-import { findProfileById } from '../../entities/section';
 import { useI18n } from '../../shared/i18n';
 import { SceneAxes } from '../../widgets/viewport-3d/SceneAxes';
 import { SceneGrid } from '../../widgets/viewport-3d/SceneGrid';
@@ -17,7 +26,8 @@ import {
   scaleModelLengthMm,
   type ScenePoint3,
 } from '../../widgets/viewport-3d/modelToScene';
-import type { DxfImportPreview, DxfPreviewColorMode } from './types';
+import type { DxfGroupDisplayColors, DxfImportPreview, DxfPreviewColorMode } from './types';
+import type { DxfPreviewDisplayState, DxfPreviewRotationDeg } from './previewTransform';
 
 const DIAGNOSTIC_COLORS = {
   ok: '#58b77d',
@@ -30,56 +40,122 @@ const SHORT_LINE_MARKER_RADIUS = 0.04;
 
 interface DxfPreviewSceneProps {
   preview: DxfImportPreview | null;
+  displayState: DxfPreviewDisplayState | null;
   colorMode: DxfPreviewColorMode;
   onColorModeChange: (mode: DxfPreviewColorMode) => void;
+  rotationDeg: DxfPreviewRotationDeg;
+  onRotationChange: (rotationDeg: DxfPreviewRotationDeg) => void;
+  onResetRotation: () => void;
   isBusy?: boolean;
+  fullHeight?: boolean;
+  hideTitle?: boolean;
+  groupDisplayColors?: DxfGroupDisplayColors;
+  assignedCatalogProfileColors?: Partial<Record<string, string>>;
 }
 
 export function DxfPreviewScene({
   preview,
+  displayState,
   colorMode,
   onColorModeChange,
+  rotationDeg,
+  onRotationChange,
+  onResetRotation,
   isBusy = false,
+  fullHeight = false,
+  hideTitle = false,
+  groupDisplayColors = {},
+  assignedCatalogProfileColors = {},
 }: DxfPreviewSceneProps) {
   const { t } = useI18n();
 
   return (
-    <StackedPreviewPaper>
+    <StackedPreviewPaper fullHeight={fullHeight}>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: 'grid',
+          gridTemplateColumns: hideTitle ? '1fr' : { xs: '1fr', md: 'auto 1fr' },
           gap: 1,
-          flexWrap: 'wrap',
-          px: 2,
-          pt: 2,
+          px: 1.5,
+          pt: 1.5,
+          pb: 0.5,
+          alignItems: 'start',
         }}
       >
-        <Typography variant="subtitle2">{t('dxf.preview.sceneTitle')}</Typography>
+        {!hideTitle ? <Typography variant="subtitle2">{t('dxf.preview.sceneTitle')}</Typography> : null}
 
-        <ToggleButtonGroup
-          size="small"
-          exclusive
-          value={colorMode}
-          onChange={(_event, value) => {
-            if (value === 'diagnostics' || value === 'profiles') {
-              onColorModeChange(value);
-            }
+        <Stack
+          direction={{ xs: 'column', lg: 'row' }}
+          spacing={1}
+          sx={{
+            alignItems: { xs: 'stretch', lg: 'center' },
+            justifyContent: 'space-between',
           }}
-          aria-label={t('dxf.preview.colorModeAria')}
         >
-          <ToggleButton value="diagnostics" aria-label={t('dxf.preview.modeDiagnostics')}>
-            {t('dxf.preview.modeDiagnostics')}
-          </ToggleButton>
-          <ToggleButton value="profiles" aria-label={t('dxf.preview.modeProfiles')}>
-            {t('dxf.preview.modeProfiles')}
-          </ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={colorMode}
+            onChange={(_event, value) => {
+              if (value === 'diagnostics' || value === 'profiles') {
+                onColorModeChange(value);
+              }
+            }}
+            aria-label={t('dxf.preview.colorModeAria')}
+          >
+            <ToggleButton value="diagnostics" aria-label={t('dxf.preview.modeDiagnostics')}>
+              {t('dxf.preview.modeDiagnostics')}
+            </ToggleButton>
+            <ToggleButton value="profiles" aria-label={t('dxf.preview.modeProfiles')}>
+              {t('dxf.preview.modeProfiles')}
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
+            <RotationNumberField
+              axis="X"
+              value={rotationDeg.x}
+              tooltip={t('dxf.preview.rotateX')}
+              onChange={(value) => onRotationChange({ ...rotationDeg, x: value })}
+            />
+            <RotationNumberField
+              axis="Y"
+              value={rotationDeg.y}
+              tooltip={t('dxf.preview.rotateY')}
+              onChange={(value) => onRotationChange({ ...rotationDeg, y: value })}
+            />
+            <RotationNumberField
+              axis="Z"
+              value={rotationDeg.z}
+              tooltip={t('dxf.preview.rotateZ')}
+              onChange={(value) => onRotationChange({ ...rotationDeg, z: value })}
+            />
+
+            <Tooltip title={t('dxf.preview.resetRotation')}>
+              <span>
+                <IconButton
+                  aria-label={t('dxf.preview.resetRotation')}
+                  size="small"
+                  onClick={onResetRotation}
+                >
+                  <RestartAltIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Stack>
+        </Stack>
       </Box>
 
-      <Box sx={{ p: 2, pt: 1.5 }}>
-        <PreviewSceneViewport preview={preview} colorMode={colorMode} isBusy={isBusy} />
+      <Box sx={{ p: 1.5, pt: 0.5, minHeight: 0, flex: '1 1 auto' }}>
+          <PreviewSceneViewport
+            preview={preview}
+            displayState={displayState}
+            colorMode={colorMode}
+            isBusy={isBusy}
+            viewportHeight={fullHeight ? '100%' : 360}
+            groupDisplayColors={groupDisplayColors}
+            assignedCatalogProfileColors={assignedCatalogProfileColors}
+          />
       </Box>
     </StackedPreviewPaper>
   );
@@ -87,32 +163,56 @@ export function DxfPreviewScene({
 
 function PreviewSceneViewport({
   preview,
+  displayState,
   colorMode,
   isBusy,
+  viewportHeight,
+  groupDisplayColors,
+  assignedCatalogProfileColors,
 }: {
   preview: DxfImportPreview | null;
+  displayState: DxfPreviewDisplayState | null;
   colorMode: DxfPreviewColorMode;
   isBusy: boolean;
+  viewportHeight: number | string;
+  groupDisplayColors: DxfGroupDisplayColors;
+  assignedCatalogProfileColors: Partial<Record<string, string>>;
 }) {
   const theme = useTheme();
   const { t } = useI18n();
 
   if (isBusy) {
-    return <PreviewScenePlaceholder title={t('dxf.preview.preparingTitle')} body={t('dxf.preview.scenePreparing')} />;
+    return (
+      <PreviewScenePlaceholder
+        title={t('dxf.preview.preparingTitle')}
+        body={t('dxf.preview.scenePreparing')}
+        height={viewportHeight}
+      />
+    );
   }
 
   if (preview == null || preview.diagnostics.lines.length === 0) {
-    return <PreviewScenePlaceholder title={t('dxf.preview.sceneTitle')} body={t('dxf.preview.sceneEmptyHint')} />;
+    return (
+      <PreviewScenePlaceholder
+        title={t('dxf.preview.sceneTitle')}
+        body={t('dxf.preview.sceneEmptyHint')}
+        height={viewportHeight}
+      />
+    );
   }
 
-  const lineEntries = preview.diagnostics.lines;
-  const profileColorByGroupKey = new Map(
-    preview.colorGroups.map((group) => [
-      group.key,
-      group.profileId == null ? undefined : findProfileById(group.profileId)?.color,
-    ] as const),
-  );
-  const sceneBounds = calculateBoundingBox(lineEntries.flatMap((line) => [line.start, line.end]));
+  if (displayState == null) {
+    return (
+      <PreviewScenePlaceholder
+        title={t('dxf.preview.sceneTitle')}
+        body={t('dxf.preview.sceneEmptyHint')}
+        height={viewportHeight}
+      />
+    );
+  }
+
+  const lineEntries = displayState.lines;
+  const sceneBounds = displayState.bounds;
   const sceneCenter: ScenePoint3 = sceneBounds ? modelPositionToScene(sceneBounds.center) : [0, 0, 0];
   const sceneBoundingRadius = sceneBounds ? getSceneBoundingRadius(sceneBounds) : 1.5;
   const sceneLongestSide = Math.max(
@@ -132,7 +232,7 @@ function PreviewSceneViewport({
     <Paper
       variant="outlined"
       sx={{
-        height: 360,
+        height: viewportHeight,
         overflow: 'hidden',
         borderRadius: 1.5,
       }}
@@ -166,10 +266,13 @@ function PreviewSceneViewport({
         <OrbitControls makeDefault target={sceneCenter} maxPolarAngle={Math.PI / 2.02} />
 
         {lineEntries.map((line) => {
-          const assignedProfileColor = line.groupKey == null ? undefined : profileColorByGroupKey.get(line.groupKey);
+          const assignedProfileColor = line.groupKey == null
+            ? undefined
+            : assignedCatalogProfileColors[line.groupKey];
+          const overriddenGroupColor = line.groupKey == null ? undefined : groupDisplayColors[line.groupKey];
           const color = colorMode === 'diagnostics'
             ? DIAGNOSTIC_COLORS[line.status]
-            : assignedProfileColor ?? line.displayColor ?? FALLBACK_PROFILE_COLOR;
+            : overriddenGroupColor ?? assignedProfileColor ?? line.displayColor ?? FALLBACK_PROFILE_COLOR;
           const start = modelPositionToScene(line.start);
           const end = modelPositionToScene(line.end);
           const length = getSceneLineLength(start, end);
@@ -203,19 +306,55 @@ function PreviewSceneViewport({
   );
 }
 
+function RotationNumberField({
+  axis,
+  value,
+  tooltip,
+  onChange,
+}: {
+  axis: 'X' | 'Y' | 'Z';
+  value: number;
+  tooltip: string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Tooltip title={tooltip}>
+      <TextField
+        size="small"
+        type="number"
+        label={`${axis}°`}
+        value={value}
+        onChange={(event) => {
+          const nextValue = Number(event.target.value);
+          onChange(Number.isFinite(nextValue) ? nextValue : 0);
+        }}
+        slotProps={{
+          htmlInput: {
+            'aria-label': tooltip,
+            step: 90,
+          },
+        }}
+        sx={{ width: 86 }}
+      />
+    </Tooltip>
+  );
+}
+
 function PreviewScenePlaceholder({
   title,
   body,
+  height,
 }: {
   title: string;
   body: string;
+  height: number | string;
 }) {
   return (
     <Paper
       variant="outlined"
       sx={{
         p: 2.5,
-        height: 360,
+        height,
         borderStyle: 'dashed',
         display: 'flex',
         alignItems: 'center',
@@ -232,9 +371,24 @@ function PreviewScenePlaceholder({
   );
 }
 
-function StackedPreviewPaper({ children }: { children: ReactNode }) {
+function StackedPreviewPaper({
+  children,
+  fullHeight,
+}: {
+  children: ReactNode;
+  fullHeight: boolean;
+}) {
   return (
-    <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
+    <Paper
+      variant="outlined"
+      sx={{
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        height: fullHeight ? '100%' : 'auto',
+      }}
+    >
       {children}
     </Paper>
   );

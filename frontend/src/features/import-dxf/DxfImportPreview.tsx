@@ -17,16 +17,22 @@ interface DxfImportPreviewProps {
   fileName: string | null;
   preview: DxfImportPreviewData | null;
   isBusy?: boolean;
+  compact?: boolean;
 }
 
-export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: DxfImportPreviewProps) {
+export function DxfImportPreviewPanel({
+  fileName,
+  preview,
+  isBusy = false,
+  compact = false,
+}: DxfImportPreviewProps) {
   const { t } = useI18n();
 
   if (!fileName) {
     return (
-      <Paper variant="outlined" sx={{ p: 2.5, borderStyle: 'dashed' }}>
+      <Paper variant="outlined" sx={{ p: compact ? 1.5 : 2.5, borderStyle: 'dashed' }}>
         <Stack spacing={0.75}>
-          <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography>
+          {!compact ? <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography> : null}
           <Typography variant="body2" color="text.secondary">
             {t('dxf.preview.emptyHint')}
           </Typography>
@@ -37,9 +43,9 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
 
   if (isBusy || !preview) {
     return (
-      <Paper variant="outlined" sx={{ p: 2.5, borderStyle: 'dashed' }}>
+      <Paper variant="outlined" sx={{ p: compact ? 1.5 : 2.5, borderStyle: 'dashed' }}>
         <Stack spacing={0.75}>
-          <Typography variant="subtitle2">{t('dxf.preview.preparingTitle')}</Typography>
+          {!compact ? <Typography variant="subtitle2">{t('dxf.preview.preparingTitle')}</Typography> : null}
           <Typography variant="body2" color="text.secondary">
             {t('dxf.preview.preparingHint', { fileName })}
           </Typography>
@@ -54,10 +60,10 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
   const unassignedProfileCount = countDxfPreviewDiagnosticsByCode(preview, 'group_profile_unassigned');
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Paper variant="outlined" sx={{ p: compact ? 1.25 : 2 }}>
       <Stack spacing={1.5}>
         <Stack spacing={0.5}>
-          <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography>
+          {!compact ? <Typography variant="subtitle2">{t('dxf.preview.title')}</Typography> : null}
           <Typography variant="body2" color="text.secondary">
             {fileName}
           </Typography>
@@ -105,9 +111,11 @@ export function DxfImportPreviewPanel({ fileName, preview, isBusy = false }: Dxf
           ) : null}
         </Stack>
 
-        <Typography variant="body2" color="text.secondary">
-          {t('dxf.preview.logsHint')}
-        </Typography>
+        {!compact ? (
+          <Typography variant="body2" color="text.secondary">
+            {t('dxf.preview.logsHint')}
+          </Typography>
+        ) : null}
       </Stack>
     </Paper>
   );
