@@ -1,5 +1,7 @@
 import math
 import numpy as np
+from Crossection import Sortament, Steel
+
 
 try:
     from .Crossection import Crossection
@@ -184,7 +186,7 @@ class Beam:
             clearCache() - функция очистки кеша
     '''
 
-    def __init__(self, id, material: Material, crossection: Crossection, alpha: float, startKnot: BeamKnot, endKnot: BeamKnot, cacheProps: bool = True):
+    def __init__(self, id, material: Material, crossection: Crossection, alpha: float, startKnot: BeamKnot, endKnot: BeamKnot, cacheProps: bool = True, offsetY: float = 0.0, offsetZ: float = 0.0):
         self._cache = {}
         self.cacheProps = cacheProps
         self.id = id
@@ -193,6 +195,11 @@ class Beam:
         self.alpha = alpha
         self.startKnot = startKnot
         self.endKnot = endKnot
+        # Смещение центра инерции профиля относительно расчетной оси Beam в ЛСК, мм.
+        # На текущем этапе смещение считается постоянным по длине элемента:
+        # r_i = r_j = [0, offsetY, offsetZ].
+        self.offsetY = float(offsetY)
+        self.offsetZ = float(offsetZ)
 
     @property
     def knots(self):
@@ -256,6 +263,22 @@ class Beam:
                 self._cache['SM'] = SM
         return SM
         
+    @property
+    def kinematicMatrix(self):
+        '''
+        Матрица кинематической связи T в ЛСК элемента.
+
+        Связывает перемещения расчетной оси элемента с перемещениями
+        центроидной оси профиля: d_centroid = T * d_reference.
+        При offsetY = offsetZ = 0 возвращает единичную матрицу I12.
+        '''
+        KM = self._cache.get('KM', None)
+        if KM is None:
+            KM = self.getKinematicMatrix()
+            if self.cacheProps:
+                self._cache['KM'] = KM
+        return KM
+
     @property
     def stiffnessMatrixGCS(self):
         '''
@@ -347,11 +370,12 @@ class Beam:
 
         return V3.dot(V)
 
-    def getStiffnessMatrix(self):
+    def getCentroidStiffnessMatrix(self):
         ''' 
-        Функция получения матрицы жесткости стержня
+        Функция получения матрицы жесткости стержня относительно центроидной оси профиля
+        без учета смещения профиля относительно расчетной оси Beam.
             Возвращает:
-                Матрицу жесткости стержня в локальной системе координат
+                Матрицу жесткости стержня в локальной системе координат, 12x12
         '''
         # исходные величины стержня
         self._requireCrossectionAxisYZ()
@@ -404,6 +428,60 @@ class Beam:
         val = 2 * E * Jz / l
         valR[11, 5] = val
         return np.where(valR, valR, valR.T)
+
+
+    def getKinematicMatrix(self):
+        '''
+        Функция получения матрицы кинематической связи T для постоянного смещения
+        профиля относительно расчетной оси Beam в ЛСК элемента.
+
+        Вектор смещения от расчетной оси к центру инерции профиля:
+            r = [0, offsetY, offsetZ], мм.
+
+        Связь степеней свободы:
+            d_centroid = T * d_reference,
+            u_centroid = u_reference + theta_reference x r,
+            theta_centroid = theta_reference.
+
+        Возвращает:
+            Матрицу T размером 12x12. При нулевых offsetY и offsetZ
+            матрица является единичной.
+        '''
+        ey = float(self.offsetY)
+        ez = float(self.offsetZ)
+
+        Tnode = np.array([
+            [1.0, 0.0, 0.0,  0.0,  ez, -ey],
+            [0.0, 1.0, 0.0, -ez,  0.0, 0.0],
+            [0.0, 0.0, 1.0,  ey,  0.0, 0.0],
+            [0.0, 0.0, 0.0,  1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0,  0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0,  0.0, 0.0, 1.0],
+        ], dtype=float)
+
+        T = np.zeros((12, 12), dtype=float)
+        T[0:6, 0:6] = Tnode
+        T[6:12, 6:12] = Tnode
+        return T
+
+
+    def getStiffnessMatrix(self):
+        ''' 
+        Функция получения матрицы жесткости стержня в ЛСК относительно расчетной оси Beam
+        с учетом смещения профиля offsetY/offsetZ.
+
+        Сначала строится матрица жесткости по центроидной оси профиля Kc, затем она
+        приводится к расчетной оси через матрицу кинематической связи T:
+            Kref = T.T * Kc * T.
+
+        При offsetY = offsetZ = 0 матрица T является единичной и результат совпадает
+        с матрицей жесткости по центроидной оси.
+            Возвращает:
+                Матрицу жесткости стержня в локальной системе координат, 12x12
+        '''
+        Kc = self.getCentroidStiffnessMatrix()
+        T = self.kinematicMatrix
+        return (T.T.dot(Kc)).dot(T)
 
 
     def _normalizeVector(self, vector, name='vector'):
@@ -543,21 +621,21 @@ class BeamSystem3D:
             material = self.getMaterial(item['material'])
             
             if material is None:
-                raise Exception('Материал не задан или не найден!')
-            '''
+                #raise Exception('Материал не задан или не найден!')
+            
                 material = Steel.getSteel(item['material'])
                 self.materials.append(material)
-            '''
+            
             crossection = self.getCrossection(item['crossection'])
             
             if crossection is None:
-                raise Exception('Поперечное сечение не задано или не найдено!')
-            '''
+                #raise Exception('Поперечное сечение не задано или не найдено!')
+            
                 crossection = Sortament.getSortament(
                     item['crossection'], cacheProps=cacheProps)
                 crossection.setAxis('YZ')
                 self.crossections.append(crossection)
-            '''
+            
             alpha = 0.0
             if alphaInRad:
                 alpha = item['alpha']
@@ -567,7 +645,9 @@ class BeamSystem3D:
             endKnot = self.getKnotById(item['knots'][1])
 
             self.beams.append(Beam(id=id, alpha=alpha, crossection=crossection,
-                              material=material, startKnot=startKnot, endKnot=endKnot, cacheProps=cacheProps))
+                              material=material, startKnot=startKnot, endKnot=endKnot,
+                              offsetY=item.get('offsetY', 0.0), offsetZ=item.get('offsetZ', 0.0),
+                              cacheProps=cacheProps))
 
     @property
     def nBeams(self):
@@ -748,7 +828,12 @@ class BeamSystem3D:
             V[3:6, 3:6] = beam.rotateMatrix
             V[6:9, 6:9] = beam.rotateMatrix
             V[9:12, 9:12] = beam.rotateMatrix
-            F.append(beam.stiffnessMatrix.dot(V.dot(zk)))
+            # Перемещения узлов расчетной оси переводятся из ГСК в ЛСК.
+            # beam.stiffnessMatrix уже приведена к расчетной оси с учетом offsetY/offsetZ:
+            # Kref = T.T * Kcentroid * T. Поэтому результат ниже - усилия на концах
+            # стержня в ЛСК относительно расчетной оси элемента.
+            z_lcs_ref = V.dot(zk)
+            F.append(beam.stiffnessMatrix.dot(z_lcs_ref))
         return F
 
     @property
@@ -779,6 +864,54 @@ class BeamSystem3D:
             F.append([dict(zip(keys, startForces.astype(type('float', (float,), {})))), dict(
                 zip(keys, endForces.astype(type('float', (float,), {}))))])
         return F
+
+    def getFCentroidDict(self, tol=None):
+        '''
+        Словарь усилий на концах стержней в локальной системе координат,
+        приведенных к центральной оси профиля.
+
+        getFDict() возвращает усилия относительно расчетной оси элемента.
+        Для проверки напряжений в сечении нужны усилия относительно
+        центральной оси профиля.
+
+        Связь:
+            F_ref = T.T * F_centroid
+
+        Отсюда:
+            F_centroid = solve(T.T, F_ref)
+        '''
+        F = []
+        keys = ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']
+        k = [
+            1 / self.forceFactor,
+            1 / self.forceFactor,
+            1 / self.forceFactor,
+            1 / self.momentFactor,
+            1 / self.momentFactor,
+            1 / self.momentFactor,
+        ]
+
+        for i, values_ref in enumerate(self.F):
+            beam = self.beams[i]
+
+            # values_ref - усилия относительно расчетной оси элемента.
+            # Переводим их к центральной оси профиля.
+            values_centroid = np.linalg.solve(beam.kinematicMatrix.T, values_ref)
+
+            startForces = values_centroid[0:6] * k
+            endForces = values_centroid[6:12] * k
+
+            if tol is not None:
+                startForces = np.round(startForces, tol)
+                endForces = np.round(endForces, tol)
+
+            F.append([
+                dict(zip(keys, startForces.astype(type('float', (float,), {})))),
+                dict(zip(keys, endForces.astype(type('float', (float,), {}))))
+            ])
+
+        return F
+
 
     def getKnotF(self):
         '''
@@ -829,6 +962,7 @@ class BeamSystem3D:
                     dict(zip(keys, np.round(k * values, tol).astype(type('float', (float,), {})))))
         return F
 
+
     def calculateTensions(self, theory=3,tol=None):
         ''' 
         Получение главных напряжений
@@ -840,8 +974,15 @@ class BeamSystem3D:
 
             Возвращает: список значений опасных напряжения для балок, МПа
         '''
+        # getF() returns element end forces in LCS relative to the reference axis.
+        # These forces are used for structural equilibrium/reactions.
+
+        # calculateTensions() must use forces transformed to the section centroid axes,
+        # because Crossection.calculateTensions() expects section forces relative
+        # to the centroidal axes of the cross-section.
+
         tensions = []
-        F = self.getFDict()
+        F = self.getFCentroidDict()
         for i, beam in enumerate(self.beams):
             T = max(beam.crossection.calculateTensions(
                 F[i][0], theory), beam.crossection.calculateTensions(F[i][1], theory))
@@ -850,8 +991,7 @@ class BeamSystem3D:
             else:
                 tensions.append(round(T, tol))
         return tensions
-
-
+        
 
     def clearCache(self):
         ''' 

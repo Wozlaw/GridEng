@@ -106,3 +106,10 @@ cd frontend && npm run lint
 - задачи 24.1–24.5 и prompts к ним.
 
 Блок `24.1–24.5` закрыт. Для следующих задач опирайся на актуальные статусы в `codex/IMPLEMENTATION_PLAN.md`, а source of truth по требованиям считай `codex/UNIFIED_GRIDENG_SPECIFICATION.md`.
+
+## UI revision 4
+
+Этот пакет расширяет закрытые блоки `21–24` новым блоком `25.1–25.7`. Основной фокус: консольные команды БД/каталогов, DXF toolbar и preview 5:4, табличная вкладка профилей с материалами, компактные логи с таксономией `error/warning/info`, диалог `Ветер` с режимами `simple/sp20/pue`, ProjectTree/PropertiesPanel и multiselect через Shift.
+
+Новые требования лежат в `codex/reference/UI_REVISION_4_CHECKED_REQUIREMENTS.md`. Детали пакета — в `codex/docs/ui-revision-4-task-pack.md`.
+

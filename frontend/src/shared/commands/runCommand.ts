@@ -17,10 +17,10 @@ export function runAppCommand(commandId: string, context: AppCommandContext = {}
   return true;
 }
 
-export function executeConsoleInput(
+export async function executeConsoleInput(
   input: string,
   context: AppConsoleCommandContext,
-): AppConsoleCommandResult {
+): Promise<AppConsoleCommandResult> {
   const parsed = tokenizeConsoleInput(input);
 
   if (!parsed.ok) {
@@ -57,7 +57,16 @@ export function executeConsoleInput(
     };
   }
 
-  return command.execute(args, context);
+  try {
+    return await Promise.resolve(command.execute(args, context));
+  } catch (error) {
+    return {
+      severity: 'error',
+      title: localize(context.language, 'Команда завершилась с ошибкой.', 'Command failed.'),
+      lines: [getConsoleErrorMessage(context.language, error)],
+      notify: true,
+    };
+  }
 }
 
 export function getCommandById(commandId: string) {
@@ -214,4 +223,12 @@ function tokenizeConsoleInput(
 
 function localize(language: AppConsoleCommandContext['language'], ru: string, en: string): string {
   return language === 'ru' ? ru : en;
+}
+
+function getConsoleErrorMessage(language: AppConsoleCommandContext['language'], error: unknown): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return localize(language, 'Неизвестная ошибка команды.', 'Unknown command error.');
 }

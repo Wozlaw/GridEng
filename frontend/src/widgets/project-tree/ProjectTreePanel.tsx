@@ -7,6 +7,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Divider,
   List,
   ListItemButton,
   MenuItem,
@@ -28,7 +29,7 @@ type ProjectTreeSectionKey = 'loads' | 'members' | 'nodes';
 export function ProjectTreePanel() {
   const { t } = useI18n();
   const model = useModelStore((state) => state.model);
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectEntity = useModelStore((state) => state.selectEntity);
   const selectLoad = useModelStore((state) => state.selectLoad);
   const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
@@ -98,6 +99,7 @@ export function ProjectTreePanel() {
           title={t('projectTree.section.loads')}
           count={activeLoadCase?.loads.length ?? 0}
           onToggle={() => toggleSection('loads')}
+          showBottomDivider
         >
           {model.loadCases.length === 0 ? (
             <Box sx={{ px: 1.5, py: 1 }}>
@@ -112,6 +114,11 @@ export function ProjectTreePanel() {
                   select
                   fullWidth
                   size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      minHeight: 40,
+                    },
+                  }}
                   label={t('projectTree.loadCase.selectLabel')}
                   value={activeLoadCase?.id ?? ''}
                   onChange={(event) => {
@@ -128,16 +135,25 @@ export function ProjectTreePanel() {
 
               {activeLoadCase != null && (
                 <ListItemButton
-                  selected={isSelectedEntity(selectedEntity, 'loadCase', activeLoadCase.id)}
+                  selected={isSelectedEntity(selectedEntities, 'loadCase', activeLoadCase.id)}
                   onClick={() => selectEntity({ type: 'loadCase', id: activeLoadCase.id })}
-                  sx={{ px: 1.5, mx: 0.75, borderRadius: 1 }}
+                  sx={{
+                    minHeight: 40,
+                    px: 1.5,
+                    mx: 0.75,
+                    borderRadius: 1,
+                  }}
                 >
-                  <Stack spacing={0.15} sx={{ minWidth: 0 }}>
-                    <Typography variant="body2">{activeLoadCase.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('projectTree.loadCase.loadsCount', { count: activeLoadCase.loads.length })}
-                    </Typography>
-                  </Stack>
+                  <Tooltip title={activeLoadCase.name} placement="right">
+                    <Stack direction="row" spacing={1} sx={{ minWidth: 0, width: '100%', alignItems: 'center' }}>
+                      <Typography variant="body2" noWrap sx={{ minWidth: 0, flex: '1 1 auto' }}>
+                        {activeLoadCase.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                        {activeLoadCase.loads.length}
+                      </Typography>
+                    </Stack>
+                  </Tooltip>
                 </ListItemButton>
               )}
 
@@ -150,11 +166,11 @@ export function ProjectTreePanel() {
                       placement="right"
                     >
                       <ListItemButton
-                        selected={isSelectedLoad(selectedEntity, activeLoadCase.id, load.id)}
+                        selected={isSelectedLoad(selectedEntities, activeLoadCase.id, load.id)}
                         onClick={() => selectLoad(activeLoadCase.id, load.id)}
-                        sx={{ px: 1.5 }}
+                        sx={{ minHeight: 40, px: 1.5 }}
                       >
-                        <Typography variant="body2" noWrap>
+                        <Typography variant="body2" noWrap sx={{ minWidth: 0 }}>
                           {formatLoadPrimaryText(load, t)}
                         </Typography>
                       </ListItemButton>
@@ -171,6 +187,7 @@ export function ProjectTreePanel() {
           title={t('projectTree.section.members')}
           count={model.members.length}
           onToggle={() => toggleSection('members')}
+          showBottomDivider
         >
           <List disablePadding dense>
             {model.members.map((member, index) => {
@@ -183,11 +200,11 @@ export function ProjectTreePanel() {
                   placement="right"
                 >
                   <ListItemButton
-                    selected={isSelectedEntity(selectedEntity, 'member', member.id)}
+                    selected={isSelectedEntity(selectedEntities, 'member', member.id)}
                     onClick={() => selectEntity({ type: 'member', id: member.id })}
-                    sx={{ px: 1.5 }}
+                    sx={{ minHeight: 40, px: 1.5 }}
                   >
-                    <Stack direction="row" spacing={1} sx={{ minWidth: 0, alignItems: 'center' }}>
+                    <Stack direction="row" spacing={1} sx={{ minWidth: 0, width: '100%', alignItems: 'center' }}>
                       <Box
                         sx={{
                           width: 10,
@@ -198,7 +215,7 @@ export function ProjectTreePanel() {
                           borderColor: 'divider',
                         }}
                       />
-                      <Typography variant="body2" noWrap>
+                      <Typography variant="body2" noWrap sx={{ minWidth: 0, flex: '1 1 auto' }}>
                         {formatMemberPrimaryText(member, index, profile)}
                       </Typography>
                     </Stack>
@@ -223,11 +240,11 @@ export function ProjectTreePanel() {
                 placement="right"
               >
                 <ListItemButton
-                  selected={isSelectedEntity(selectedEntity, 'node', node.id)}
+                  selected={isSelectedEntity(selectedEntities, 'node', node.id)}
                   onClick={() => selectEntity({ type: 'node', id: node.id })}
-                  sx={{ px: 1.5 }}
+                  sx={{ minHeight: 40, px: 1.5 }}
                 >
-                  <Typography variant="body2" noWrap>
+                  <Typography variant="body2" noWrap sx={{ minWidth: 0 }}>
                     {node.label?.trim() || t('projectTree.nodeFallback', { index: index + 1 })}
                   </Typography>
                 </ListItemButton>
@@ -245,6 +262,7 @@ interface ProjectAccordionSectionProps {
   title: string;
   count: number;
   onToggle: () => void;
+  showBottomDivider?: boolean;
   children: ReactNode;
 }
 
@@ -253,6 +271,7 @@ function ProjectAccordionSection({
   title,
   count,
   onToggle,
+  showBottomDivider = false,
   children,
 }: ProjectAccordionSectionProps) {
   return (
@@ -272,19 +291,22 @@ function ProjectAccordionSection({
       <AccordionSummary
         expandIcon={<ExpandMoreIcon fontSize="small" />}
         sx={{
-          minHeight: 36,
+          minHeight: 40,
           px: 1.5,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          '&.Mui-expanded': {
+            minHeight: 40,
+          },
           '& .MuiAccordionSummary-content': {
-            my: 0.5,
+            my: 0,
+            minHeight: 40,
+            alignItems: 'center',
           },
         }}
       >
         <Box
           sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}
         >
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
             {title}
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -294,6 +316,7 @@ function ProjectAccordionSection({
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0, py: 0.5 }}>
         {children}
+        {showBottomDivider && <Divider sx={{ mt: 0.5 }} />}
       </AccordionDetails>
     </Accordion>
   );

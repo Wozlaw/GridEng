@@ -3,18 +3,20 @@ import { useMemo } from 'react';
 
 import {
   Box,
-  Chip,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
 
+import type { SteelMaterialResolvedProperties } from '../../entities/material';
 import { findProfileById, type CrossSectionCatalogItem } from '../../entities/section';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText } from '../../shared/utils/format';
+import { getDxfPreviewOverallStatus } from './diagnostics';
+import { resolveDxfGroupDisplayColor } from './dxfColors';
 import type {
-  DxfColorGroup,
   DxfImportSettings,
+  DxfMaterialAssignments,
   DxfPreviewDiagnostic,
   DxfPreviewDiagnosticStatus,
   DxfToGridEngModelResult,
@@ -27,6 +29,8 @@ interface DxfImportLogSectionsPanelProps {
   settings: DxfImportSettings;
   previewDisplayState?: DxfPreviewDisplayState | null;
   assignedCatalogItemsByGroup?: Partial<Record<string, CrossSectionCatalogItem>>;
+  materialAssignments?: DxfMaterialAssignments;
+  assignedMaterialOptionsByGroup?: Partial<Record<string, SteelMaterialResolvedProperties>>;
 }
 
 interface LogItem {
@@ -44,9 +48,14 @@ export function DxfImportLogSectionsPanel({
   settings,
   previewDisplayState = null,
   assignedCatalogItemsByGroup = {},
+  materialAssignments = {},
+  assignedMaterialOptionsByGroup = {},
 }: DxfImportLogSectionsPanelProps) {
   const { t } = useI18n();
   const preview = previewResult?.preview ?? null;
+  const overallStatus = preview == null
+    ? 'info'
+    : toLogStatus(getDxfPreviewOverallStatus(preview, { includeGroupDiagnostics: true }));
 
   const mappingItems = useMemo<LogItem[]>(() => {
     if (preview == null || preview.colorGroups.length === 0) {
@@ -63,15 +72,19 @@ export function DxfImportLogSectionsPanel({
         ...collectDiagnosticMessages(diagnosticEntry?.diagnostics),
       ]);
       const status = diagnosticEntry == null
-        ? group.profileId == null ? 'warning' : 'info'
+        ? group.profileId == null || materialAssignments[group.key] == null ? 'error' : 'info'
         : toLogStatus(diagnosticEntry.status);
       const context = [
-        `${t('dxf.logs.originalColor')}: ${resolveGroupDisplayColor(group)}`,
+        `${t('dxf.logs.originalColor')}: ${resolveDxfGroupDisplayColor(group)}`,
         group.layer ? `${t('common.layer')}: ${group.layer}` : null,
         `${t('common.members')}: ${group.membersCount}`,
         `${t('dxf.logs.assignedProfile')}: ${formatProfileValue(
           group.profileId,
           assignedCatalogItemsByGroup[group.key],
+        )}`,
+        `${t('dxf.logs.assignedMaterial')}: ${formatMaterialValue(
+          materialAssignments[group.key],
+          assignedMaterialOptionsByGroup[group.key],
         )}`,
       ].filter(Boolean) as string[];
 
@@ -81,10 +94,10 @@ export function DxfImportLogSectionsPanel({
         status,
         messages,
         context,
-        color: resolveGroupDisplayColor(group),
+        color: resolveDxfGroupDisplayColor(group),
       };
     });
-  }, [assignedCatalogItemsByGroup, preview, t]);
+  }, [assignedCatalogItemsByGroup, assignedMaterialOptionsByGroup, materialAssignments, preview, t]);
 
   const issueItems = useMemo<LogItem[]>(() => {
     if (preview == null) {
@@ -92,24 +105,6 @@ export function DxfImportLogSectionsPanel({
     }
 
     const items: LogItem[] = [];
-
-    for (const error of preview.errors) {
-      items.push({
-        key: `error-${error}`,
-        title: t('dxf.logs.item.import'),
-        status: 'error',
-        messages: [error],
-      });
-    }
-
-    for (const warning of preview.warnings) {
-      items.push({
-        key: `warning-${warning}`,
-        title: t('dxf.logs.item.import'),
-        status: 'warning',
-        messages: [warning],
-      });
-    }
 
     for (const diagnostic of preview.diagnostics.summary) {
       items.push({
@@ -120,11 +115,11 @@ export function DxfImportLogSectionsPanel({
       });
     }
 
-    for (const line of preview.diagnostics.lines.filter((entry) => entry.status !== 'ok')) {
+    for (const line of preview.diagnostics.lines.filter((entry) => entry.diagnostics.length > 0)) {
       items.push({
-        key: `line-${line.lineIndex}`,
-        title: `LINE #${line.lineIndex}`,
-        status: toLogStatus(line.status),
+        key: line.handle ? `line-${line.handle}` : `line-${line.lineIndex}`,
+        title: formatLineTitle(line),
+        status: getLogStatusFromDiagnostics(line.diagnostics),
         messages: collectDiagnosticMessages(line.diagnostics),
         context: [
           line.handle ? `${t('properties.rows.dxfHandle')}: ${line.handle}` : null,
@@ -135,11 +130,11 @@ export function DxfImportLogSectionsPanel({
       });
     }
 
-    for (const member of preview.diagnostics.members.filter((entry) => entry.status !== 'ok')) {
+    for (const member of preview.diagnostics.members.filter((entry) => entry.diagnostics.length > 0)) {
       items.push({
         key: `member-${member.memberId}`,
         title: t('dxf.logs.item.member', { id: member.memberId }),
-        status: toLogStatus(member.status),
+        status: getLogStatusFromDiagnostics(member.diagnostics),
         messages: collectDiagnosticMessages(member.diagnostics),
         context: [
           member.handle ? `${t('properties.rows.dxfHandle')}: ${member.handle}` : null,
@@ -150,11 +145,11 @@ export function DxfImportLogSectionsPanel({
       });
     }
 
-    for (const node of preview.diagnostics.nodes.filter((entry) => entry.status !== 'ok')) {
+    for (const node of preview.diagnostics.nodes.filter((entry) => entry.diagnostics.length > 0)) {
       items.push({
         key: `node-${node.nodeId}`,
         title: t('dxf.logs.item.node', { id: node.nodeId }),
-        status: toLogStatus(node.status),
+        status: getLogStatusFromDiagnostics(node.diagnostics),
         messages: collectDiagnosticMessages(node.diagnostics),
       });
     }
@@ -184,26 +179,10 @@ export function DxfImportLogSectionsPanel({
         <Stack spacing={1.25}>
           <Typography variant="subtitle2">{t('dxf.logs.section.summary')}</Typography>
 
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }} useFlexGap>
-            <Chip
-              color={preview.errors.length > 0 ? 'error' : preview.warnings.length > 0 ? 'warning' : 'success'}
-              label={preview.errors.length > 0
-                ? t('dxf.preview.errorsPresent')
-                : preview.warnings.length > 0
-                  ? t('dxf.preview.warningsOnly')
-                  : t('dxf.preview.readyToImport')}
-              size="small"
-              variant="outlined"
-            />
-            <Chip
-              label={preview.is3D ? t('dxf.preview.dimension3d') : t('dxf.preview.dimension2d')}
-              size="small"
-              variant="outlined"
-            />
-          </Stack>
-
           <LogGrid>
             <LogRow label={t('common.name')} value={formatOptionalText(fileName)} />
+            <LogRow label={t('status.title')} value={formatLogStatusLabel(t, overallStatus)} />
+            <LogRow label={t('common.type')} value={preview.is3D ? t('dxf.preview.dimension3d') : t('dxf.preview.dimension2d')} />
             <LogRow label={t('dxf.preview.lineEntities')} value={String(preview.linesCount)} />
             <LogRow label={t('dxf.preview.nodes')} value={String(preview.nodesCount)} />
             <LogRow label={t('dxf.preview.members')} value={String(preview.membersCount)} />
@@ -298,24 +277,19 @@ function formatProfileValue(
   return catalogProfile == null ? profileId : `${catalogProfile.name} (${catalogProfile.id})`;
 }
 
-function resolveGroupDisplayColor(group: DxfColorGroup): string {
-  if (typeof group.trueColor === 'string' && group.trueColor.trim().length > 0) {
-    return group.trueColor;
+function formatMaterialValue(
+  materialId: string | undefined,
+  assignedMaterialOption: SteelMaterialResolvedProperties | undefined,
+): string {
+  if (materialId == null) {
+    return '-';
   }
 
-  if (typeof group.color === 'string' && group.color.trim().length > 0) {
-    return group.color;
+  if (assignedMaterialOption != null) {
+    return `${assignedMaterialOption.displayName} (${assignedMaterialOption.propertyId})`;
   }
 
-  if (typeof group.trueColor === 'number' && Number.isFinite(group.trueColor)) {
-    return `#${Math.max(0, Math.trunc(group.trueColor)).toString(16).padStart(6, '0').slice(-6)}`;
-  }
-
-  if (typeof group.color === 'number' && Number.isFinite(group.color)) {
-    return `#${Math.max(0, Math.trunc(group.color)).toString(16).padStart(6, '0').slice(-6)}`;
-  }
-
-  return '#9aa1a9';
+  return materialId;
 }
 
 function collectDiagnosticMessages(diagnostics: readonly DxfPreviewDiagnostic[] | undefined): string[] {
@@ -324,6 +298,16 @@ function collectDiagnosticMessages(diagnostics: readonly DxfPreviewDiagnostic[] 
 
 function uniqueMessages(messages: readonly string[]): string[] {
   return Array.from(new Set(messages.filter((message) => message.trim().length > 0)));
+}
+
+function getLogStatusFromDiagnostics(diagnostics: readonly DxfPreviewDiagnostic[]): LogItem['status'] {
+  let status: DxfPreviewDiagnosticStatus = 'ok';
+
+  for (const diagnostic of diagnostics) {
+    status = getHigherLogStatus(status, diagnostic.status);
+  }
+
+  return toLogStatus(status);
 }
 
 function toLogStatus(status: DxfPreviewDiagnosticStatus): 'info' | 'warning' | 'error' {
@@ -335,6 +319,40 @@ function toLogStatus(status: DxfPreviewDiagnosticStatus): 'info' | 'warning' | '
     default:
       return 'info';
   }
+}
+
+function getHigherLogStatus(
+  current: DxfPreviewDiagnosticStatus,
+  next: DxfPreviewDiagnosticStatus,
+): DxfPreviewDiagnosticStatus {
+  const rank: Record<DxfPreviewDiagnosticStatus, number> = {
+    ok: 0,
+    info: 1,
+    warning: 2,
+    error: 3,
+  };
+
+  return rank[next] > rank[current] ? next : current;
+}
+
+function formatLogStatusLabel(
+  t: ReturnType<typeof useI18n>['t'],
+  status: LogItem['status'],
+): string {
+  switch (status) {
+    case 'error':
+      return t('dxf.logs.status.error');
+    case 'warning':
+      return t('dxf.logs.status.warning');
+    default:
+      return t('dxf.logs.status.info');
+  }
+}
+
+function formatLineTitle(line: { lineIndex: number; handle?: string }): string {
+  return line.handle != null && line.handle.trim().length > 0
+    ? `LINE ${line.handle}`
+    : `LINE #${line.lineIndex + 1}`;
 }
 
 function compareLogItems(left: LogItem, right: LogItem): number {
@@ -381,6 +399,11 @@ function LogRow({ label, value }: { label: string; value: string }) {
 
 function LogCard({ item }: { item: LogItem }) {
   const { t } = useI18n();
+  const statusColor = item.status === 'error'
+    ? 'error.main'
+    : item.status === 'warning'
+      ? 'warning.main'
+      : 'text.secondary';
 
   return (
     <Box
@@ -393,21 +416,15 @@ function LogCard({ item }: { item: LogItem }) {
     >
       <Stack spacing={0.75}>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
-          <Chip
-            color={item.status === 'error' ? 'error' : item.status === 'warning' ? 'warning' : 'default'}
-            label={item.status === 'error'
-              ? t('dxf.logs.status.error')
-              : item.status === 'warning'
-                ? t('dxf.logs.status.warning')
-                : t('dxf.logs.status.info')}
-            size="small"
-            variant="outlined"
-          />
           {item.color ? <ColorSwatch color={item.color} /> : null}
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {item.title}
           </Typography>
         </Stack>
+
+        <Typography variant="caption" sx={{ color: statusColor, fontWeight: 600 }}>
+          {t('status.title')}: {formatLogStatusLabel(t, item.status)}
+        </Typography>
 
         {item.context?.length ? (
           <Typography variant="caption" color="text.secondary">

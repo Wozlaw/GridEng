@@ -1,12 +1,15 @@
 import type { ChangeEvent, ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
 
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import AutorenewOutlinedIcon from '@mui/icons-material/AutorenewOutlined';
+import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import ColorLensOutlinedIcon from '@mui/icons-material/ColorLensOutlined';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import {
   Box,
+  Divider,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,6 +25,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 
 import { useModelStore } from '../../app/store';
+import { createMaterialFromResolvedProperties, type SteelMaterialResolvedProperties } from '../../entities/material';
 import { createProfileFromCatalogDetails, type CrossSectionCatalogItem } from '../../entities/section';
 import { crossSectionsApi } from '../../shared/api';
 import { useI18n } from '../../shared/i18n';
@@ -30,19 +34,25 @@ import { applyDxfProfileAssignments, applyDxfProfileAssignmentsToPreview } from 
 import { DxfImportLogSectionsPanel } from './DxfImportLogContent';
 import { DxfProfileAssignmentPanel } from './DxfProfileAssignmentPanel';
 import { DxfPreviewScene } from './DxfPreviewScene';
-import { countDxfPreviewDiagnosticsByCode } from './diagnostics';
+import {
+  countDxfPreviewDiagnosticsByCode,
+  countDxfPreviewDiagnosticsByStatus,
+  getDxfPreviewOverallStatus,
+} from './diagnostics';
 import { buildAssignedCatalogProfileColors } from './dxfProfileAssignmentCatalog';
 import { convertDxfToGridEngModel } from './dxfToGridEngModel';
-import { DxfImportPreviewPanel } from './DxfImportPreview';
 import {
   applyDxfPreviewDisplayStateToModel,
   buildDxfPreviewDisplayState,
+  rotatePreviewAroundAxis,
   ZERO_DXF_PREVIEW_ROTATION,
+  type DxfPreviewRotationAxis,
   type DxfPreviewRotationDeg,
 } from './previewTransform';
 import type {
   DxfGroupDisplayColors,
   DxfImportPreview,
+  DxfMaterialAssignments,
   DxfPreviewColorMode,
   DxfPreviewDiagnostic,
   DxfProfileAssignments,
@@ -50,6 +60,9 @@ import type {
 } from './types';
 
 type DxfDialogTab = 'model' | 'profiles' | 'logs';
+
+const DESKTOP_DXF_DIALOG_HEIGHT = 'min(88vh, 980px)';
+const DESKTOP_DXF_DIALOG_WIDTH = 'min(calc((min(88vh, 980px) - 208px) * 1.25 + 48px), calc(100vw - 24px))';
 
 interface DxfImportDialogProps {
   open: boolean;
@@ -72,9 +85,13 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const [previewColorMode, setPreviewColorMode] = useState<DxfPreviewColorMode>('diagnostics');
   const [previewRotationDeg, setPreviewRotationDeg] = useState<DxfPreviewRotationDeg>(ZERO_DXF_PREVIEW_ROTATION);
   const [profileAssignments, setProfileAssignments] = useState<DxfProfileAssignments>({});
+  const [materialAssignments, setMaterialAssignments] = useState<DxfMaterialAssignments>({});
   const [groupDisplayColors, setGroupDisplayColors] = useState<DxfGroupDisplayColors>({});
   const [assignedCatalogItemsByGroup, setAssignedCatalogItemsByGroup] = useState<
     Partial<Record<string, CrossSectionCatalogItem>>
+  >({});
+  const [assignedMaterialOptionsByGroup, setAssignedMaterialOptionsByGroup] = useState<
+    Partial<Record<string, SteelMaterialResolvedProperties>>
   >({});
   const [isImporting, setIsImporting] = useState(false);
 
@@ -93,9 +110,13 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
 
     return {
       model: rawPreviewResult.model,
-      preview: applyDxfProfileAssignmentsToPreview(rawPreviewResult.preview, profileAssignments),
+      preview: applyDxfProfileAssignmentsToPreview(
+        rawPreviewResult.preview,
+        profileAssignments,
+        materialAssignments,
+      ),
     };
-  }, [profileAssignments, rawPreviewResult]);
+  }, [materialAssignments, profileAssignments, rawPreviewResult]);
   const assignedCatalogProfileColors = useMemo(
     () => buildAssignedCatalogProfileColors(assignedCatalogItemsByGroup),
     [assignedCatalogItemsByGroup],
@@ -117,10 +138,12 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     setSelectedFileName(file.name);
     setFileReadError(null);
     setProfileAssignments({});
+    setMaterialAssignments({});
     setGroupDisplayColors({});
     setActiveTab('model');
     setPreviewRotationDeg(ZERO_DXF_PREVIEW_ROTATION);
     setAssignedCatalogItemsByGroup({});
+    setAssignedMaterialOptionsByGroup({});
     setIsImporting(false);
 
     try {
@@ -162,14 +185,35 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
           return [profile.id, profile] as const;
         }),
       );
-      const nextModel = applyDxfProfileAssignments(rawPreviewResult.model, profileAssignments, resolvedProfilesById);
+      const resolvedMaterialsById = new Map(
+        Object.values(assignedMaterialOptionsByGroup)
+          .filter((option): option is SteelMaterialResolvedProperties => option != null)
+          .map((option) => {
+            const material = createMaterialFromResolvedProperties(option);
+            return [material.id, material] as const;
+          }),
+      );
+      const nextModel = applyDxfProfileAssignments(
+        rawPreviewResult.model,
+        profileAssignments,
+        resolvedProfilesById,
+        materialAssignments,
+        resolvedMaterialsById,
+      );
 
       setModel(applyDxfPreviewDisplayStateToModel(nextModel, previewDisplayState));
 
-      if (previewResult.preview.warnings.length > 0) {
+      const overallStatus = getDxfPreviewOverallStatus(previewResult.preview, {
+        includeGroupDiagnostics: true,
+      });
+      const warningCount = countDxfPreviewDiagnosticsByStatus(previewResult.preview, 'warning', {
+        includeGroupDiagnostics: true,
+      });
+
+      if (overallStatus === 'warning' && warningCount > 0) {
         notifyWarning({
           title: t('dxf.notifications.warningTitle', { fileName: selectedFileName }),
-          details: [t('dxf.notifications.warningDetail', { count: previewResult.preview.warnings.length })],
+          details: [t('dxf.notifications.warningDetail', { count: warningCount })],
         });
       } else {
         notifySuccess({
@@ -203,8 +247,10 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
     setPreviewColorMode('diagnostics');
     setPreviewRotationDeg(ZERO_DXF_PREVIEW_ROTATION);
     setProfileAssignments({});
+    setMaterialAssignments({});
     setGroupDisplayColors({});
     setAssignedCatalogItemsByGroup({});
+    setAssignedMaterialOptionsByGroup({});
     setIsImporting(false);
     onClose();
   }
@@ -216,24 +262,43 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
   const unassignedProfileCount = previewResult == null
     ? 0
     : countDxfPreviewDiagnosticsByCode(previewResult.preview, 'group_profile_unassigned');
+  const missingMaterialCount = previewResult == null
+    ? 0
+    : countDxfPreviewDiagnosticsByCode(previewResult.preview, 'group_material_unassigned');
+  const unresolvedMaterialCount = previewResult == null
+    ? 0
+    : previewResult.preview.colorGroups.filter((group) => {
+      const assignedProfileId = profileAssignments[group.key];
+      return assignedProfileId != null && assignedMaterialOptionsByGroup[group.key] == null;
+    }).length;
   const canImport = previewResult?.model != null
     && previewResult.preview.errors.length === 0
     && unassignedProfileCount === 0
+    && missingMaterialCount === 0
+    && unresolvedMaterialCount === 0
     && !isImporting;
-  const canOpenLogs = previewResult != null;
+  const isModelTabActive = activeTab === 'model';
+  const canUsePreviewToolbar = isModelTabActive && !isReadingFile && previewResult != null;
+  const canRotatePreview = canUsePreviewToolbar && previewDisplayState != null;
+
+  function rotatePreview(axis: DxfPreviewRotationAxis) {
+    setPreviewRotationDeg((currentRotation) => rotatePreviewAroundAxis(currentRotation, axis));
+  }
 
   return (
     <>
       <Dialog
         open={open}
         onClose={closeDialog}
-        fullWidth
-        maxWidth="xl"
+        fullWidth={false}
+        maxWidth={false}
         fullScreen={fullScreen}
         slotProps={{
           paper: {
             sx: {
-              height: fullScreen ? '100%' : 'min(88vh, 980px)',
+              height: fullScreen ? '100%' : DESKTOP_DXF_DIALOG_HEIGHT,
+              width: fullScreen ? '100%' : DESKTOP_DXF_DIALOG_WIDTH,
+              maxWidth: '100vw',
             },
           },
         }}
@@ -292,31 +357,18 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
             }}
           >
             <DxfDialogTabPanel activeTab={activeTab} tab="model" scrollMode="hidden">
-              <Stack spacing={1.5} sx={{ height: '100%', minHeight: 0 }}>
-                <DxfImportPreviewPanel
-                  fileName={selectedFileName}
+              <Box sx={{ height: '100%', minHeight: 0 }}>
+                <DxfPreviewScene
                   preview={previewResult?.preview ?? null}
+                  displayState={previewDisplayState}
+                  colorMode={previewColorMode}
                   isBusy={isReadingFile}
-                  compact
+                  fullHeight
+                  hideTitle
+                  groupDisplayColors={groupDisplayColors}
+                  assignedCatalogProfileColors={assignedCatalogProfileColors}
                 />
-
-                <Box sx={{ flex: '1 1 auto', minHeight: 0 }}>
-                  <DxfPreviewScene
-                    preview={previewResult?.preview ?? null}
-                    displayState={previewDisplayState}
-                    colorMode={previewColorMode}
-                    onColorModeChange={setPreviewColorMode}
-                    rotationDeg={previewRotationDeg}
-                    onRotationChange={setPreviewRotationDeg}
-                    onResetRotation={() => setPreviewRotationDeg(ZERO_DXF_PREVIEW_ROTATION)}
-                    isBusy={isReadingFile}
-                    fullHeight
-                    hideTitle
-                    groupDisplayColors={groupDisplayColors}
-                    assignedCatalogProfileColors={assignedCatalogProfileColors}
-                  />
-                </Box>
-              </Stack>
+              </Box>
             </DxfDialogTabPanel>
 
             <DxfDialogTabPanel activeTab={activeTab} tab="profiles" scrollMode="auto">
@@ -325,9 +377,12 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
                 groups={previewResult?.preview.colorGroups ?? []}
                 assignments={profileAssignments}
                 onAssignmentsChange={setProfileAssignments}
+                materialAssignments={materialAssignments}
+                onMaterialAssignmentsChange={setMaterialAssignments}
                 groupDisplayColors={groupDisplayColors}
                 onGroupDisplayColorsChange={setGroupDisplayColors}
                 onAssignedCatalogItemsChange={setAssignedCatalogItemsByGroup}
+                onAssignedMaterialOptionsChange={setAssignedMaterialOptionsByGroup}
                 hideHeader
               />
             </DxfDialogTabPanel>
@@ -339,49 +394,112 @@ export function DxfImportDialog({ open, onClose }: DxfImportDialogProps) {
                 settings={dxfImportSettings}
                 previewDisplayState={previewDisplayState}
                 assignedCatalogItemsByGroup={assignedCatalogItemsByGroup}
+                materialAssignments={materialAssignments}
+                assignedMaterialOptionsByGroup={assignedMaterialOptionsByGroup}
               />
             </DxfDialogTabPanel>
           </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Stack direction="row" spacing={1}>
-            <ActionIconButton
-              title={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
-              label={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
-              onClick={openFilePicker}
-              disabled={isReadingFile || isImporting}
-            >
-              <UploadFileIcon />
-            </ActionIconButton>
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
+            {isModelTabActive ? (
+              <>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }} useFlexGap>
+                  <ActionIconButton
+                    title={t('dxf.toolbar.rotateX90')}
+                    label={t('dxf.toolbar.rotateX90')}
+                    onClick={() => rotatePreview('x')}
+                    disabled={!canRotatePreview}
+                  >
+                    <AxisToolbarIcon axis="X" />
+                  </ActionIconButton>
 
-            <ActionIconButton
-              title={t('dxf.dialog.openLogs')}
-              label={t('dxf.dialog.openLogs')}
-              onClick={() => setActiveTab('logs')}
-              disabled={!canOpenLogs}
-            >
-              <ArticleOutlinedIcon />
-            </ActionIconButton>
+                  <ActionIconButton
+                    title={t('dxf.toolbar.rotateY90')}
+                    label={t('dxf.toolbar.rotateY90')}
+                    onClick={() => rotatePreview('y')}
+                    disabled={!canRotatePreview}
+                  >
+                    <AxisToolbarIcon axis="Y" />
+                  </ActionIconButton>
 
-            <ActionIconButton
-              title={t('dxf.dialog.cancel')}
-              label={t('dxf.dialog.cancel')}
-              onClick={closeDialog}
-            >
-              <CloseIcon />
-            </ActionIconButton>
+                  <ActionIconButton
+                    title={t('dxf.toolbar.rotateZ90')}
+                    label={t('dxf.toolbar.rotateZ90')}
+                    onClick={() => rotatePreview('z')}
+                    disabled={!canRotatePreview}
+                  >
+                    <AxisToolbarIcon axis="Z" />
+                  </ActionIconButton>
 
-            <ActionIconButton
-              title={t('dxf.dialog.import')}
-              label={t('dxf.dialog.import')}
-              onClick={() => {
-                void handleImport();
-              }}
-              disabled={!canImport}
-            >
-              <CheckIcon />
-            </ActionIconButton>
+                  <ActionIconButton
+                    title={t('dxf.toolbar.resetPreviewTransform')}
+                    label={t('dxf.toolbar.resetPreviewTransform')}
+                    onClick={() => setPreviewRotationDeg(ZERO_DXF_PREVIEW_ROTATION)}
+                    disabled={!canRotatePreview}
+                  >
+                    <AutorenewOutlinedIcon fontSize="small" />
+                  </ActionIconButton>
+                </Stack>
+
+                <Divider orientation="vertical" flexItem />
+
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }} useFlexGap>
+                  <ActionIconButton
+                    title={t('dxf.toolbar.colorDiagnostics')}
+                    label={t('dxf.toolbar.colorDiagnostics')}
+                    onClick={() => setPreviewColorMode('diagnostics')}
+                    disabled={!canUsePreviewToolbar}
+                    selected={previewColorMode === 'diagnostics'}
+                  >
+                    <BugReportOutlinedIcon fontSize="small" />
+                  </ActionIconButton>
+
+                  <ActionIconButton
+                    title={t('dxf.toolbar.colorProfiles')}
+                    label={t('dxf.toolbar.colorProfiles')}
+                    onClick={() => setPreviewColorMode('profiles')}
+                    disabled={!canUsePreviewToolbar}
+                    selected={previewColorMode === 'profiles'}
+                  >
+                    <ColorLensOutlinedIcon fontSize="small" />
+                  </ActionIconButton>
+                </Stack>
+
+                <Divider orientation="vertical" flexItem />
+              </>
+            ) : null}
+
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }} useFlexGap>
+              <ActionIconButton
+                title={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
+                label={selectedFileName ? t('dxf.dialog.replaceFile') : t('dxf.dialog.chooseFile')}
+                onClick={openFilePicker}
+                disabled={isReadingFile || isImporting}
+              >
+                <UploadFileIcon />
+              </ActionIconButton>
+
+              <ActionIconButton
+                title={t('dxf.dialog.import')}
+                label={t('dxf.dialog.import')}
+                onClick={() => {
+                  void handleImport();
+                }}
+                disabled={!canImport}
+              >
+                <CheckIcon />
+              </ActionIconButton>
+
+              <ActionIconButton
+                title={t('dxf.dialog.cancel')}
+                label={t('dxf.dialog.cancel')}
+                onClick={closeDialog}
+              >
+                <CloseIcon />
+              </ActionIconButton>
+            </Stack>
           </Stack>
         </DialogActions>
       </Dialog>
@@ -411,7 +529,7 @@ function DxfDialogTabPanel({
         flex: '1 1 auto',
         minHeight: 0,
         overflow: scrollMode,
-        p: 2,
+        p: tab === 'model' ? 0 : 2,
       }}
     >
       <Box sx={{ flex: '1 1 auto', minHeight: 0, width: '100%' }}>
@@ -426,6 +544,7 @@ interface ActionIconButtonProps {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  selected?: boolean;
   children: ReactNode;
 }
 
@@ -434,16 +553,52 @@ function ActionIconButton({
   label,
   onClick,
   disabled = false,
+  selected = false,
   children,
 }: ActionIconButtonProps) {
   return (
     <Tooltip title={title}>
       <span>
-        <IconButton aria-label={label} onClick={onClick} disabled={disabled}>
+        <IconButton
+          aria-label={label}
+          onClick={onClick}
+          disabled={disabled}
+          color={selected ? 'primary' : 'default'}
+          sx={selected
+            ? {
+              bgcolor: 'action.selected',
+              '&:hover': {
+                bgcolor: 'action.selected',
+              },
+            }
+            : undefined}
+        >
           {children}
         </IconButton>
       </span>
     </Tooltip>
+  );
+}
+
+function AxisToolbarIcon({ axis }: { axis: 'X' | 'Y' | 'Z' }) {
+  return (
+    <Box
+      component="span"
+      sx={{
+        width: 18,
+        height: 18,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '1px solid currentColor',
+        borderRadius: '50%',
+        fontSize: 10,
+        fontWeight: 700,
+        lineHeight: 1,
+      }}
+    >
+      {axis}
+    </Box>
   );
 }
 

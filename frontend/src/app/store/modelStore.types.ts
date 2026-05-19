@@ -51,6 +51,10 @@ export type LoadUpdatePatch = Partial<{
 }>;
 export type WindLoadPatch = Partial<WindLoadDefinition>;
 
+export interface SelectionUpdateOptions {
+  additive?: boolean;
+}
+
 export interface NodalConcentratedLoadInput {
   id?: Id;
   name: string;
@@ -77,6 +81,7 @@ export interface ModelStoreState {
   model: GridEngModel;
   validationReport: ModelValidationResult;
   selectedEntity: SelectedEntity;
+  selectedEntities: SelectedEntity[];
   activeLoadCaseId: Id | null;
   viewMode: ViewMode;
   visibility: VisibilityState;
@@ -84,9 +89,9 @@ export interface ModelStoreState {
   dxfImportSettings: DxfImportSettingsState;
   setModel: (model: GridEngModel) => void;
   validateModel: () => void;
-  selectEntity: (selectedEntity: SelectedEntity) => void;
-  selectLoad: (loadCaseId: Id, loadId: Id) => void;
-  selectRestraint: (restraintId: Id) => void;
+  selectEntity: (selectedEntity: SelectedEntity, options?: SelectionUpdateOptions) => void;
+  selectLoad: (loadCaseId: Id, loadId: Id, options?: SelectionUpdateOptions) => void;
+  selectRestraint: (restraintId: Id, options?: SelectionUpdateOptions) => void;
   setActiveLoadCaseId: (loadCaseId: Id | null) => void;
   clearSelection: () => void;
   getSelectedNode: () => GridEngModel['nodes'][number] | undefined;

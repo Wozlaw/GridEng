@@ -37,13 +37,15 @@ import { crossSectionsApi, isAbortError, materialsApi } from '../../shared/api';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText, formatVector } from '../../shared/utils';
 import {
-  AssignmentCard,
+  AssignmentRow,
   CoordinateFields,
   LoadDetails,
   MaterialCardDialog,
   MaterialSelectionDialog,
   ProfileCardDialog,
   ProfileSelectionDialog,
+  PropertyActionRow,
+  PropertyEditorRow,
   PropertyRow,
   PropertySection,
   ValidationIssueGroup,
@@ -99,7 +101,7 @@ export function ModelSummarySection({
         <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(activeLoadCase?.wind.direction)} />
         <PropertyRow
           label={t('properties.rows.windPressure')}
-          value={`${formatNumber(activeLoadCase?.wind.nominalPressurePa, 0)} Pa`}
+          value={`${formatNumber(activeLoadCase?.wind.nominalPressurePa, 0)} ${t('wind.dialog.pressureUnit')}`}
         />
       </PropertySection>
 
@@ -213,60 +215,67 @@ export function NodeEditorSection({
     <>
       <PropertySection title={t('properties.sections.node')}>
         {error && <Alert severity="error">{error}</Alert>}
-        <TextField
-          label={t('properties.fields.nodeName')}
-          size="small"
-          value={label}
-          onChange={(event) => setLabel(event.target.value)}
-        />
-        <CoordinateFields
-          values={position}
-          onChange={(axis, value) => {
-            setPosition((current) => ({
-              ...current,
-              [axis]: value,
-            }));
-          }}
-        />
-        <TextField
-          label={t('properties.rows.comment')}
-          size="small"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          multiline
-          minRows={2}
-        />
-        <Button variant="contained" onClick={handleApplyNode}>
-          {t('properties.actions.apply')}
-        </Button>
+        <PropertyEditorRow label={t('properties.fields.nodeName')}>
+          <TextField
+            size="small"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.position')}>
+          <CoordinateFields
+            values={position}
+            onChange={(axis, value) => {
+              setPosition((current) => ({
+                ...current,
+                [axis]: value,
+              }));
+            }}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.comment')}>
+          <TextField
+            size="small"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+        </PropertyEditorRow>
+        <PropertyActionRow label={t('properties.actions.apply')}>
+          <Button variant="contained" onClick={handleApplyNode}>
+            {t('properties.actions.apply')}
+          </Button>
+        </PropertyActionRow>
       </PropertySection>
 
       <PropertySection title={t('properties.sections.restraint')}>
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={activePreset}
-          onChange={handleRestraintPresetChange}
-          sx={{ flexWrap: 'wrap' }}
-        >
-          <ToggleButton value="free">{t('properties.restraintPreset.free')}</ToggleButton>
-          <ToggleButton value="hinge">{t('properties.restraintPreset.hinge')}</ToggleButton>
-          <ToggleButton value="fixed">{t('properties.restraintPreset.fixed')}</ToggleButton>
-          <ToggleButton value="custom">{t('properties.restraintPreset.custom')}</ToggleButton>
-        </ToggleButtonGroup>
+        <PropertyEditorRow label={t('properties.rows.restraintPreset')} multiline>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={activePreset}
+            onChange={handleRestraintPresetChange}
+          >
+            <ToggleButton value="free">{t('properties.restraintPreset.free')}</ToggleButton>
+            <ToggleButton value="hinge">{t('properties.restraintPreset.hinge')}</ToggleButton>
+            <ToggleButton value="fixed">{t('properties.restraintPreset.fixed')}</ToggleButton>
+            <ToggleButton value="custom">{t('properties.restraintPreset.custom')}</ToggleButton>
+          </ToggleButtonGroup>
+        </PropertyEditorRow>
 
-        <ToggleButtonGroup size="small" value={getActiveRestraintAxes(restraintState)} sx={{ flexWrap: 'wrap' }}>
-          {(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'] as const).map((axis) => (
-            <ToggleButton
-              key={axis}
-              value={axis}
-              selected={restraintState[axis]}
-              onChange={() => handleRestraintToggle(axis)}
-            >
-              {axis.toUpperCase()}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+        <PropertyEditorRow label={t('properties.rows.dof')} multiline>
+          <ToggleButtonGroup size="small" value={getActiveRestraintAxes(restraintState)}>
+            {(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'] as const).map((axis) => (
+              <ToggleButton
+                key={axis}
+                value={axis}
+                selected={restraintState[axis]}
+                onChange={() => handleRestraintToggle(axis)}
+              >
+                {axis.toUpperCase()}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </PropertyEditorRow>
       </PropertySection>
 
       <PropertySection title={t('properties.sections.loads')}>
@@ -555,7 +564,7 @@ export function MemberEditorSection({
         <PropertyRow label={t('properties.rows.startNode')} value={startNode?.label ?? member.startNodeId} />
         <PropertyRow label={t('properties.rows.endNode')} value={endNode?.label ?? member.endNodeId} />
 
-        <AssignmentCard
+        <AssignmentRow
           title={t('properties.rows.profile')}
           primary={profile?.name ?? t('properties.messages.noProfileAssigned')}
           secondary={profile?.kind}
@@ -567,7 +576,7 @@ export function MemberEditorSection({
           openDisabled={!profile}
         />
 
-        <AssignmentCard
+        <AssignmentRow
           title={t('properties.rows.material')}
           primary={material?.name ?? t('properties.messages.noMaterialAssigned')}
           secondary={material ? `${formatNumber(material.elasticModulusMPa, 0)} MPa` : undefined}
@@ -611,53 +620,57 @@ export function MemberEditorSection({
           </Alert>
         )}
 
-        <TextField
-          label={t('properties.rows.localXRotation')}
-          size="small"
-          type="number"
-          value={geometryDraft.localAxisRotationDeg}
-          onChange={(event) => {
-            setGeometryDraft((current) => ({
-              ...current,
-              localAxisRotationDeg: event.target.value,
-            }));
-          }}
-        />
-        <TextField
-          label={t('properties.rows.offsetY')}
-          size="small"
-          type="number"
-          value={geometryDraft.offsetYmm}
-          onChange={(event) => {
-            setGeometryDraft((current) => ({
-              ...current,
-              offsetYmm: event.target.value,
-            }));
-          }}
-        />
-        <TextField
-          label={t('properties.rows.offsetZ')}
-          size="small"
-          type="number"
-          value={geometryDraft.offsetZmm}
-          onChange={(event) => {
-            setGeometryDraft((current) => ({
-              ...current,
-              offsetZmm: event.target.value,
-            }));
-          }}
-        />
-        <TextField
-          label={t('properties.rows.comment')}
-          size="small"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          multiline
-          minRows={2}
-        />
-        <Button variant="contained" onClick={handleApplyMember}>
-          {t('properties.actions.apply')}
-        </Button>
+        <PropertyEditorRow label={t('properties.rows.localXRotation')}>
+          <TextField
+            size="small"
+            type="number"
+            value={geometryDraft.localAxisRotationDeg}
+            onChange={(event) => {
+              setGeometryDraft((current) => ({
+                ...current,
+                localAxisRotationDeg: event.target.value,
+              }));
+            }}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.offsetY')}>
+          <TextField
+            size="small"
+            type="number"
+            value={geometryDraft.offsetYmm}
+            onChange={(event) => {
+              setGeometryDraft((current) => ({
+                ...current,
+                offsetYmm: event.target.value,
+              }));
+            }}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.offsetZ')}>
+          <TextField
+            size="small"
+            type="number"
+            value={geometryDraft.offsetZmm}
+            onChange={(event) => {
+              setGeometryDraft((current) => ({
+                ...current,
+                offsetZmm: event.target.value,
+              }));
+            }}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.comment')}>
+          <TextField
+            size="small"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+        </PropertyEditorRow>
+        <PropertyActionRow label={t('properties.actions.apply')}>
+          <Button variant="contained" onClick={handleApplyMember}>
+            {t('properties.actions.apply')}
+          </Button>
+        </PropertyActionRow>
       </PropertySection>
 
       <PropertySection title={t('properties.sections.memberLoads')}>
@@ -739,7 +752,7 @@ export function LoadCaseSummarySection({
         <PropertyRow label={t('properties.rows.windDirection')} value={formatVector(loadCase.wind.direction)} />
         <PropertyRow
           label={t('properties.rows.nominalPressure')}
-          value={`${formatNumber(loadCase.wind.nominalPressurePa, 0)} Pa`}
+          value={`${formatNumber(loadCase.wind.nominalPressurePa, 0)} ${t('wind.dialog.pressureUnit')}`}
         />
       </PropertySection>
 
@@ -880,126 +893,139 @@ export function LoadEditorSection({
       <PropertySection title={t('properties.sections.load')}>
         {error && <Alert severity="error">{error}</Alert>}
         <PropertyRow label={t('properties.sections.loadCase')} value={loadCaseName} />
-        <TextField
-          label={t('properties.rows.name')}
-          size="small"
-          value={draft.name}
-          onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
-        />
-        <TextField
-          label={t('properties.rows.comment')}
-          size="small"
-          value={draft.comment}
-          onChange={(event) => setDraft((current) => ({ ...current, comment: event.target.value }))}
-          multiline
-          minRows={2}
-        />
-        <Select
-          size="small"
-          value={draft.type}
-          onChange={(event) => {
-            const nextType = event.target.value as 'nodal_concentrated' | 'member_distributed';
+        <PropertyEditorRow label={t('properties.rows.name')}>
+          <TextField
+            size="small"
+            value={draft.name}
+            onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.comment')}>
+          <TextField
+            size="small"
+            value={draft.comment}
+            onChange={(event) => setDraft((current) => ({ ...current, comment: event.target.value }))}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.type')}>
+          <Select
+            size="small"
+            value={draft.type}
+            onChange={(event) => {
+              const nextType = event.target.value as 'nodal_concentrated' | 'member_distributed';
 
-            setDraft((current) => ({
-              ...current,
-              type: nextType,
-              targetNodeId: nextType === 'nodal_concentrated'
-                ? current.targetNodeId || nodes[0]?.id || ''
-                : current.targetNodeId,
-              targetMemberId: nextType === 'member_distributed'
-                ? current.targetMemberId || members[0]?.id || ''
-                : current.targetMemberId,
-            }));
-          }}
-        >
-          <MenuItem value="nodal_concentrated">{t('properties.values.nodalConcentrated')}</MenuItem>
-          <MenuItem value="member_distributed">{t('properties.values.memberDistributed')}</MenuItem>
-        </Select>
-        <Select
-          size="small"
-          value={draft.kind}
-          onChange={(event) => {
-            setDraft((current) => ({
-              ...current,
-              kind: event.target.value as 'force' | 'moment',
-            }));
-          }}
-        >
-          <MenuItem value="force">{t('properties.loadKind.force')}</MenuItem>
-          <MenuItem value="moment">{t('properties.loadKind.moment')}</MenuItem>
-        </Select>
-        <TextField
-          label={t('properties.rows.coordinateSystem')}
-          size="small"
-          value={t('properties.coordinateSystem.global')}
-          slotProps={{
-            input: {
-              readOnly: true,
-            },
-          }}
-        />
-        <CoordinateFields
-          values={draft.direction}
-          onChange={(axis, value) => {
-            setDraft((current) => ({
-              ...current,
-              direction: {
-                ...current.direction,
-                [axis]: value,
+              setDraft((current) => ({
+                ...current,
+                type: nextType,
+                targetNodeId: nextType === 'nodal_concentrated'
+                  ? current.targetNodeId || nodes[0]?.id || ''
+                  : current.targetNodeId,
+                targetMemberId: nextType === 'member_distributed'
+                  ? current.targetMemberId || members[0]?.id || ''
+                  : current.targetMemberId,
+              }));
+            }}
+          >
+            <MenuItem value="nodal_concentrated">{t('properties.values.nodalConcentrated')}</MenuItem>
+            <MenuItem value="member_distributed">{t('properties.values.memberDistributed')}</MenuItem>
+          </Select>
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.kind')}>
+          <Select
+            size="small"
+            value={draft.kind}
+            onChange={(event) => {
+              setDraft((current) => ({
+                ...current,
+                kind: event.target.value as 'force' | 'moment',
+              }));
+            }}
+          >
+            <MenuItem value="force">{t('properties.loadKind.force')}</MenuItem>
+            <MenuItem value="moment">{t('properties.loadKind.moment')}</MenuItem>
+          </Select>
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.coordinateSystem')}>
+          <TextField
+            size="small"
+            value={t('properties.coordinateSystem.global')}
+            slotProps={{
+              input: {
+                readOnly: true,
               },
-            }));
-          }}
-        />
+            }}
+          />
+        </PropertyEditorRow>
+        <PropertyEditorRow label={t('properties.rows.direction')}>
+          <CoordinateFields
+            values={draft.direction}
+            onChange={(axis, value) => {
+              setDraft((current) => ({
+                ...current,
+                direction: {
+                  ...current.direction,
+                  [axis]: value,
+                },
+              }));
+            }}
+          />
+        </PropertyEditorRow>
 
         {draft.type === 'nodal_concentrated' ? (
           <>
-            <Select
-              size="small"
-              value={draft.targetNodeId}
-              onChange={(event) => {
-                setDraft((current) => ({
-                  ...current,
-                  targetNodeId: event.target.value,
-                }));
-              }}
-            >
-              {nodes.map((node, index) => (
-                <MenuItem key={node.id} value={node.id}>
-                  {node.label?.trim() || t('projectTree.nodeFallback', { index: index + 1 })}
-                </MenuItem>
-              ))}
-            </Select>
-            <TextField
-              label={`${t('properties.rows.magnitude')} (${getLoadUnits(load.type === 'nodal_concentrated' ? load : { ...load, type: 'nodal_concentrated', magnitude: 0, target: { type: 'node', nodeId: draft.targetNodeId } }, units)})`}
-              size="small"
-              type="number"
-              value={draft.magnitude}
-              onChange={(event) => {
-                setDraft((current) => ({
-                  ...current,
-                  magnitude: event.target.value,
-                }));
-              }}
-            />
+            <PropertyEditorRow label={t('properties.rows.target')}>
+              <Select
+                size="small"
+                value={draft.targetNodeId}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    targetNodeId: event.target.value,
+                  }));
+                }}
+              >
+                {nodes.map((node, index) => (
+                  <MenuItem key={node.id} value={node.id}>
+                    {node.label?.trim() || t('projectTree.nodeFallback', { index: index + 1 })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </PropertyEditorRow>
+            <PropertyEditorRow label={t('properties.rows.magnitude')}>
+              <TextField
+                size="small"
+                type="number"
+                value={draft.magnitude}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    magnitude: event.target.value,
+                  }));
+                }}
+                helperText={getLoadUnits(load.type === 'nodal_concentrated' ? load : { ...load, type: 'nodal_concentrated', magnitude: 0, target: { type: 'node', nodeId: draft.targetNodeId } }, units)}
+              />
+            </PropertyEditorRow>
           </>
         ) : (
           <>
-            <Select
-              size="small"
-              value={draft.targetMemberId}
-              onChange={(event) => {
-                setDraft((current) => ({
-                  ...current,
-                  targetMemberId: event.target.value,
-                }));
-              }}
-            >
-              {members.map((member, index) => (
-                <MenuItem key={member.id} value={member.id}>
-                  {member.label?.trim() || t('projectTree.memberFallback', { index: index + 1 })}
-                </MenuItem>
-              ))}
-            </Select>
+            <PropertyEditorRow label={t('properties.rows.target')}>
+              <Select
+                size="small"
+                value={draft.targetMemberId}
+                onChange={(event) => {
+                  setDraft((current) => ({
+                    ...current,
+                    targetMemberId: event.target.value,
+                  }));
+                }}
+              >
+                {members.map((member, index) => (
+                  <MenuItem key={member.id} value={member.id}>
+                    {member.label?.trim() || t('projectTree.memberFallback', { index: index + 1 })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </PropertyEditorRow>
 
             {isFunctionDistribution ? (
               <Alert severity="info">
@@ -1007,72 +1033,80 @@ export function LoadEditorSection({
               </Alert>
             ) : (
               <>
-                <TextField
-                  label={`${t('properties.rows.qStart')} (${getLoadUnits(load.type === 'member_distributed' ? load : {
-                    ...load,
-                    type: 'member_distributed',
-                    target: { type: 'member', memberId: draft.targetMemberId },
-                    distribution: { type: 'linear', qStart: 0, qEnd: 0 },
-                  }, units)})`}
-                  size="small"
-                  type="number"
-                  value={draft.qStart}
-                  onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      qStart: event.target.value,
-                    }));
-                  }}
-                />
-                <TextField
-                  label={`${t('properties.rows.qEnd')} (${getLoadUnits(load.type === 'member_distributed' ? load : {
-                    ...load,
-                    type: 'member_distributed',
-                    target: { type: 'member', memberId: draft.targetMemberId },
-                    distribution: { type: 'linear', qStart: 0, qEnd: 0 },
-                  }, units)})`}
-                  size="small"
-                  type="number"
-                  value={draft.qEnd}
-                  onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      qEnd: event.target.value,
-                    }));
-                  }}
-                />
-                <TextField
-                  label={t('properties.rows.xStartRel')}
-                  size="small"
-                  type="number"
-                  value={draft.xStartRel}
-                  onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      xStartRel: event.target.value,
-                    }));
-                  }}
-                />
-                <TextField
-                  label={t('properties.rows.xEndRel')}
-                  size="small"
-                  type="number"
-                  value={draft.xEndRel}
-                  onChange={(event) => {
-                    setDraft((current) => ({
-                      ...current,
-                      xEndRel: event.target.value,
-                    }));
-                  }}
-                />
+                <PropertyEditorRow label={t('properties.rows.qStart')}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={draft.qStart}
+                    onChange={(event) => {
+                      setDraft((current) => ({
+                        ...current,
+                        qStart: event.target.value,
+                      }));
+                    }}
+                    helperText={getLoadUnits(load.type === 'member_distributed' ? load : {
+                      ...load,
+                      type: 'member_distributed',
+                      target: { type: 'member', memberId: draft.targetMemberId },
+                      distribution: { type: 'linear', qStart: 0, qEnd: 0 },
+                    }, units)}
+                  />
+                </PropertyEditorRow>
+                <PropertyEditorRow label={t('properties.rows.qEnd')}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={draft.qEnd}
+                    onChange={(event) => {
+                      setDraft((current) => ({
+                        ...current,
+                        qEnd: event.target.value,
+                      }));
+                    }}
+                    helperText={getLoadUnits(load.type === 'member_distributed' ? load : {
+                      ...load,
+                      type: 'member_distributed',
+                      target: { type: 'member', memberId: draft.targetMemberId },
+                      distribution: { type: 'linear', qStart: 0, qEnd: 0 },
+                    }, units)}
+                  />
+                </PropertyEditorRow>
+                <PropertyEditorRow label={t('properties.rows.xStartRel')}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={draft.xStartRel}
+                    onChange={(event) => {
+                      setDraft((current) => ({
+                        ...current,
+                        xStartRel: event.target.value,
+                      }));
+                    }}
+                  />
+                </PropertyEditorRow>
+                <PropertyEditorRow label={t('properties.rows.xEndRel')}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={draft.xEndRel}
+                    onChange={(event) => {
+                      setDraft((current) => ({
+                        ...current,
+                        xEndRel: event.target.value,
+                      }));
+                    }}
+                  />
+                </PropertyEditorRow>
               </>
             )}
           </>
         )}
 
-        <Button variant="contained" onClick={handleApplyLoad}>
-          {t('properties.actions.apply')}
-        </Button>
+        <PropertyActionRow label={t('properties.actions.apply')}>
+          <Button variant="contained" onClick={handleApplyLoad}>
+            {t('properties.actions.apply')}
+          </Button>
+        </PropertyActionRow>
       </PropertySection>
 
       <PropertySection title={t('properties.sections.loadDetails')}>
@@ -1134,43 +1168,47 @@ export function StandaloneRestraintEditorSection({
       <PropertySection title={t('properties.sections.restraint')}>
         {error && <Alert severity="error">{error}</Alert>}
         <PropertyRow label={t('entity.node')} value={node?.label ?? restraint.nodeId} />
-        <TextField
-          label={t('properties.rows.comment')}
-          size="small"
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          multiline
-          minRows={2}
-        />
-        <Button variant="contained" onClick={handleCommentApply}>
-          {t('properties.actions.apply')}
-        </Button>
+        <PropertyEditorRow label={t('properties.rows.comment')}>
+          <TextField
+            size="small"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+          />
+        </PropertyEditorRow>
+        <PropertyActionRow label={t('properties.actions.apply')}>
+          <Button variant="contained" onClick={handleCommentApply}>
+            {t('properties.actions.apply')}
+          </Button>
+        </PropertyActionRow>
 
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={activePreset}
-          onChange={handlePresetChange}
-          sx={{ flexWrap: 'wrap' }}
-        >
-          <ToggleButton value="free">{t('properties.restraintPreset.free')}</ToggleButton>
-          <ToggleButton value="hinge">{t('properties.restraintPreset.hinge')}</ToggleButton>
-          <ToggleButton value="fixed">{t('properties.restraintPreset.fixed')}</ToggleButton>
-          <ToggleButton value="custom">{t('properties.restraintPreset.custom')}</ToggleButton>
-        </ToggleButtonGroup>
+        <PropertyEditorRow label={t('properties.rows.restraintPreset')} multiline>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={activePreset}
+            onChange={handlePresetChange}
+          >
+            <ToggleButton value="free">{t('properties.restraintPreset.free')}</ToggleButton>
+            <ToggleButton value="hinge">{t('properties.restraintPreset.hinge')}</ToggleButton>
+            <ToggleButton value="fixed">{t('properties.restraintPreset.fixed')}</ToggleButton>
+            <ToggleButton value="custom">{t('properties.restraintPreset.custom')}</ToggleButton>
+          </ToggleButtonGroup>
+        </PropertyEditorRow>
 
-        <ToggleButtonGroup size="small" value={getActiveRestraintAxes(restraint)} sx={{ flexWrap: 'wrap' }}>
-          {(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'] as const).map((axis) => (
-            <ToggleButton
-              key={axis}
-              value={axis}
-              selected={restraint[axis]}
-              onChange={() => handleToggle(axis)}
-            >
-              {axis.toUpperCase()}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+        <PropertyEditorRow label={t('properties.rows.dof')} multiline>
+          <ToggleButtonGroup size="small" value={getActiveRestraintAxes(restraint)}>
+            {(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'] as const).map((axis) => (
+              <ToggleButton
+                key={axis}
+                value={axis}
+                selected={restraint[axis]}
+                onChange={() => handleToggle(axis)}
+              >
+                {axis.toUpperCase()}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </PropertyEditorRow>
       </PropertySection>
 
       <PropertySection title={t('properties.sections.associatedNode')}>
@@ -1190,7 +1228,7 @@ export function StandaloneProfileSection({ profile }: { profile: Profile }) {
     <>
       <PropertySection title={t('properties.sections.profile')}>
         <Alert severity="info">{t('properties.messages.profileCardInDialog')}</Alert>
-        <AssignmentCard
+        <AssignmentRow
           title={t('properties.rows.profile')}
           primary={profile.name}
           secondary={profile.kind}
@@ -1216,7 +1254,7 @@ export function StandaloneMaterialSection({ material }: { material: Material }) 
     <>
       <PropertySection title={t('properties.sections.material')}>
         <Alert severity="info">{t('properties.messages.materialCardInDialog')}</Alert>
-        <AssignmentCard
+        <AssignmentRow
           title={t('properties.rows.material')}
           primary={material.name}
           secondary={`${formatNumber(material.elasticModulusMPa, 0)} MPa`}

@@ -92,7 +92,7 @@ export function LoadVectors({
   units,
   sceneLongestSide,
 }: LoadVectorsProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectLoad = useModelStore((state) => state.selectLoad);
   const language = useUiStore((state) => state.language);
   const warningRef = useRef<Set<string>>(new Set());
@@ -140,7 +140,7 @@ export function LoadVectors({
   return (
     <>
       {nodalForceGlyphs.map((glyph) => {
-        const isSelected = isSelectedLoad(selectedEntity, glyph.loadCaseId, glyph.id);
+        const isSelected = isSelectedLoad(selectedEntities, glyph.loadCaseId, glyph.id);
         const color = isSelected ? SELECTED_FORCE_COLOR : FORCE_COLOR;
 
         return (
@@ -148,7 +148,9 @@ export function LoadVectors({
             key={glyph.id}
             onClick={(event) => {
               event.stopPropagation();
-              selectLoad(glyph.loadCaseId, glyph.id);
+              selectLoad(glyph.loadCaseId, glyph.id, {
+                additive: event.nativeEvent.shiftKey,
+              });
             }}
           >
             {isSelected && (
@@ -188,7 +190,7 @@ export function LoadVectors({
       })}
 
       {distributedForceGlyphs.map((glyph) => {
-        const isSelected = isSelectedLoad(selectedEntity, glyph.loadCaseId, glyph.id);
+        const isSelected = isSelectedLoad(selectedEntities, glyph.loadCaseId, glyph.id);
         const color = isSelected ? SELECTED_FORCE_COLOR : FORCE_COLOR;
 
         return (
@@ -196,7 +198,9 @@ export function LoadVectors({
             key={glyph.id}
             onClick={(event) => {
               event.stopPropagation();
-              selectLoad(glyph.loadCaseId, glyph.id);
+              selectLoad(glyph.loadCaseId, glyph.id, {
+                additive: event.nativeEvent.shiftKey,
+              });
             }}
           >
             <mesh position={glyph.pickPosition} quaternion={glyph.pickQuaternion}>

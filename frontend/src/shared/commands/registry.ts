@@ -30,6 +30,13 @@ import { openMaterialsDialog, openProfilesDialog } from '../../features/project-
 import { getSelectedEntityLabel } from '../../features/selection';
 import { ACTIVE_VIEW_MODES, isActiveViewMode, type ActiveViewMode } from '../../features/view-modes';
 import { openWindEditorDialog } from '../../features/wind-editor';
+import {
+  buildDbHelpResult,
+  buildDbMaterialsResult,
+  buildDbProfilesResult,
+  buildDbRefreshUnavailableResult,
+  buildDbStatusResult,
+} from './dbConsoleCommands';
 import { translate, type AppLanguage } from '../i18n';
 import { notifyError, notifyInfo, notifyNotImplemented, notifySuccess } from '../ui';
 import type {
@@ -1705,18 +1712,80 @@ export const CONSOLE_COMMANDS: AppConsoleCommandDefinition[] = [
     id: 'db.help',
     names: ['db.help'],
     syntax: 'db.help',
-    examples: ['db.help'],
-    execute: (_args, context) => ({
-      severity: 'info',
-      title: localize(context.language, 'DB-команды зарезервированы.', 'DB commands are reserved.'),
-      lines: [
-        localize(
-          context.language,
-          'В этой frontend-итерации база данных не реализуется.',
-          'Database commands are reserved for a future backend iteration.',
-        ),
-      ],
-    }),
+    examples: ['db.help', 'db.status'],
+    execute: (_args, context) => buildDbHelpResult(context.language),
+  },
+  {
+    id: 'db.status',
+    names: ['db.status'],
+    syntax: 'db.status',
+    examples: ['db.status'],
+    execute: (args, context) => {
+      if (args.length > 0) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Лишние аргументы.', 'Unexpected arguments.'),
+          lines: ['db.status'],
+          notify: true,
+        };
+      }
+
+      return buildDbStatusResult(context.language);
+    },
+  },
+  {
+    id: 'db.profiles',
+    names: ['db.profiles'],
+    syntax: 'db.profiles',
+    examples: ['db.profiles'],
+    execute: (args, context) => {
+      if (args.length > 0) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Лишние аргументы.', 'Unexpected arguments.'),
+          lines: ['db.profiles'],
+          notify: true,
+        };
+      }
+
+      return buildDbProfilesResult(context.language);
+    },
+  },
+  {
+    id: 'db.materials',
+    names: ['db.materials'],
+    syntax: 'db.materials',
+    examples: ['db.materials'],
+    execute: (args, context) => {
+      if (args.length > 0) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Лишние аргументы.', 'Unexpected arguments.'),
+          lines: ['db.materials'],
+          notify: true,
+        };
+      }
+
+      return buildDbMaterialsResult(context.language);
+    },
+  },
+  {
+    id: 'db.refresh',
+    names: ['db.refresh', 'db.reload'],
+    syntax: 'db.refresh',
+    examples: ['db.refresh', 'db.reload'],
+    execute: (args, context) => {
+      if (args.length > 0) {
+        return {
+          severity: 'warning',
+          title: localize(context.language, 'Лишние аргументы.', 'Unexpected arguments.'),
+          lines: ['db.refresh'],
+          notify: true,
+        };
+      }
+
+      return buildDbRefreshUnavailableResult(context.language);
+    },
   },
   {
     id: 'structures.help',

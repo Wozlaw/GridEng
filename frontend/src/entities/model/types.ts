@@ -35,11 +35,20 @@ export interface ForceMomentVector {
   moment: MomentVector;
 }
 
+export type WindTerrainType = 'A' | 'B' | 'C';
+export type WindCalculationMode = 'simple' | 'sp20' | 'pue';
+
 export interface WindLoadDefinition {
   /** Direction vector. Zero vector means wind is disabled for this model/load case. */
   direction: Vec3;
   /** Nominal wind pressure in Pa. Zero means wind pressure is not specified. */
   nominalPressurePa: number;
+  /** Terrain type used for wind calculations. */
+  terrainType: WindTerrainType;
+  /** Reliability coefficient for the selected calculation mode. */
+  gammaF: number;
+  /** Calculation mode used to interpret wind parameters. */
+  calculationMode: WindCalculationMode;
   /** Optional human-readable note for imported or hand-authored wind data. */
   comment?: string;
 }

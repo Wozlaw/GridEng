@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
 import {
+  DEFAULT_WIND_CALCULATION_MODE,
+  DEFAULT_WIND_GAMMA_F_BY_MODE,
+  DEFAULT_WIND_TERRAIN_TYPE,
+} from './defaults';
+import {
   AnalysisResultsCollectionSchema,
   ConcentratedLoadSchema,
   DxfImportMetaSchema,
@@ -46,6 +51,9 @@ const LegacyWindLoadDefinitionSchema = z.object({
 }).transform((wind) => ({
   direction: wind.direction,
   nominalPressurePa: wind.nominalPressurePa ?? ((wind.nominalPressureKPa ?? 0) * 1000),
+  terrainType: DEFAULT_WIND_TERRAIN_TYPE,
+  gammaF: DEFAULT_WIND_GAMMA_F_BY_MODE.simple,
+  calculationMode: DEFAULT_WIND_CALCULATION_MODE,
   comment: wind.comment,
 }));
 
@@ -188,6 +196,21 @@ function normalizeCurrentWindInput(
     nextWind.nominalPressurePa = nextWind.nominalPressureKPa * 1000;
     delete nextWind.nominalPressureKPa;
     warnings.push(`Legacy loadCases[${loadCaseIndex}].wind.nominalPressureKPa was migrated to nominalPressurePa.`);
+  }
+
+  const calculationMode = nextWind.calculationMode === 'sp20' || nextWind.calculationMode === 'pue'
+    ? nextWind.calculationMode
+    : nextWind.calculationMode === 'simple'
+      ? nextWind.calculationMode
+      : DEFAULT_WIND_CALCULATION_MODE;
+  nextWind.calculationMode = calculationMode;
+
+  if (nextWind.terrainType !== 'A' && nextWind.terrainType !== 'B' && nextWind.terrainType !== 'C') {
+    nextWind.terrainType = DEFAULT_WIND_TERRAIN_TYPE;
+  }
+
+  if (typeof nextWind.gammaF !== 'number' || !Number.isFinite(nextWind.gammaF) || nextWind.gammaF <= 0) {
+    nextWind.gammaF = DEFAULT_WIND_GAMMA_F_BY_MODE[calculationMode];
   }
 
   return nextWind;

@@ -17,13 +17,18 @@ import {
 } from '@mui/material';
 
 import { useModelStore } from '../../app/store';
-import type { AppLanguage } from '../../shared/i18n';
+import type { WindCalculationMode, WindTerrainType } from '../../entities/model';
 import { useI18n } from '../../shared/i18n';
 import { notifyError, notifySuccess } from '../../shared/ui';
 import { formatNumber } from '../../shared/utils';
 import { NumberField } from './components/NumberField';
 import {
+  formatGammaFInput,
   formatPressurePaInput,
+  getDefaultGammaFForMode,
+  getInitialCalculationMode,
+  getInitialSimpleGammaF,
+  getInitialTerrainType,
   hasNonZeroWindZ,
   parseWindDraft,
   type WindDraftValidationError,
@@ -31,11 +36,33 @@ import {
 } from './helpers';
 import { useWindEditorStore } from './store';
 
+const CONTROL_HEIGHT_PX = 40;
 const WIND_VECTOR_STEP = 1;
 const WIND_PRESSURE_STEP_PA = 10;
+const WIND_GAMMA_F_STEP = 0.1;
+
+const CONTROL_FIELD_SX = {
+  '& .MuiInputBase-root': {
+    minHeight: CONTROL_HEIGHT_PX,
+    height: CONTROL_HEIGHT_PX,
+  },
+  '& .MuiInputBase-input': {
+    boxSizing: 'border-box',
+  },
+  '& .MuiSelect-select': {
+    minHeight: 'unset !important',
+    display: 'flex',
+    alignItems: 'center',
+  },
+} as const;
+
+const ACTION_ICON_BUTTON_SX = {
+  width: CONTROL_HEIGHT_PX,
+  height: CONTROL_HEIGHT_PX,
+} as const;
 
 export function WindEditorDialog() {
-  const { language } = useI18n();
+  const { t } = useI18n();
   const model = useModelStore((state) => state.model);
   const activeLoadCaseId = useModelStore((state) => state.activeLoadCaseId);
   const setActiveLoadCaseId = useModelStore((state) => state.setActiveLoadCaseId);
@@ -63,24 +90,26 @@ export function WindEditorDialog() {
       }}
     >
       <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-        {localize(language, 'Ветер', 'Wind')}
+        {t('wind.dialog.title')}
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 2.5 }}>
-        <Stack spacing={2.25}>
+      <DialogContent sx={{ pt: 2, pb: 0 }}>
+        <Stack spacing={2}>
           {model.loadCases.length === 0 ? (
             <Alert severity="warning" variant="outlined">
-              {localize(language, 'В модели нет загружений для задания ветра.', 'The model has no load cases for wind input.')}
+              {t('wind.dialog.noLoadCases')}
             </Alert>
           ) : (
             <>
               <TextField
                 select
                 fullWidth
+                label={t('wind.dialog.loadCase')}
                 value={activeLoadCase?.id ?? ''}
                 onChange={(event) => {
                   setActiveLoadCaseId(event.target.value);
                 }}
+                sx={CONTROL_FIELD_SX}
               >
                 {model.loadCases.map((loadCase) => (
                   <MenuItem key={loadCase.id} value={loadCase.id}>
@@ -92,15 +121,20 @@ export function WindEditorDialog() {
               {activeLoadCase != null ? (
                 <WindEditorForm
                   key={activeLoadCase.id}
-                  language={language}
                   loadCaseId={activeLoadCase.id}
                   loadCaseName={activeLoadCase.name}
                   initialDraft={{
                     x: String(activeLoadCase.wind.direction.x),
                     y: String(activeLoadCase.wind.direction.y),
                     nominalPressurePa: formatPressurePaInput(activeLoadCase.wind.nominalPressurePa),
+                    terrainType: getInitialTerrainType(activeLoadCase.wind.terrainType),
+                    gammaF: formatGammaFInput(activeLoadCase.wind.gammaF),
+                    calculationMode: getInitialCalculationMode(activeLoadCase.wind.calculationMode),
                     comment: activeLoadCase.wind.comment ?? '',
                   }}
+                  initialSimpleGammaF={formatGammaFInput(
+                    getInitialSimpleGammaF(activeLoadCase.wind.gammaF, activeLoadCase.wind.calculationMode),
+                  )}
                   initialWindZ={activeLoadCase.wind.direction.z}
                   onSaved={close}
                 />
@@ -110,19 +144,19 @@ export function WindEditorDialog() {
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 2 }}>
+      <DialogActions sx={{ px: 3, pb: 2, pt: 2 }}>
         <Stack direction="row" spacing={1}>
           <ActionIconButton
-            title={localize(language, 'Отмена', 'Cancel')}
-            label={localize(language, 'Отмена', 'Cancel')}
+            title={t('wind.dialog.cancel')}
+            label={t('wind.dialog.cancel')}
             onClick={close}
           >
             <CloseIcon />
           </ActionIconButton>
 
           <ActionIconButton
-            title={localize(language, 'Сохранить', 'Save')}
-            label={localize(language, 'Сохранить', 'Save')}
+            title={t('wind.dialog.save')}
+            label={t('wind.dialog.save')}
             onClick={() => {
               (document.getElementById('wind-editor-form') as HTMLFormElement | null)?.requestSubmit();
             }}
@@ -137,31 +171,65 @@ export function WindEditorDialog() {
 }
 
 function WindEditorForm({
-  language,
   loadCaseId,
   loadCaseName,
   initialDraft,
+  initialSimpleGammaF,
   initialWindZ,
   onSaved,
 }: {
-  language: AppLanguage;
   loadCaseId: string;
   loadCaseName: string;
   initialDraft: WindDraftValues;
+  initialSimpleGammaF: string;
   initialWindZ: number;
   onSaved: () => void;
 }) {
+  const { t } = useI18n();
   const updateLoadCaseWind = useModelStore((state) => state.updateLoadCaseWind);
   const [draft, setDraft] = useState<WindDraftValues>(initialDraft);
+  const [simpleGammaF, setSimpleGammaF] = useState<string>(initialSimpleGammaF);
   const [submitErrorText, setSubmitErrorText] = useState<string | null>(null);
   const [pressureFieldError, setPressureFieldError] = useState<string | null>(
-    getPressureFieldError(language, initialDraft.nominalPressurePa),
+    getPressureFieldError(t, initialDraft.nominalPressurePa),
   );
+  const [gammaFFieldError, setGammaFFieldError] = useState<string | null>(
+    getGammaFFieldError(t, initialDraft.gammaF),
+  );
+
+  function resetSubmitError() {
+    setSubmitErrorText(null);
+  }
+
+  function handleCalculationModeChange(nextMode: WindCalculationMode) {
+    const nextSimpleGammaF = draft.calculationMode === 'simple' ? draft.gammaF : simpleGammaF;
+
+    if (draft.calculationMode === 'simple') {
+      setSimpleGammaF(draft.gammaF);
+    }
+
+    setDraft((state) => ({
+      ...state,
+      calculationMode: nextMode,
+      gammaF: nextMode === 'simple'
+        ? nextSimpleGammaF
+        : formatGammaFInput(getDefaultGammaFForMode(nextMode)),
+    }));
+    setGammaFFieldError(nextMode === 'simple' ? getGammaFFieldError(t, nextSimpleGammaF) : null);
+    resetSubmitError();
+  }
 
   function handlePressureChange(value: string) {
     setDraft((state) => ({ ...state, nominalPressurePa: value }));
-    setPressureFieldError(getPressureFieldError(language, value));
-    setSubmitErrorText(null);
+    setPressureFieldError(getPressureFieldError(t, value));
+    resetSubmitError();
+  }
+
+  function handleGammaFChange(value: string) {
+    setDraft((state) => ({ ...state, gammaF: value }));
+    setSimpleGammaF(value);
+    setGammaFFieldError(getGammaFFieldError(t, value));
+    resetSubmitError();
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -169,15 +237,19 @@ function WindEditorForm({
 
     const parsedDraft = parseWindDraft(draft);
     if (!parsedDraft.ok) {
-      const errorMessage = getSubmitErrorMessage(language, parsedDraft.error);
+      const errorMessage = getSubmitErrorMessage(t, parsedDraft.error);
       setSubmitErrorText(errorMessage);
 
       if (parsedDraft.error === 'invalid_pressure' || parsedDraft.error === 'negative_pressure') {
         setPressureFieldError(errorMessage);
       }
 
+      if (parsedDraft.error === 'invalid_gamma_f' || parsedDraft.error === 'nonpositive_gamma_f') {
+        setGammaFFieldError(errorMessage);
+      }
+
       notifyError({
-        title: localize(language, 'Не удалось сохранить ветер.', 'Failed to save wind settings.'),
+        title: t('wind.dialog.saveFailed'),
         details: [errorMessage],
       });
       return;
@@ -188,78 +260,124 @@ function WindEditorForm({
     if (!result.ok) {
       setSubmitErrorText(result.error);
       notifyError({
-        title: localize(language, 'Не удалось сохранить ветер.', 'Failed to save wind settings.'),
+        title: t('wind.dialog.saveFailed'),
         details: [result.error],
       });
       return;
     }
 
     notifySuccess({
-      title: localize(language, 'Параметры ветра обновлены.', 'Wind parameters updated.'),
+      title: t('wind.dialog.saveSuccess'),
       details: [
-        `${localize(language, 'Загружение', 'Load case')}: ${loadCaseName}`,
-        `${localize(language, 'Давление', 'Pressure')}: ${formatNumber(parsedDraft.value.nominalPressurePa, 3)} Па`,
+        `${t('wind.dialog.loadCase')}: ${loadCaseName}`,
+        `${t('wind.dialog.nominalPressure')}: ${formatNumber(parsedDraft.value.nominalPressurePa, 3)} ${t('wind.dialog.pressureUnit')}`,
       ],
     });
     onSaved();
   }
 
   return (
-    <Stack component="form" id="wind-editor-form" spacing={2.25} onSubmit={handleSubmit}>
+    <Stack component="form" id="wind-editor-form" spacing={2} onSubmit={handleSubmit}>
       {hasNonZeroWindZ(initialWindZ) ? (
         <Alert severity="warning" variant="outlined">
-          {localize(
-            language,
-            `В текущей модели у ветра есть компонент Z = ${formatNumber(initialWindZ, 3)}. При сохранении он будет нормализован к 0.`,
-            `The current model has a wind Z component of ${formatNumber(initialWindZ, 3)}. It will be normalized to 0 on save.`,
-          )}
+          {t('wind.dialog.zResetWarning', { value: formatNumber(initialWindZ, 3) })}
         </Alert>
       ) : null}
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
         <NumberField
           fullWidth
-          label="X"
+          label={t('wind.dialog.directionX')}
           value={draft.x}
           step={WIND_VECTOR_STEP}
           onValueChange={(value) => {
             setDraft((state) => ({ ...state, x: value }));
-            setSubmitErrorText(null);
+            resetSubmitError();
           }}
+          sx={CONTROL_FIELD_SX}
         />
         <NumberField
           fullWidth
-          label="Y"
+          label={t('wind.dialog.directionY')}
           value={draft.y}
           step={WIND_VECTOR_STEP}
           onValueChange={(value) => {
             setDraft((state) => ({ ...state, y: value }));
-            setSubmitErrorText(null);
+            resetSubmitError();
           }}
+          sx={CONTROL_FIELD_SX}
         />
       </Stack>
 
-      <NumberField
-        fullWidth
-        label={`${localize(language, 'Номинальное давление', 'Nominal pressure')} (Па)`}
-        value={draft.nominalPressurePa}
-        min={0}
-        step={WIND_PRESSURE_STEP_PA}
-        error={pressureFieldError != null}
-        helperText={pressureFieldError}
-        onValueChange={handlePressureChange}
-      />
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+        <TextField
+          select
+          fullWidth
+          label={t('wind.dialog.calculationMode')}
+          value={draft.calculationMode}
+          onChange={(event) => {
+            handleCalculationModeChange(event.target.value as WindCalculationMode);
+          }}
+          sx={CONTROL_FIELD_SX}
+        >
+          <MenuItem value="simple">{t('wind.dialog.calculationMode.simple')}</MenuItem>
+          <MenuItem value="sp20">{t('wind.dialog.calculationMode.sp20')}</MenuItem>
+          <MenuItem value="pue">{t('wind.dialog.calculationMode.pue')}</MenuItem>
+        </TextField>
+
+        <TextField
+          select
+          fullWidth
+          label={t('wind.dialog.terrainType')}
+          value={draft.terrainType}
+          onChange={(event) => {
+            setDraft((state) => ({ ...state, terrainType: event.target.value as WindTerrainType }));
+            resetSubmitError();
+          }}
+          sx={CONTROL_FIELD_SX}
+        >
+          <MenuItem value="A">{t('wind.dialog.terrainType.A')}</MenuItem>
+          <MenuItem value="B">{t('wind.dialog.terrainType.B')}</MenuItem>
+          <MenuItem value="C">{t('wind.dialog.terrainType.C')}</MenuItem>
+        </TextField>
+      </Stack>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+        <NumberField
+          fullWidth
+          label={`${t('wind.dialog.nominalPressure')} (${t('wind.dialog.pressureUnit')})`}
+          value={draft.nominalPressurePa}
+          min={0}
+          step={WIND_PRESSURE_STEP_PA}
+          error={pressureFieldError != null}
+          helperText={pressureFieldError}
+          onValueChange={handlePressureChange}
+          sx={CONTROL_FIELD_SX}
+        />
+
+        <NumberField
+          fullWidth
+          label={t('wind.dialog.gammaF')}
+          value={draft.gammaF}
+          min={0}
+          step={WIND_GAMMA_F_STEP}
+          error={gammaFFieldError != null}
+          helperText={gammaFFieldError}
+          disabled={draft.calculationMode !== 'simple'}
+          onValueChange={handleGammaFChange}
+          sx={CONTROL_FIELD_SX}
+        />
+      </Stack>
 
       <TextField
         fullWidth
-        multiline
-        minRows={3}
-        label={localize(language, 'Комментарий', 'Comment')}
+        label={t('common.comment')}
         value={draft.comment}
         onChange={(event) => {
           setDraft((state) => ({ ...state, comment: event.target.value }));
-          setSubmitErrorText(null);
+          resetSubmitError();
         }}
+        sx={CONTROL_FIELD_SX}
       />
 
       {submitErrorText != null ? (
@@ -269,10 +387,6 @@ function WindEditorForm({
       ) : null}
     </Stack>
   );
-}
-
-function localize(language: AppLanguage, ru: string, en: string): string {
-  return language === 'ru' ? ru : en;
 }
 
 interface ActionIconButtonProps {
@@ -293,7 +407,7 @@ function ActionIconButton({
   return (
     <Tooltip title={title}>
       <span>
-        <IconButton aria-label={label} onClick={onClick} disabled={disabled}>
+        <IconButton aria-label={label} onClick={onClick} disabled={disabled} sx={ACTION_ICON_BUTTON_SX}>
           {children}
         </IconButton>
       </span>
@@ -301,44 +415,66 @@ function ActionIconButton({
   );
 }
 
-function getPressureFieldError(language: AppLanguage, value: string): string | null {
+function getPressureFieldError(
+  t: ReturnType<typeof useI18n>['t'],
+  value: string,
+): string | null {
   if (value.trim().length === 0) {
     return null;
   }
 
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    return localize(language, 'Давление должно быть числом.', 'Pressure must be a number.');
+    return t('wind.dialog.errors.invalidPressure');
   }
 
   if (parsed < 0) {
-    return localize(language, 'Давление не может быть отрицательным.', 'Pressure cannot be negative.');
+    return t('wind.dialog.errors.negativePressure');
   }
 
   return null;
 }
 
-function getSubmitErrorMessage(language: AppLanguage, error: WindDraftValidationError): string {
+function getGammaFFieldError(
+  t: ReturnType<typeof useI18n>['t'],
+  value: string,
+): string | null {
+  if (value.trim().length === 0) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return t('wind.dialog.errors.invalidGammaF');
+  }
+
+  if (parsed <= 0) {
+    return t('wind.dialog.errors.nonpositiveGammaF');
+  }
+
+  return null;
+}
+
+function getSubmitErrorMessage(
+  t: ReturnType<typeof useI18n>['t'],
+  error: WindDraftValidationError,
+): string {
   switch (error) {
     case 'invalid_direction':
-      return localize(
-        language,
-        'Поля X и Y должны содержать корректные конечные числа.',
-        'X and Y must contain valid finite numbers.',
-      );
+      return t('wind.dialog.errors.invalidDirection');
     case 'invalid_pressure':
-      return localize(
-        language,
-        'Поле давления должно содержать корректное конечное число в Па.',
-        'Pressure must contain a valid finite number in Pa.',
-      );
+      return t('wind.dialog.errors.invalidPressure');
     case 'negative_pressure':
-      return localize(
-        language,
-        'Давление не может быть отрицательным.',
-        'Pressure cannot be negative.',
-      );
+      return t('wind.dialog.errors.negativePressure');
+    case 'invalid_gamma_f':
+      return t('wind.dialog.errors.invalidGammaF');
+    case 'nonpositive_gamma_f':
+      return t('wind.dialog.errors.nonpositiveGammaF');
+    case 'invalid_terrain_type':
+      return t('wind.dialog.errors.invalidTerrainType');
+    case 'invalid_calculation_mode':
+      return t('wind.dialog.errors.invalidCalculationMode');
     default:
-      return localize(language, 'Неизвестная ошибка формы ветра.', 'Unknown wind form error.');
+      return t('wind.dialog.errors.unknown');
   }
 }

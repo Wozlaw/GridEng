@@ -135,3 +135,25 @@ cd frontend && npm run lint
 - `codex/IMPLEMENTATION_MATERIALS_STRUCTURE.md`
 
 Блок 24 завершен. Актуальные статусы задач смотри в `codex/IMPLEMENTATION_PLAN.md`.
+
+## Блок 25 — интерфейсная ревизия 4 поверх выполненных блоков 21–24
+
+| № | Файл промпта | Смысл |
+|---|---|---|
+| 25.1 | `codex/prompts/25-01-db-console-commands.md` | Консольные команды БД/каталогов через command registry |
+| 25.2 | `codex/prompts/25-02-dxf-toolbar-view-modes-rotation-controls.md` | DXF toolbar: режимы окраски, повороты и reset preview |
+| 25.3 | `codex/prompts/25-03-dxf-model-tab-layout-preview-colors.md` | DXF вкладка `Модель`: 5:4 viewport, удаление подсказки, цвета preview |
+| 25.4 | `codex/prompts/25-04-dxf-profiles-tab-table-materials-search-colors.md` | DXF вкладка `Профили`: таблица, палитра, поиск профиля, материал |
+| 25.5 | `codex/prompts/25-05-dxf-logs-status-taxonomy.md` | DXF вкладка `Логи`: compact logs и таксономия `error/warning/info` |
+| 25.6 | `codex/prompts/25-06-wind-dialog-dto-terrain-modes.md` | Диалог `Ветер`: DTO `terrainType/gammaF/mode`, Па, 40 px fields |
+| 25.7 | `codex/prompts/25-07-project-tree-properties-multiselect.md` | ProjectTree/PropertiesPanel: AutoCAD-like properties и multiselect |
+
+После каждой задачи блока 25 проверить:
+
+```bash
+cd frontend && npm run build
+cd frontend && npm run lint
+```
+
+Минимальная ручная проверка блока 25: команды БД в консоли, DXF toolbar только на вкладке `Модель`, повороты preview, viewport 5:4, цвета DXF-групп на preview, таблица профилей с материалами, компактные логи без JSON, исправная модель зеленая, диалог `Ветер` с Па/СП/ПУЭ, строки 40 px в ProjectTree/PropertiesPanel, multiselect через Shift.
+

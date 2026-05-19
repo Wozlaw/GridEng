@@ -63,13 +63,13 @@ describe('createModelFromDxfLines', () => {
         expect.objectContaining({
           lineIndex: 0,
           memberId: 'M1',
-          displayColor: undefined,
-          status: 'warning',
+          displayColor: '#ff0000',
+          status: 'error',
         }),
         expect.objectContaining({
           lineIndex: 1,
           memberId: 'M2',
-          status: 'warning',
+          status: 'error',
         }),
       ]),
     );
@@ -77,10 +77,11 @@ describe('createModelFromDxfLines', () => {
       expect.arrayContaining([
         expect.objectContaining({
           groupKey: 'ACI_1',
-          status: 'warning',
+          status: 'error',
           diagnostics: expect.arrayContaining([
             expect.objectContaining({
               code: 'group_profile_unassigned',
+              status: 'error',
             }),
           ]),
         }),
@@ -100,6 +101,35 @@ describe('createModelFromDxfLines', () => {
     expect(result.model?.importMeta?.dxf?.colorProfileMap).toEqual({
       ACI_1: 'P_COLOR_ACI_1',
     });
+  });
+
+  it('keeps ignored non-LINE entities as info diagnostics without warning escalation', () => {
+    const result = createModelFromDxfLines(
+      [
+        {
+          start: { x: 0, y: 0, z: 0 },
+          end: { x: 1000, y: 0, z: 100 },
+          colorIndex: 2,
+        },
+      ],
+      {
+        fileName: 'tower.dxf',
+        toleranceMm: 1,
+        centerOnXY: false,
+        force2DToXY: true,
+      },
+      3,
+    );
+
+    expect(result.preview.diagnostics.summary).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'ignored_entities_present',
+          status: 'info',
+        }),
+      ]),
+    );
+    expect(result.preview.warnings).not.toContain('Ignored 3 non-LINE DXF entities.');
   });
 
   it('reports zero-length lines after merge as structured line diagnostics', () => {

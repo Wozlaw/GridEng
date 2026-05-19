@@ -10,6 +10,8 @@ export interface DxfPreviewRotationDeg {
   z: number;
 }
 
+export type DxfPreviewRotationAxis = keyof DxfPreviewRotationDeg;
+
 export interface DxfPreviewDisplayState {
   rotationDeg: DxfPreviewRotationDeg;
   normalizationShiftMm: Vec3;
@@ -29,6 +31,17 @@ export function normalizePreviewRotationDeg(rotationDeg: DxfPreviewRotationDeg):
     y: wrapDegrees(rotationDeg.y),
     z: wrapDegrees(rotationDeg.z),
   };
+}
+
+export function rotatePreviewAroundAxis(
+  rotationDeg: DxfPreviewRotationDeg,
+  axis: DxfPreviewRotationAxis,
+  stepDeg = 90,
+): DxfPreviewRotationDeg {
+  return normalizePreviewRotationDeg({
+    ...rotationDeg,
+    [axis]: rotationDeg[axis] + stepDeg,
+  });
 }
 
 export function buildDxfPreviewDisplayState(

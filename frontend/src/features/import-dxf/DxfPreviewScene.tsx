@@ -1,15 +1,7 @@
 import type { ReactNode } from 'react';
 
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import {
   Box,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -26,11 +18,13 @@ import {
   scaleModelLengthMm,
   type ScenePoint3,
 } from '../../widgets/viewport-3d/modelToScene';
+import { resolveDxfGroupDisplayColor } from './dxfColors';
 import type { DxfGroupDisplayColors, DxfImportPreview, DxfPreviewColorMode } from './types';
-import type { DxfPreviewDisplayState, DxfPreviewRotationDeg } from './previewTransform';
+import type { DxfPreviewDisplayState } from './previewTransform';
 
 const DIAGNOSTIC_COLORS = {
   ok: '#58b77d',
+  info: '#58b77d',
   warning: '#d1a64b',
   error: '#d76464',
 } as const;
@@ -42,10 +36,6 @@ interface DxfPreviewSceneProps {
   preview: DxfImportPreview | null;
   displayState: DxfPreviewDisplayState | null;
   colorMode: DxfPreviewColorMode;
-  onColorModeChange: (mode: DxfPreviewColorMode) => void;
-  rotationDeg: DxfPreviewRotationDeg;
-  onRotationChange: (rotationDeg: DxfPreviewRotationDeg) => void;
-  onResetRotation: () => void;
   isBusy?: boolean;
   fullHeight?: boolean;
   hideTitle?: boolean;
@@ -57,10 +47,6 @@ export function DxfPreviewScene({
   preview,
   displayState,
   colorMode,
-  onColorModeChange,
-  rotationDeg,
-  onRotationChange,
-  onResetRotation,
   isBusy = false,
   fullHeight = false,
   hideTitle = false,
@@ -70,94 +56,25 @@ export function DxfPreviewScene({
   const { t } = useI18n();
 
   return (
-    <StackedPreviewPaper fullHeight={fullHeight}>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: hideTitle ? '1fr' : { xs: '1fr', md: 'auto 1fr' },
-          gap: 1,
-          px: 1.5,
-          pt: 1.5,
-          pb: 0.5,
-          alignItems: 'start',
-        }}
-      >
-        {!hideTitle ? <Typography variant="subtitle2">{t('dxf.preview.sceneTitle')}</Typography> : null}
+    <PreviewSceneRoot fullHeight={fullHeight}>
+      {!hideTitle ? (
+        <Box sx={{ px: 1.5, pt: 1, pb: 0.75 }}>
+          <Typography variant="subtitle2">{t('dxf.preview.sceneTitle')}</Typography>
+        </Box>
+      ) : null}
 
-        <Stack
-          direction={{ xs: 'column', lg: 'row' }}
-          spacing={1}
-          sx={{
-            alignItems: { xs: 'stretch', lg: 'center' },
-            justifyContent: 'space-between',
-          }}
-        >
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={colorMode}
-            onChange={(_event, value) => {
-              if (value === 'diagnostics' || value === 'profiles') {
-                onColorModeChange(value);
-              }
-            }}
-            aria-label={t('dxf.preview.colorModeAria')}
-          >
-            <ToggleButton value="diagnostics" aria-label={t('dxf.preview.modeDiagnostics')}>
-              {t('dxf.preview.modeDiagnostics')}
-            </ToggleButton>
-            <ToggleButton value="profiles" aria-label={t('dxf.preview.modeProfiles')}>
-              {t('dxf.preview.modeProfiles')}
-            </ToggleButton>
-          </ToggleButtonGroup>
-
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
-            <RotationNumberField
-              axis="X"
-              value={rotationDeg.x}
-              tooltip={t('dxf.preview.rotateX')}
-              onChange={(value) => onRotationChange({ ...rotationDeg, x: value })}
-            />
-            <RotationNumberField
-              axis="Y"
-              value={rotationDeg.y}
-              tooltip={t('dxf.preview.rotateY')}
-              onChange={(value) => onRotationChange({ ...rotationDeg, y: value })}
-            />
-            <RotationNumberField
-              axis="Z"
-              value={rotationDeg.z}
-              tooltip={t('dxf.preview.rotateZ')}
-              onChange={(value) => onRotationChange({ ...rotationDeg, z: value })}
-            />
-
-            <Tooltip title={t('dxf.preview.resetRotation')}>
-              <span>
-                <IconButton
-                  aria-label={t('dxf.preview.resetRotation')}
-                  size="small"
-                  onClick={onResetRotation}
-                >
-                  <RestartAltIcon fontSize="small" />
-                </IconButton>
-              </span>
-            </Tooltip>
-          </Stack>
-        </Stack>
+      <Box sx={{ flex: '1 1 auto', minHeight: 0, m: 0, p: 0 }}>
+        <PreviewSceneViewport
+          preview={preview}
+          displayState={displayState}
+          colorMode={colorMode}
+          isBusy={isBusy}
+          viewportHeight={fullHeight ? '100%' : 360}
+          groupDisplayColors={groupDisplayColors}
+          assignedCatalogProfileColors={assignedCatalogProfileColors}
+        />
       </Box>
-
-      <Box sx={{ p: 1.5, pt: 0.5, minHeight: 0, flex: '1 1 auto' }}>
-          <PreviewSceneViewport
-            preview={preview}
-            displayState={displayState}
-            colorMode={colorMode}
-            isBusy={isBusy}
-            viewportHeight={fullHeight ? '100%' : 360}
-            groupDisplayColors={groupDisplayColors}
-            assignedCatalogProfileColors={assignedCatalogProfileColors}
-          />
-      </Box>
-    </StackedPreviewPaper>
+    </PreviewSceneRoot>
   );
 }
 
@@ -183,31 +100,17 @@ function PreviewSceneViewport({
 
   if (isBusy) {
     return (
-      <PreviewScenePlaceholder
-        title={t('dxf.preview.preparingTitle')}
-        body={t('dxf.preview.scenePreparing')}
-        height={viewportHeight}
-      />
+      <ViewportFrame height={viewportHeight}>
+        <PreviewScenePlaceholder body={t('dxf.preview.scenePreparing')} />
+      </ViewportFrame>
     );
   }
 
-  if (preview == null || preview.diagnostics.lines.length === 0) {
+  if (preview == null || preview.diagnostics.lines.length === 0 || displayState == null) {
     return (
-      <PreviewScenePlaceholder
-        title={t('dxf.preview.sceneTitle')}
-        body={t('dxf.preview.sceneEmptyHint')}
-        height={viewportHeight}
-      />
-    );
-  }
-
-  if (displayState == null) {
-    return (
-      <PreviewScenePlaceholder
-        title={t('dxf.preview.sceneTitle')}
-        body={t('dxf.preview.sceneEmptyHint')}
-        height={viewportHeight}
-      />
+      <ViewportFrame height={viewportHeight}>
+        <PreviewScenePlaceholder body={t('dxf.preview.sceneEmptyHint')} />
+      </ViewportFrame>
     );
   }
 
@@ -227,16 +130,12 @@ function PreviewSceneViewport({
   const sceneFarPlane = Math.max(sceneLongestSide * 60, 200);
   const backgroundColor = theme.palette.background.default;
   const secondaryLightColor = theme.palette.mode === 'dark' ? '#b8c0c7' : '#7f8a93';
+  const groupBaseColors = new Map(
+    (preview.colorGroups ?? []).map((group) => [group.key, resolveDxfGroupDisplayColor(group)] as const),
+  );
 
   return (
-    <Paper
-      variant="outlined"
-      sx={{
-        height: viewportHeight,
-        overflow: 'hidden',
-        borderRadius: 1.5,
-      }}
-    >
+    <ViewportFrame height={viewportHeight}>
       <Canvas
         camera={{
           position: [
@@ -266,13 +165,18 @@ function PreviewSceneViewport({
         <OrbitControls makeDefault target={sceneCenter} maxPolarAngle={Math.PI / 2.02} />
 
         {lineEntries.map((line) => {
+          const overriddenGroupColor = line.groupKey == null ? undefined : groupDisplayColors[line.groupKey];
+          const groupBaseColor = line.groupKey == null ? undefined : groupBaseColors.get(line.groupKey);
           const assignedProfileColor = line.groupKey == null
             ? undefined
             : assignedCatalogProfileColors[line.groupKey];
-          const overriddenGroupColor = line.groupKey == null ? undefined : groupDisplayColors[line.groupKey];
           const color = colorMode === 'diagnostics'
             ? DIAGNOSTIC_COLORS[line.status]
-            : overriddenGroupColor ?? assignedProfileColor ?? line.displayColor ?? FALLBACK_PROFILE_COLOR;
+            : overriddenGroupColor
+              ?? groupBaseColor
+              ?? line.displayColor
+              ?? assignedProfileColor
+              ?? FALLBACK_PROFILE_COLOR;
           const start = modelPositionToScene(line.start);
           const end = modelPositionToScene(line.end);
           const length = getSceneLineLength(start, end);
@@ -302,76 +206,30 @@ function PreviewSceneViewport({
           );
         })}
       </Canvas>
-    </Paper>
+    </ViewportFrame>
   );
 }
 
-function RotationNumberField({
-  axis,
-  value,
-  tooltip,
-  onChange,
-}: {
-  axis: 'X' | 'Y' | 'Z';
-  value: number;
-  tooltip: string;
-  onChange: (value: number) => void;
-}) {
+function PreviewScenePlaceholder({ body }: { body: string }) {
   return (
-    <Tooltip title={tooltip}>
-      <TextField
-        size="small"
-        type="number"
-        label={`${axis}°`}
-        value={value}
-        onChange={(event) => {
-          const nextValue = Number(event.target.value);
-          onChange(Number.isFinite(nextValue) ? nextValue : 0);
-        }}
-        slotProps={{
-          htmlInput: {
-            'aria-label': tooltip,
-            step: 90,
-          },
-        }}
-        sx={{ width: 86 }}
-      />
-    </Tooltip>
-  );
-}
-
-function PreviewScenePlaceholder({
-  title,
-  body,
-  height,
-}: {
-  title: string;
-  body: string;
-  height: number | string;
-}) {
-  return (
-    <Paper
-      variant="outlined"
+    <Box
       sx={{
-        p: 2.5,
-        height,
-        borderStyle: 'dashed',
+        width: '100%',
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        px: 2,
       }}
     >
-      <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="subtitle2">{title}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {body}
-        </Typography>
-      </Box>
-    </Paper>
+      <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+        {body}
+      </Typography>
+    </Box>
   );
 }
 
-function StackedPreviewPaper({
+function PreviewSceneRoot({
   children,
   fullHeight,
 }: {
@@ -379,18 +237,54 @@ function StackedPreviewPaper({
   fullHeight: boolean;
 }) {
   return (
-    <Paper
-      variant="outlined"
+    <Box
       sx={{
-        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
         height: fullHeight ? '100%' : 'auto',
+        m: 0,
+        p: 0,
       }}
     >
       {children}
-    </Paper>
+    </Box>
+  );
+}
+
+function ViewportFrame({
+  children,
+  height,
+}: {
+  children: ReactNode;
+  height: number | string;
+}) {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        height,
+        minHeight: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        m: 0,
+        p: 0,
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          m: 0,
+          p: 0,
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 }
 

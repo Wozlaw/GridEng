@@ -1,6 +1,6 @@
 {
   "project": "GridEng",
-  "kit": "codex-implementation-kit-reviewed-unified-spec-2026-05-16",
+  "kit": "codex-implementation-kit-ui-revision-4-2026-05-18",
   "created_at": "2026-05-10T12:06:23",
   "tasks": [
     {
@@ -602,6 +602,69 @@
       "title": "Task 24.5 — Documentation cleanup and unified specification",
       "prompt_file": "prompts/24-05-docs-cleanup-unified-spec.md",
       "default_checks": []
+    },
+    {
+      "id": "25-01-db-console-commands",
+      "title": "Task 25.1 — DB console commands",
+      "prompt_file": "prompts/25-01-db-console-commands.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-02-dxf-toolbar-view-modes-rotation-controls",
+      "title": "Task 25.2 — DXF toolbar view modes and rotation controls",
+      "prompt_file": "prompts/25-02-dxf-toolbar-view-modes-rotation-controls.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-03-dxf-model-tab-layout-preview-colors",
+      "title": "Task 25.3 — DXF model tab layout and preview colors",
+      "prompt_file": "prompts/25-03-dxf-model-tab-layout-preview-colors.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-04-dxf-profiles-tab-table-materials-search-colors",
+      "title": "Task 25.4 — DXF profiles tab table, materials, search and colors",
+      "prompt_file": "prompts/25-04-dxf-profiles-tab-table-materials-search-colors.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-05-dxf-logs-status-taxonomy",
+      "title": "Task 25.5 — DXF logs status taxonomy",
+      "prompt_file": "prompts/25-05-dxf-logs-status-taxonomy.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-06-wind-dialog-dto-terrain-modes",
+      "title": "Task 25.6 — Wind dialog DTO terrain and modes",
+      "prompt_file": "prompts/25-06-wind-dialog-dto-terrain-modes.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
+    },
+    {
+      "id": "25-07-project-tree-properties-multiselect",
+      "title": "Task 25.7 — Project tree and properties multiselect",
+      "prompt_file": "prompts/25-07-project-tree-properties-multiselect.md",
+      "default_checks": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run lint"
+      ]
     }
   ]
 }

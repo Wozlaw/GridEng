@@ -1,11 +1,13 @@
+import { DEFAULT_STEEL } from '../../entities/model';
 import { findProfileById } from '../../entities/section';
-import type { GridEngModel, Id, Profile } from '../../entities/model';
+import type { GridEngModel, Id, Material, Profile } from '../../entities/model';
 
 import type {
   DxfColorGroup,
   DxfGroupPreviewDiagnostics,
   DxfImportPreview,
   DxfLinePreviewDiagnostics,
+  DxfMaterialAssignments,
   DxfPreviewDiagnostic,
   DxfPreviewDiagnosticStatus,
   DxfProfileAssignments,
@@ -16,16 +18,26 @@ export function applyDxfProfileAssignments(
   model: GridEngModel,
   assignments: DxfProfileAssignments,
   resolvedProfilesById: ReadonlyMap<Id, Profile> = new Map(),
+  materialAssignments: DxfMaterialAssignments = {},
+  resolvedMaterialsById: ReadonlyMap<Id, Material> = new Map(),
 ): GridEngModel {
   const nextMembers = model.members.map((member) => {
     const selectedProfileId = member.groupId == null ? undefined : assignments[member.groupId];
+    const selectedMaterialId = member.groupId == null ? undefined : materialAssignments[member.groupId];
+
     if (selectedProfileId == null) {
-      return { ...member };
+      return selectedMaterialId == null
+        ? { ...member }
+        : {
+          ...member,
+          materialId: selectedMaterialId,
+        };
     }
 
     return {
       ...member,
       profileId: selectedProfileId,
+      materialId: selectedMaterialId ?? member.materialId,
     };
   });
 
@@ -55,12 +67,38 @@ export function applyDxfProfileAssignments(
     throw new Error(`Assigned profile '${profileId}' was not found in the imported model or local profile catalog.`);
   }
 
+  const existingMaterialsById = new Map(model.materials.map((material) => [material.id, material] as const));
+  const usedMaterialIds = new Set(nextMembers.map((member) => member.materialId));
+  const nextMaterials: Material[] = [];
+
+  for (const materialId of usedMaterialIds) {
+    const resolvedMaterial = resolvedMaterialsById.get(materialId);
+    if (resolvedMaterial != null) {
+      nextMaterials.push(cloneMaterial(resolvedMaterial));
+      continue;
+    }
+
+    const existingMaterial = existingMaterialsById.get(materialId);
+    if (existingMaterial != null) {
+      nextMaterials.push(cloneMaterial(existingMaterial));
+      continue;
+    }
+
+    if (materialId === DEFAULT_STEEL.id) {
+      nextMaterials.push(cloneMaterial(DEFAULT_STEEL));
+      continue;
+    }
+
+    throw new Error(`Assigned material '${materialId}' was not found in the imported model or resolved material catalog.`);
+  }
+
   const nextColorProfileMap = buildColorProfileMap(nextMembers);
 
   return {
     ...model,
     members: nextMembers,
     profiles: nextProfiles,
+    materials: nextMaterials,
     importMeta: model.importMeta?.source === 'dxf'
       ? {
         ...model.importMeta,
@@ -78,9 +116,10 @@ export function applyDxfProfileAssignments(
 export function applyDxfProfileAssignmentsToPreview(
   preview: DxfImportPreview,
   assignments: DxfProfileAssignments,
+  materialAssignments: DxfMaterialAssignments = {},
 ): DxfImportPreview {
   const groupDiagnostics = preview.diagnostics.groups.map((entry) =>
-    applyAssignmentsToGroupDiagnostics(entry, assignments),
+    applyAssignmentsToGroupDiagnostics(entry, assignments, materialAssignments),
   );
   const groupStatusByKey = new Map(groupDiagnostics.map((entry) => [entry.groupKey, entry.status] as const));
   const memberStatusById = new Map(preview.diagnostics.members.map((entry) => [entry.memberId, entry.status] as const));
@@ -165,11 +204,37 @@ function applyAssignmentsToColorGroup(
 function applyAssignmentsToGroupDiagnostics(
   entry: DxfGroupPreviewDiagnostics,
   assignments: DxfProfileAssignments,
+  materialAssignments: DxfMaterialAssignments,
 ): DxfGroupPreviewDiagnostics {
   const assignedProfileId = assignments[entry.groupKey];
+  const assignedMaterialId = materialAssignments[entry.groupKey];
   const diagnostics = entry.diagnostics
-    .filter((diagnostic) => assignedProfileId == null || diagnostic.code !== 'group_profile_unassigned')
+    .filter((diagnostic) => {
+      if (diagnostic.code === 'group_profile_unassigned') {
+        return assignedProfileId == null;
+      }
+
+      if (diagnostic.code === 'group_material_unassigned') {
+        return assignedProfileId != null && assignedMaterialId == null;
+      }
+
+      return true;
+    })
     .map(cloneDiagnostic);
+
+  if (assignedProfileId == null) {
+    pushMissingGroupDiagnostic(
+      diagnostics,
+      'group_profile_unassigned',
+      `Group ${entry.groupKey} requires an assigned catalog profile.`,
+    );
+  } else if (assignedMaterialId == null) {
+    pushMissingGroupDiagnostic(
+      diagnostics,
+      'group_material_unassigned',
+      `Group ${entry.groupKey} requires an assigned material.`,
+    );
+  }
 
   return {
     ...entry,
@@ -224,8 +289,9 @@ function getHigherStatus(
 
   const rank: Record<DxfPreviewDiagnosticStatus, number> = {
     ok: 0,
-    warning: 1,
-    error: 2,
+    info: 1,
+    warning: 2,
+    error: 3,
   };
 
   return rank[next] > rank[current] ? next : current;
@@ -239,8 +305,30 @@ function cloneProfile(profile: Readonly<Profile>): Profile {
   };
 }
 
+function cloneMaterial(material: Readonly<Material>): Material {
+  return {
+    ...material,
+  };
+}
+
 function cloneDiagnostic(diagnostic: Readonly<DxfPreviewDiagnostic>): DxfPreviewDiagnostic {
   return {
     ...diagnostic,
   };
+}
+
+function pushMissingGroupDiagnostic(
+  diagnostics: DxfPreviewDiagnostic[],
+  code: Extract<DxfPreviewDiagnostic['code'], 'group_profile_unassigned' | 'group_material_unassigned'>,
+  message: string,
+): void {
+  if (diagnostics.some((diagnostic) => diagnostic.code === code)) {
+    return;
+  }
+
+  diagnostics.push({
+    status: 'error',
+    code,
+    message,
+  });
 }

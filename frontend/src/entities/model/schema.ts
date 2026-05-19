@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+import {
+  DEFAULT_WIND_CALCULATION_MODE,
+  DEFAULT_WIND_GAMMA_F_BY_MODE,
+  DEFAULT_WIND_TERRAIN_TYPE,
+} from './defaults';
+
 export const IdSchema = z.string().min(1);
 
 export const Vec3Schema = z.object({
@@ -25,6 +31,9 @@ export const ForceMomentVectorSchema = z.object({
 export const WindLoadDefinitionSchema = z.object({
   direction: Vec3Schema,
   nominalPressurePa: z.number().finite().nonnegative(),
+  terrainType: z.enum(['A', 'B', 'C']).default(DEFAULT_WIND_TERRAIN_TYPE),
+  gammaF: z.number().finite().positive().default(DEFAULT_WIND_GAMMA_F_BY_MODE.simple),
+  calculationMode: z.enum(['simple', 'sp20', 'pue']).default(DEFAULT_WIND_CALCULATION_MODE),
   comment: z.string().optional(),
 });
 

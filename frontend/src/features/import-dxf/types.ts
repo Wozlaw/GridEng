@@ -28,7 +28,7 @@ export interface DxfColorGroup {
   temporaryProfileName?: string;
 }
 
-export type DxfPreviewDiagnosticStatus = 'ok' | 'warning' | 'error';
+export type DxfPreviewDiagnosticStatus = 'ok' | 'info' | 'warning' | 'error';
 
 export type DxfPreviewDiagnosticCode =
   | 'file_read_error'
@@ -41,7 +41,8 @@ export type DxfPreviewDiagnosticCode =
   | 'line_zero_length_after_merge'
   | 'member_hanging'
   | 'node_isolated'
-  | 'group_profile_unassigned';
+  | 'group_profile_unassigned'
+  | 'group_material_unassigned';
 
 export interface DxfPreviewDiagnostic {
   status: DxfPreviewDiagnosticStatus;
@@ -122,6 +123,7 @@ export interface DxfToGridEngModelOptions extends DxfImportSettings {
 export type DxfLineInput = DxfLineEntity;
 export type DxfImportOptions = DxfToGridEngModelOptions;
 export type DxfProfileAssignments = Partial<Record<string, Id>>;
+export type DxfMaterialAssignments = Partial<Record<string, Id>>;
 export type DxfGroupDisplayColors = Partial<Record<string, string>>;
 
 export interface DxfToGridEngModelResult {

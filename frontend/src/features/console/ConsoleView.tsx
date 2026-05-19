@@ -6,6 +6,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import {
   Box,
+  CircularProgress,
   IconButton,
   Paper,
   Stack,
@@ -42,6 +43,7 @@ export function ConsoleView({
   const setInputValue = useCommandConsoleStore((state) => state.setInputValue);
   const [historyCursor, setHistoryCursor] = useState<number | null>(null);
   const [historyDraft, setHistoryDraft] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const outputEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -76,51 +78,57 @@ export function ConsoleView({
     outputEndRef.current?.scrollIntoView({ block: 'end' });
   }, [entries]);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const input = inputValue.trim();
 
-    if (input.length === 0) {
+    if (input.length === 0 || isRunning) {
       return;
     }
 
+    setIsRunning(true);
     appendEntry({
       level: 'command',
       lines: [input],
     });
     pushHistory(input);
 
-    const result = executeConsoleInput(input, {
-      source: 'console',
-      language,
-    });
-
-    if (result.clearLog) {
-      clearEntries();
-    } else if (result.title != null || result.lines.length > 0) {
-      appendEntry({
-        level: result.severity,
-        title: result.title,
-        lines: result.lines,
+    try {
+      const result = await executeConsoleInput(input, {
+        source: 'console',
+        language,
       });
-    }
 
-    if (result.notify) {
-      notify({
-        severity: result.severity,
-        title: result.title,
-        details: result.lines.length > 0 ? result.lines : undefined,
-      });
-    }
+      if (result.clearLog) {
+        clearEntries();
+      } else if (result.title != null || result.lines.length > 0) {
+        appendEntry({
+          level: result.severity,
+          title: result.title,
+          lines: result.lines,
+        });
+      }
 
-    setInputValue('');
-    setHistoryCursor(null);
-    setHistoryDraft('');
+      if (result.notify) {
+        notify({
+          severity: result.severity,
+          title: result.title,
+          details: result.lines.length > 0 ? result.lines : undefined,
+        });
+      }
+
+      setInputValue('');
+      setHistoryCursor(null);
+      setHistoryDraft('');
+      inputRef.current?.focus();
+    } finally {
+      setIsRunning(false);
+    }
   }
 
   function handleInputKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
       event.preventDefault();
-      handleSubmit();
+      void handleSubmit();
       return;
     }
 
@@ -229,6 +237,7 @@ export function ConsoleView({
             label={<ConsoleInputLabel text={text.inputLabel} />}
             placeholder={text.inputPlaceholder}
             value={inputValue}
+            disabled={isRunning}
             onChange={(event) => {
               setInputValue(event.target.value);
               setHistoryCursor(null);
@@ -246,11 +255,12 @@ export function ConsoleView({
           <IconButton
             aria-label={text.run}
             color="primary"
+            disabled={isRunning}
             onClick={() => {
-              handleSubmit();
+              void handleSubmit();
             }}
           >
-            <PlayArrowIcon fontSize="small" />
+            {isRunning ? <CircularProgress size={18} color="inherit" /> : <PlayArrowIcon fontSize="small" />}
           </IconButton>
 
           {onExpand != null && (

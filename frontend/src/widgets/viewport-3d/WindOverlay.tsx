@@ -4,6 +4,7 @@ import { GizmoHelper, Text } from '@react-three/drei';
 import { Quaternion, Vector3 } from 'three';
 
 import type { WindLoadDefinition } from '../../entities/model';
+import { useI18n } from '../../shared/i18n';
 import { formatNumber } from '../../shared/utils/format';
 import { SCENE_LABEL_FONT_SIZE } from './SceneUprightLabel';
 
@@ -23,6 +24,8 @@ const PRESSURE_LABEL_FONT_SIZE = SCENE_LABEL_FONT_SIZE * 3;
 const ARROW_UP = new Vector3(0, 1, 0);
 
 export function WindOverlay({ wind }: WindOverlayProps) {
+  const { t } = useI18n();
+
   if (wind == null) {
     return null;
   }
@@ -39,7 +42,7 @@ export function WindOverlay({ wind }: WindOverlayProps) {
 
   direction.normalize();
   const pressureLabel = Number.isFinite(wind.nominalPressurePa)
-    ? `${formatNumber(wind.nominalPressurePa, 0)} Pa`
+    ? `${formatNumber(wind.nominalPressurePa, 0)} ${t('wind.dialog.pressureUnit')}`
     : null;
 
   return (

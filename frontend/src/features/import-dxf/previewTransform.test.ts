@@ -4,6 +4,7 @@ import type { GridEngModel } from '../../entities/model';
 import {
   applyDxfPreviewDisplayStateToModel,
   buildDxfPreviewDisplayState,
+  rotatePreviewAroundAxis,
   type DxfPreviewRotationDeg,
 } from './previewTransform';
 import type { DxfImportPreview } from './types';
@@ -96,5 +97,13 @@ describe('dxf preview transform', () => {
     expect(Math.min(...zValues)).toBeCloseTo(0, 6);
     expect(xCenter).toBeCloseTo(0, 6);
     expect(yCenter).toBeCloseTo(0, 6);
+  });
+
+  it('rotates preview state by +90 degrees around the requested axis and wraps the result', () => {
+    const initialRotation: DxfPreviewRotationDeg = { x: 180, y: 0, z: -90 };
+
+    expect(rotatePreviewAroundAxis(initialRotation, 'x')).toEqual({ x: -90, y: 0, z: -90 });
+    expect(rotatePreviewAroundAxis(initialRotation, 'y')).toEqual({ x: 180, y: 90, z: -90 });
+    expect(rotatePreviewAroundAxis(initialRotation, 'z')).toEqual({ x: 180, y: 0, z: 0 });
   });
 });

@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from 'three';
 
 import { useModelStore } from '../../app/store';
 import type { GridEngModel } from '../../entities/model';
+import { isSelectedEntity } from '../../features/selection';
 import { getMemberSceneSegment } from './modelToScene';
 
 const DEFAULT_MEMBER_COLOR = '#87d0ff';
@@ -30,7 +31,7 @@ export function MemberLines({
   pickRadius,
   resolveMemberColor,
 }: MemberLinesProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectedLoad = useModelStore((state) => state.getSelectedLoad());
   const selectEntity = useModelStore((state) => state.selectEntity);
 
@@ -48,7 +49,7 @@ export function MemberLines({
         }
 
         const profile = profilesById.get(member.profileId);
-        const isSelected = (selectedEntity.type === 'member' && selectedEntity.id === member.id)
+        const isSelected = isSelectedEntity(selectedEntities, 'member', member.id)
           || (
             selectedLoad?.type === 'member_distributed'
             && selectedLoad.target.memberId === member.id
@@ -70,7 +71,9 @@ export function MemberLines({
               quaternion={pickQuaternion}
               onClick={(event) => {
                 event.stopPropagation();
-                selectEntity({ type: 'member', id: member.id });
+                selectEntity({ type: 'member', id: member.id }, {
+                  additive: event.nativeEvent.shiftKey,
+                });
               }}
             >
               <cylinderGeometry args={[pickRadius, pickRadius, segment.length, 12]} />

@@ -1,10 +1,6 @@
 import { type ReactNode, useDeferredValue, useEffect, useMemo, useState } from 'react';
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -14,7 +10,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   List,
   ListItemButton,
   ListItemText,
@@ -22,6 +17,7 @@ import {
   Paper,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
@@ -53,19 +49,38 @@ import { crossSectionsApi, isAbortError, materialsApi } from '../../shared/api';
 import { useI18n } from '../../shared/i18n';
 import { formatNumber, formatOptionalText, formatVector } from '../../shared/utils';
 
+const PROPERTY_GRID_TEMPLATE = 'minmax(0, 176px) minmax(0, 1fr)';
+const PROPERTY_ROW_HEIGHT = 40;
+
 export function PropertySection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Stack spacing={1}>
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{ fontWeight: 600, letterSpacing: '0.02em' }}
+    <Paper
+      variant="outlined"
+      sx={{
+        overflow: 'hidden',
+      }}
+    >
+      <Box
+        sx={{
+          px: 1.5,
+          minHeight: 32,
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'action.hover',
+        }}
       >
-        {title}
-      </Typography>
-      <Divider />
-      <Stack spacing={1}>{children}</Stack>
-    </Stack>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ fontWeight: 700, letterSpacing: '0.04em' }}
+        >
+          {title}
+        </Typography>
+      </Box>
+      <Stack spacing={0}>{children}</Stack>
+    </Paper>
   );
 }
 
@@ -81,67 +96,175 @@ export function TechnicalDetailsSection({
   }
 
   return (
-    <Accordion
-      disableGutters
-      elevation={0}
-      square
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 1,
-        overflow: 'hidden',
-        bgcolor: 'transparent',
-        '&::before': {
-          display: 'none',
-        },
-      }}
-    >
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon fontSize="small" />}
-        sx={{
-          minHeight: 36,
-          px: 1.5,
-          '& .MuiAccordionSummary-content': {
-            my: 0.75,
-          },
-        }}
-      >
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ fontWeight: 700, letterSpacing: '0.05em' }}
-        >
-          {title}
-        </Typography>
-      </AccordionSummary>
-
-      <AccordionDetails sx={{ px: 1.5, py: 1.25 }}>
-        <Stack spacing={0.75}>
-          {rows.map((row) => (
-            <PropertyRow key={`${row.label}-${row.value}`} label={row.label} value={row.value} />
-          ))}
-        </Stack>
-      </AccordionDetails>
-    </Accordion>
+    <PropertySection title={title}>
+      {rows.map((row) => (
+        <PropertyRow key={`${row.label}-${row.value}`} label={row.label} value={row.value} />
+      ))}
+    </PropertySection>
   );
 }
 
 export function PropertyRow({ label, value }: { label: string; value: string }) {
+  const isLongValue = value.length > 80;
+
+  return (
+    <PropertyEditorRow label={label} multiline={isLongValue}>
+      <Tooltip title={isLongValue ? value : ''} disableHoverListener={!isLongValue} placement="top-start">
+        <Typography
+          variant="body2"
+          sx={{
+            minWidth: 0,
+            lineHeight: 1.25,
+            wordBreak: isLongValue ? 'break-word' : 'normal',
+            whiteSpace: isLongValue ? 'normal' : 'nowrap',
+            overflow: isLongValue ? 'visible' : 'hidden',
+            textOverflow: isLongValue ? 'clip' : 'ellipsis',
+          }}
+        >
+          {value}
+        </Typography>
+      </Tooltip>
+    </PropertyEditorRow>
+  );
+}
+
+export function PropertyEditorRow({
+  label,
+  children,
+  multiline = false,
+}: {
+  label: string;
+  children: ReactNode;
+  multiline?: boolean;
+}) {
   return (
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'minmax(0, 120px) minmax(0, 1fr)',
-        gap: 1,
+        gridTemplateColumns: {
+          xs: 'minmax(0, 132px) minmax(0, 1fr)',
+          md: PROPERTY_GRID_TEMPLATE,
+        },
+        alignItems: multiline ? 'stretch' : 'center',
+        minHeight: multiline ? 'auto' : PROPERTY_ROW_HEIGHT,
+        borderTop: '1px solid',
+        borderColor: 'divider',
+        '& > :first-of-type': {
+          px: 1.5,
+          py: multiline ? 1 : 0.5,
+          minWidth: 0,
+          minHeight: multiline ? PROPERTY_ROW_HEIGHT : PROPERTY_ROW_HEIGHT,
+          display: 'flex',
+          alignItems: multiline ? 'flex-start' : 'center',
+          bgcolor: 'action.hover',
+        },
+        '& > :last-child': {
+          px: 1.5,
+          py: multiline ? 1 : 0.5,
+          minWidth: 0,
+          minHeight: multiline ? PROPERTY_ROW_HEIGHT : PROPERTY_ROW_HEIGHT,
+          display: 'flex',
+          alignItems: multiline ? 'stretch' : 'center',
+          '& .MuiFormControl-root, & .MuiTextField-root': {
+            width: '100%',
+          },
+          '& .MuiInputBase-root, & .MuiButton-root, & .MuiToggleButton-root': {
+            minHeight: PROPERTY_ROW_HEIGHT,
+          },
+          '& .MuiToggleButtonGroup-root': {
+            flexWrap: 'wrap',
+          },
+        },
       }}
     >
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-        {value}
-      </Typography>
+      <Box sx={{ minWidth: 0 }}>{children}</Box>
     </Box>
+  );
+}
+
+export function PropertyActionRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <PropertyEditorRow label={label}>
+      <Stack direction="row" spacing={1} sx={{ width: '100%', alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
+        {children}
+      </Stack>
+    </PropertyEditorRow>
+  );
+}
+
+export function AssignmentRow({
+  title,
+  primary,
+  secondary,
+  accentColor,
+  chooseLabel,
+  openLabel,
+  onChoose,
+  onOpen,
+  openDisabled = false,
+  chooseDisabled = false,
+}: {
+  title: string;
+  primary: string;
+  secondary?: string;
+  accentColor: string;
+  chooseLabel: string;
+  openLabel: string;
+  onChoose: () => void;
+  onOpen: () => void;
+  openDisabled?: boolean;
+  chooseDisabled?: boolean;
+}) {
+  return (
+    <PropertyEditorRow label={title} multiline>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={1}
+        sx={{ width: '100%', minWidth: 0, alignItems: { md: 'center' }, justifyContent: 'space-between' }}
+      >
+        <Stack direction="row" spacing={1} sx={{ minWidth: 0, alignItems: 'center', flex: '1 1 auto' }}>
+          <Box
+            sx={{
+              width: 10,
+              height: 10,
+              flexShrink: 0,
+              bgcolor: accentColor,
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          />
+          <Box sx={{ minWidth: 0, flex: '1 1 auto' }}>
+            <Tooltip title={primary} disableHoverListener={primary.length <= 40} placement="top-start">
+              <Typography variant="body2" noWrap sx={{ minWidth: 0, fontWeight: 500 }}>
+                {primary}
+              </Typography>
+            </Tooltip>
+            {secondary && (
+              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block', minWidth: 0 }}>
+                {secondary}
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }} useFlexGap>
+          <Button size="small" variant="outlined" onClick={onChoose} disabled={chooseDisabled}>
+            {chooseLabel}
+          </Button>
+          <Button size="small" variant="text" onClick={onOpen} disabled={openDisabled}>
+            {openLabel}
+          </Button>
+        </Stack>
+      </Stack>
+    </PropertyEditorRow>
   );
 }
 
@@ -189,6 +312,11 @@ export function CoordinateFields({
           type="number"
           value={values[axis]}
           onChange={(event) => onChange(axis, event.target.value)}
+          sx={{
+            '& .MuiInputBase-root': {
+              minHeight: PROPERTY_ROW_HEIGHT,
+            },
+          }}
         />
       ))}
     </Box>

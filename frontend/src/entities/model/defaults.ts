@@ -1,4 +1,14 @@
-import type { ForceMomentVector, GridEngModel, Material, Profile, UnitSystem, Vec3, WindLoadDefinition } from './types';
+import type {
+  ForceMomentVector,
+  GridEngModel,
+  Material,
+  Profile,
+  UnitSystem,
+  Vec3,
+  WindCalculationMode,
+  WindLoadDefinition,
+  WindTerrainType,
+} from './types';
 
 export const ZERO_VEC3: Vec3 = Object.freeze({ x: 0, y: 0, z: 0 });
 
@@ -7,9 +17,20 @@ export const ZERO_FORCE_MOMENT: ForceMomentVector = Object.freeze({
   moment: ZERO_VEC3,
 });
 
+export const DEFAULT_WIND_TERRAIN_TYPE: WindTerrainType = 'B';
+export const DEFAULT_WIND_CALCULATION_MODE: WindCalculationMode = 'simple';
+export const DEFAULT_WIND_GAMMA_F_BY_MODE: Readonly<Record<WindCalculationMode, number>> = Object.freeze({
+  simple: 1.0,
+  sp20: 1.4,
+  pue: 1.2,
+});
+
 export const NO_WIND: WindLoadDefinition = Object.freeze({
   direction: ZERO_VEC3,
   nominalPressurePa: 0,
+  terrainType: DEFAULT_WIND_TERRAIN_TYPE,
+  gammaF: DEFAULT_WIND_GAMMA_F_BY_MODE.simple,
+  calculationMode: DEFAULT_WIND_CALCULATION_MODE,
 });
 
 export const DEFAULT_UNITS: UnitSystem = Object.freeze({

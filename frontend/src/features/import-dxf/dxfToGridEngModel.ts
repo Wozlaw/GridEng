@@ -1,7 +1,7 @@
 import {
   validateGridEngModelIntegrity,
-  type DxfEntitySource,
   type DxfColorValue,
+  type DxfEntitySource,
   type GridEngModel,
   type Member,
   type ModelValidationIssue,
@@ -11,6 +11,7 @@ import { DEFAULT_STEEL, DEFAULT_UNITS, NO_WIND } from '../../entities/model/defa
 import { mergeDxfNodes } from './mergeDxfNodes';
 import { normalizeDxfCoordinates } from './normalizeDxfCoordinates';
 import { parseDxfLines } from './parseDxfLines';
+import { resolveDxfDisplayColor } from './dxfColors';
 import type {
   DxfColorGroup,
   DxfImportOptions,
@@ -89,8 +90,7 @@ function buildModelFromLines({
 
   if (ignoredEntitiesCount > 0) {
     const message = `Ignored ${ignoredEntitiesCount} non-LINE DXF entities.`;
-    warnings.push(message);
-    preview.diagnostics.summary.push(createDiagnostic('warning', 'ignored_entities_present', message));
+    preview.diagnostics.summary.push(createDiagnostic('info', 'ignored_entities_present', message));
   }
 
   if (lines.length === 0) {
@@ -117,7 +117,7 @@ function buildModelFromLines({
     handle: line.handle,
     layer: line.layer,
     status: 'ok',
-    displayColor: toDisplayColor(line.trueColor ?? line.color),
+    displayColor: resolveDxfDisplayColor(line),
     diagnostics: [],
   }));
 
@@ -218,9 +218,9 @@ function buildModelFromLines({
     pushDiagnostic(
       nextGroupDiagnostic,
       createDiagnostic(
-        'warning',
+        'error',
         'group_profile_unassigned',
-        `Group ${groupDiagnostic.groupKey} still uses temporary DXF profile ${groupDiagnostic.profileId ?? '-'}.`,
+        `Group ${groupDiagnostic.groupKey} requires an assigned catalog profile.`,
       ),
     );
 
@@ -404,7 +404,7 @@ function createTemporaryProfile(group: DxfColorGroup): Profile {
     defaultOffsetZmm: 0,
     massKgPerM: 0,
     section: {},
-    color: toDisplayColor(group.trueColor ?? group.color),
+    color: resolveDxfDisplayColor(group),
   };
 }
 
@@ -449,18 +449,6 @@ function createTemporaryProfileName(groupKey: string): string {
 
 function sanitizeGroupToken(token: string): string {
   return token.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').toUpperCase() || 'UNASSIGNED';
-}
-
-function toDisplayColor(value: DxfColorValue | undefined): string | undefined {
-  if (typeof value === 'string' && value.trim().length > 0) {
-    return value;
-  }
-
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return undefined;
-  }
-
-  return `#${Math.max(0, Math.trunc(value)).toString(16).padStart(6, '0').slice(-6)}`;
 }
 
 function createEmptyPreview(): DxfImportPreview {
@@ -514,8 +502,9 @@ function getHigherStatus(
 ): DxfPreviewDiagnosticStatus {
   const rank: Record<DxfPreviewDiagnosticStatus, number> = {
     ok: 0,
-    warning: 1,
-    error: 2,
+    info: 1,
+    warning: 2,
+    error: 3,
   };
 
   return rank[next] > rank[current] ? next : current;

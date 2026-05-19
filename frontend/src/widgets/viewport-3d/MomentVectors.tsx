@@ -61,7 +61,7 @@ export function MomentVectors({
   units,
   sceneLongestSide,
 }: MomentVectorsProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectLoad = useModelStore((state) => state.selectLoad);
   const language = useUiStore((state) => state.language);
   const warningRef = useRef<Set<string>>(new Set());
@@ -105,7 +105,7 @@ export function MomentVectors({
   return (
     <>
       {glyphs.map((glyph) => {
-        const isSelected = isSelectedLoad(selectedEntity, glyph.loadCaseId, glyph.id);
+        const isSelected = isSelectedLoad(selectedEntities, glyph.loadCaseId, glyph.id);
         const color = isSelected ? SELECTED_MOMENT_COLOR : MOMENT_COLOR;
 
         return (
@@ -113,7 +113,9 @@ export function MomentVectors({
             key={glyph.id}
             onClick={(event) => {
               event.stopPropagation();
-              selectLoad(glyph.loadCaseId, glyph.id);
+              selectLoad(glyph.loadCaseId, glyph.id, {
+                additive: event.nativeEvent.shiftKey,
+              });
             }}
           >
             {isSelected && (

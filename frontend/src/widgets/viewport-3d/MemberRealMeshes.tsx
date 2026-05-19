@@ -16,6 +16,7 @@ import {
 import { useModelStore } from '../../app/store';
 import type { GridEngModel, Member, Profile, Vec3 } from '../../entities/model';
 import { getSectionOutline, type Vec2 } from '../../entities/section';
+import { isSelectedEntity } from '../../features/selection';
 import { computeMemberLocalFrame } from '../../shared/math';
 import { modelPositionToScene, scaleModelLengthMm } from './modelToScene';
 
@@ -55,7 +56,7 @@ export function MemberRealMeshes({
   pickRadius,
   resolveMemberColor,
 }: MemberRealMeshesProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectedLoad = useModelStore((state) => state.getSelectedLoad());
   const selectEntity = useModelStore((state) => state.selectEntity);
 
@@ -67,7 +68,7 @@ export function MemberRealMeshes({
     <>
       {members.map((member) => {
         const profile = profilesById.get(member.profileId);
-        const isSelected = (selectedEntity.type === 'member' && selectedEntity.id === member.id)
+        const isSelected = isSelectedEntity(selectedEntities, 'member', member.id)
           || (
             selectedLoad?.type === 'member_distributed'
             && selectedLoad.target.memberId === member.id
@@ -82,8 +83,8 @@ export function MemberRealMeshes({
             isSelected={isSelected}
             pickRadius={pickRadius}
             resolveMemberColor={resolveMemberColor}
-            onSelect={() => {
-              selectEntity({ type: 'member', id: member.id });
+            onSelect={(additive) => {
+              selectEntity({ type: 'member', id: member.id }, { additive });
             }}
           />
         );
@@ -102,7 +103,7 @@ interface MemberRealMeshItemProps {
     member: GridEngModel['members'][number],
     profile: GridEngModel['profiles'][number] | undefined,
   ) => string | undefined;
-  onSelect: () => void;
+  onSelect: (additive: boolean) => void;
 }
 
 function MemberRealMeshItem({
@@ -142,7 +143,7 @@ function MemberRealMeshItem({
         quaternion={pickQuaternion}
         onClick={(event) => {
           event.stopPropagation();
-          onSelect();
+          onSelect(event.nativeEvent.shiftKey);
         }}
       >
         <cylinderGeometry args={[pickRadius, pickRadius, placement.lengthScene, 12]} />
@@ -154,7 +155,7 @@ function MemberRealMeshItem({
         renderOrder={isSelected ? 22 : 1}
         onClick={(event) => {
           event.stopPropagation();
-          onSelect();
+          onSelect(event.nativeEvent.shiftKey);
         }}
       >
         <meshStandardMaterial

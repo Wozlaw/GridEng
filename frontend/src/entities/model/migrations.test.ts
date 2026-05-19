@@ -85,6 +85,9 @@ describe('migrateGridEngModelToCurrentDetailed', () => {
     expect(migrated.model.loadCases[0].wind).toEqual({
       direction: { x: 0, y: 1, z: 0 },
       nominalPressurePa: 850,
+      terrainType: 'B',
+      gammaF: 1,
+      calculationMode: 'simple',
       comment: 'legacy current model',
     });
     expect(migrated.warnings).toContain('Legacy units.pressure value "kPa" was normalized to "Pa".');

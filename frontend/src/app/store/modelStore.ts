@@ -11,11 +11,12 @@ import {
   type Profile,
   type Restraint,
 } from '../../entities/model';
-import { EMPTY_SELECTION } from '../../features/selection';
+import { EMPTY_SELECTION, isSameSelection } from '../../features/selection';
 import { DEFAULT_VISIBILITY, normalizeViewMode } from '../../features/view-modes';
 import {
   ACTION_SUCCESS,
   actionFailure,
+  applySelectionUpdate,
   buildLoadSelection,
   buildRestraintSelection,
   createDxfImportSettings,
@@ -37,11 +38,14 @@ import {
   normalizeWindDirection,
   resolveActiveLoadCaseId,
   sanitizeSelection,
+  sanitizeSelections,
   syncSelectionWithActiveLoadCase,
+  syncSelectionsWithActiveLoadCase,
 } from './modelStore.helpers';
 import type {
   DxfImportSettingsState,
   ModelStoreState,
+  SelectionUpdateOptions,
   StoreActionResult,
 } from './modelStore.types';
 
@@ -49,16 +53,88 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
   const initialModel = createSampleTowerSegmentModel();
   const initialActiveLoadCaseId = resolveActiveLoadCaseId(initialModel, null);
 
+  const finalizeSelectionState = (
+    model: GridEngModel,
+    selectedEntity: ModelStoreState['selectedEntity'],
+    selectedEntities: ModelStoreState['selectedEntities'],
+    activeLoadCaseId: GridEngModel['loadCases'][number]['id'] | null,
+  ): Pick<ModelStoreState, 'selectedEntity' | 'selectedEntities'> => {
+    const nextSelectedEntities = syncSelectionsWithActiveLoadCase(
+      sanitizeSelections(selectedEntities, model),
+      activeLoadCaseId,
+    );
+    const nextSelectedEntity = syncSelectionWithActiveLoadCase(
+      sanitizeSelection(selectedEntity, model),
+      activeLoadCaseId,
+    );
+
+    if (nextSelectedEntities.length === 0 || nextSelectedEntity.type == null) {
+      return {
+        selectedEntity: nextSelectedEntities.length > 0
+          ? nextSelectedEntities[nextSelectedEntities.length - 1]
+          : nextSelectedEntity,
+        selectedEntities: nextSelectedEntities,
+      };
+    }
+
+    const resolvedSelectedEntity = nextSelectedEntities.some((candidate) =>
+      isSameSelection(candidate, nextSelectedEntity)
+    )
+      ? nextSelectedEntity
+      : nextSelectedEntities[nextSelectedEntities.length - 1];
+
+    return {
+      selectedEntity: resolvedSelectedEntity,
+      selectedEntities: nextSelectedEntities,
+    };
+  };
+
+  const resolveSelectionPayload = (
+    state: Pick<ModelStoreState, 'selectedEntity' | 'selectedEntities' | 'activeLoadCaseId' | 'model'>,
+    nextSelection: ModelStoreState['selectedEntity'],
+    options?: SelectionUpdateOptions,
+  ): Pick<ModelStoreState, 'selectedEntity' | 'selectedEntities' | 'activeLoadCaseId'> => {
+    const currentSelectedEntities = sanitizeSelections(
+      [...state.selectedEntities, state.selectedEntity],
+      state.model,
+    );
+    const sanitizedNextSelection = sanitizeSelection(nextSelection, state.model);
+    const selectionUpdate = applySelectionUpdate(
+      state.selectedEntity,
+      currentSelectedEntities,
+      sanitizedNextSelection,
+      options?.additive === true,
+    );
+    const nextActiveLoadCaseId = sanitizedNextSelection.type === 'loadCase'
+      ? resolveActiveLoadCaseId(state.model, sanitizedNextSelection.id)
+      : sanitizedNextSelection.type === 'load'
+        ? resolveActiveLoadCaseId(state.model, sanitizedNextSelection.loadCaseId)
+        : state.activeLoadCaseId;
+    const finalizedSelection = finalizeSelectionState(
+      state.model,
+      selectionUpdate.selectedEntity,
+      selectionUpdate.selectedEntities,
+      nextActiveLoadCaseId,
+    );
+
+    return {
+      ...finalizedSelection,
+      activeLoadCaseId: nextActiveLoadCaseId,
+    };
+  };
+
   const commitModel = (
     nextModel: GridEngModel,
     options?: { dxfImportSettings?: DxfImportSettingsState },
   ): StoreActionResult => {
     set((state) => ({
-      activeLoadCaseId: resolveActiveLoadCaseId(nextModel, state.activeLoadCaseId),
       model: nextModel,
       validationReport: createValidationReport(nextModel),
-      selectedEntity: syncSelectionWithActiveLoadCase(
-        sanitizeSelection(state.selectedEntity, nextModel),
+      activeLoadCaseId: resolveActiveLoadCaseId(nextModel, state.activeLoadCaseId),
+      ...finalizeSelectionState(
+        nextModel,
+        state.selectedEntity,
+        [...state.selectedEntities, state.selectedEntity],
         resolveActiveLoadCaseId(nextModel, state.activeLoadCaseId),
       ),
       ...(options?.dxfImportSettings != null
@@ -73,6 +149,7 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
     model: initialModel,
     validationReport: createValidationReport(initialModel),
     selectedEntity: EMPTY_SELECTION,
+    selectedEntities: [],
     activeLoadCaseId: initialActiveLoadCaseId,
     viewMode: 'wireframe',
     visibility: { ...DEFAULT_VISIBILITY },
@@ -83,6 +160,7 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
         model,
         validationReport: createValidationReport(model),
         selectedEntity: EMPTY_SELECTION,
+        selectedEntities: [],
         activeLoadCaseId: resolveActiveLoadCaseId(model, state.activeLoadCaseId),
         dxfImportSettings: createDxfImportSettings(model),
       })),
@@ -90,55 +168,48 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
       set((state) => ({
         validationReport: createValidationReport(state.model),
       })),
-    selectEntity: (selectedEntity) =>
-      set((state) => {
-        const nextSelection = sanitizeSelection(selectedEntity, state.model);
-        const nextActiveLoadCaseId = nextSelection.type === 'loadCase'
-          ? resolveActiveLoadCaseId(state.model, nextSelection.id)
-          : nextSelection.type === 'load'
-            ? resolveActiveLoadCaseId(state.model, nextSelection.loadCaseId)
-            : state.activeLoadCaseId;
-
-        return {
-          selectedEntity: nextSelection,
-          ...(nextActiveLoadCaseId !== state.activeLoadCaseId
-            ? { activeLoadCaseId: nextActiveLoadCaseId }
-            : {}),
-        };
-      }),
-    selectLoad: (loadCaseId, loadId) =>
+    selectEntity: (selectedEntity, options) =>
+      set((state) => resolveSelectionPayload(state, selectedEntity, options)),
+    selectLoad: (loadCaseId, loadId, options) =>
       set((state) => {
         const selection = buildLoadSelection(state.model, loadCaseId, loadId);
 
         if (selection == null) {
-          return { selectedEntity: EMPTY_SELECTION };
+          return options?.additive
+            ? {}
+            : { selectedEntity: EMPTY_SELECTION, selectedEntities: [] };
         }
 
-        return {
-          selectedEntity: selection,
-          activeLoadCaseId: resolveActiveLoadCaseId(state.model, loadCaseId),
-        };
+        return resolveSelectionPayload(state, selection, options);
       }),
-    selectRestraint: (restraintId) =>
+    selectRestraint: (restraintId, options) =>
       set((state) => {
         const selection = buildRestraintSelection(state.model, restraintId);
 
         if (selection == null) {
-          return { selectedEntity: EMPTY_SELECTION };
+          return options?.additive
+            ? {}
+            : { selectedEntity: EMPTY_SELECTION, selectedEntities: [] };
         }
 
-        return { selectedEntity: selection };
+        return resolveSelectionPayload(state, selection, options);
       }),
     setActiveLoadCaseId: (loadCaseId) =>
       set((state) => {
         const nextActiveLoadCaseId = resolveActiveLoadCaseId(state.model, loadCaseId);
+        const nextSelectionState = finalizeSelectionState(
+          state.model,
+          state.selectedEntity,
+          [...state.selectedEntities, state.selectedEntity],
+          nextActiveLoadCaseId,
+        );
 
         return {
           activeLoadCaseId: nextActiveLoadCaseId,
-          selectedEntity: syncSelectionWithActiveLoadCase(state.selectedEntity, nextActiveLoadCaseId),
+          ...nextSelectionState,
         };
       }),
-    clearSelection: () => set({ selectedEntity: EMPTY_SELECTION }),
+    clearSelection: () => set({ selectedEntity: EMPTY_SELECTION, selectedEntities: [] }),
     getSelectedNode: () => {
       const { model, selectedEntity } = get();
       return selectedEntity.type === 'node' ? findNode(model, selectedEntity.id) : undefined;
@@ -843,6 +914,7 @@ export const useModelStore = create<ModelStoreState>((set, get) => {
           model,
           validationReport: createValidationReport(model),
           selectedEntity: EMPTY_SELECTION,
+          selectedEntities: [],
           activeLoadCaseId: resolveActiveLoadCaseId(model, state.activeLoadCaseId),
           dxfImportSettings: createDxfImportSettings(model),
           viewMode: state.viewMode,

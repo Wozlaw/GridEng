@@ -52,6 +52,8 @@ export interface AppConsoleCommandResult {
   clearLog?: boolean;
 }
 
+export type AppConsoleCommandExecutionResult = AppConsoleCommandResult | Promise<AppConsoleCommandResult>;
+
 export interface AppConsoleCommandDefinition {
   id: string;
   names: string[];
@@ -61,7 +63,7 @@ export interface AppConsoleCommandDefinition {
   execute: (
     args: string[],
     context: AppConsoleCommandContext,
-  ) => AppConsoleCommandResult;
+  ) => AppConsoleCommandExecutionResult;
 }
 
 export interface RibbonCommandGroupDefinition {

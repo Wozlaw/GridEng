@@ -6,6 +6,7 @@ import { Quaternion, Vector3 } from 'three';
 
 import { useModelStore } from '../../app/store';
 import type { GridEngModel, Restraint } from '../../entities/model';
+import { isSelectedEntity, isSelectedRestraint } from '../../features/selection';
 import { modelPositionToScene, type ScenePoint3 } from './modelToScene';
 import { SCENE_LABEL_FONT_SIZE, SceneUprightLabel } from './SceneUprightLabel';
 
@@ -71,7 +72,7 @@ export function RestraintMarkers({
   showLabels,
   nodeRadius,
 }: RestraintMarkersProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
 
   if (!visible || restraints.length === 0) {
     return null;
@@ -86,8 +87,8 @@ export function RestraintMarkers({
           return null;
         }
 
-        const isSelected = (selectedEntity.type === 'restraint' && selectedEntity.restraintId === restraint.id)
-          || (selectedEntity.type === 'node' && selectedEntity.id === restraint.nodeId);
+        const isSelected = isSelectedRestraint(selectedEntities, restraint.id)
+          || isSelectedEntity(selectedEntities, 'node', restraint.nodeId);
 
         return (
           <RestraintMarkerGroup
@@ -143,7 +144,9 @@ function RestraintMarkerGroup({
     <group
       onClick={(event) => {
         event.stopPropagation();
-        selectRestraint(restraint.id);
+        selectRestraint(restraint.id, {
+          additive: event.nativeEvent.shiftKey,
+        });
       }}
       onPointerOver={(event) => {
         event.stopPropagation();

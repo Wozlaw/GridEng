@@ -109,6 +109,59 @@ describe('applyDxfProfileAssignments', () => {
     );
   });
 
+  it('rebinds imported members to resolved materials and keeps only used materials', () => {
+    const result = createModelFromDxfLines(
+      [
+        {
+          start: { x: 0, y: 0, z: 0 },
+          end: { x: 1000, y: 0, z: 0 },
+          colorIndex: 1,
+        },
+      ],
+      {
+        fileName: 'tower.dxf',
+        toleranceMm: 1,
+        centerOnXY: false,
+        force2DToXY: true,
+      },
+    );
+
+    const resolvedMaterialsById = new Map([
+      [
+        'catalog-material:C345:profile-12',
+        {
+          id: 'catalog-material:C345:profile-12',
+          name: 'С345',
+          densityKgPerM3: 7850,
+          elasticModulusMPa: 210000,
+          poissonRatio: 0.3,
+          shearModulusMPa: 80769,
+          yieldStrengthMPa: 345,
+        },
+      ],
+    ]);
+
+    const nextModel = applyDxfProfileAssignments(
+      result.model!,
+      {
+        ACI_1: 'catalog-L63x5',
+      },
+      new Map(),
+      {
+        ACI_1: 'catalog-material:C345:profile-12',
+      },
+      resolvedMaterialsById,
+    );
+
+    expect(nextModel.members[0]?.materialId).toBe('catalog-material:C345:profile-12');
+    expect(nextModel.materials).toEqual([
+      expect.objectContaining({
+        id: 'catalog-material:C345:profile-12',
+        name: 'С345',
+      }),
+    ]);
+  });
+
   it('clears group-level unassigned diagnostics after catalog profile selection', () => {
     const preview: DxfImportPreview = {
       linesCount: 1,
@@ -138,7 +191,7 @@ describe('applyDxfProfileAssignments', () => {
             end: { x: 1000, y: 0, z: 0 },
             memberId: 'M1',
             groupKey: 'ACI_1',
-            status: 'warning',
+            status: 'error',
             diagnostics: [],
           },
         ],
@@ -159,12 +212,12 @@ describe('applyDxfProfileAssignments', () => {
             groupKey: 'ACI_1',
             profileId: 'P_COLOR_ACI_1',
             memberIds: ['M1'],
-            status: 'warning',
+            status: 'error',
             diagnostics: [
               {
-                status: 'warning',
+                status: 'error',
                 code: 'group_profile_unassigned',
-                message: 'Group ACI_1 still uses temporary DXF profile.',
+                message: 'Group ACI_1 requires an assigned catalog profile.',
               },
             ],
           },
@@ -176,6 +229,8 @@ describe('applyDxfProfileAssignments', () => {
 
     const nextPreview = applyDxfProfileAssignmentsToPreview(preview, {
       ACI_1: 'catalog-L63x5',
+    }, {
+      ACI_1: 'catalog-material:C345:profile-12',
     });
 
     expect(nextPreview.colorGroups[0]?.profileId).toBe('catalog-L63x5');
@@ -183,5 +238,94 @@ describe('applyDxfProfileAssignments', () => {
     expect(nextPreview.diagnostics.groups[0]?.status).toBe('ok');
     expect(nextPreview.diagnostics.groups[0]?.diagnostics).toHaveLength(0);
     expect(nextPreview.diagnostics.lines[0]?.status).toBe('ok');
+  });
+
+  it('adds a blocking material diagnostic until material is assigned', () => {
+    const preview: DxfImportPreview = {
+      linesCount: 1,
+      ignoredEntitiesCount: 0,
+      is3D: false,
+      zRange: null,
+      nodesCount: 2,
+      membersCount: 1,
+      mergedNodesCount: 0,
+      danglingMembersCount: 0,
+      colorGroups: [
+        {
+          key: 'ACI_1',
+          colorIndex: 1,
+          membersCount: 1,
+          memberIds: ['M1'],
+          profileId: 'P_COLOR_ACI_1',
+          temporaryProfileName: 'DXF ACI_1',
+        },
+      ],
+      diagnostics: {
+        summary: [],
+        lines: [
+          {
+            lineIndex: 0,
+            start: { x: 0, y: 0, z: 0 },
+            end: { x: 1000, y: 0, z: 0 },
+            memberId: 'M1',
+            groupKey: 'ACI_1',
+            status: 'error',
+            diagnostics: [],
+          },
+        ],
+        members: [
+          {
+            memberId: 'M1',
+            lineIndex: 0,
+            startNodeId: 'N1',
+            endNodeId: 'N2',
+            groupKey: 'ACI_1',
+            status: 'ok',
+            diagnostics: [],
+          },
+        ],
+        nodes: [],
+        groups: [
+          {
+            groupKey: 'ACI_1',
+            profileId: 'P_COLOR_ACI_1',
+            memberIds: ['M1'],
+            status: 'error',
+            diagnostics: [
+              {
+                status: 'error',
+                code: 'group_profile_unassigned',
+                message: 'Group ACI_1 requires an assigned catalog profile.',
+              },
+            ],
+          },
+        ],
+      },
+      warnings: [],
+      errors: [],
+    };
+
+    const profileAssignedPreview = applyDxfProfileAssignmentsToPreview(preview, {
+      ACI_1: 'catalog-L63x5',
+    });
+
+    expect(profileAssignedPreview.diagnostics.groups[0]?.status).toBe('error');
+    expect(profileAssignedPreview.diagnostics.groups[0]?.diagnostics).toEqual([
+      expect.objectContaining({
+        code: 'group_material_unassigned',
+        status: 'error',
+      }),
+    ]);
+    expect(profileAssignedPreview.diagnostics.lines[0]?.status).toBe('error');
+
+    const fullyAssignedPreview = applyDxfProfileAssignmentsToPreview(
+      preview,
+      { ACI_1: 'catalog-L63x5' },
+      { ACI_1: 'catalog-material:C345:profile-12' },
+    );
+
+    expect(fullyAssignedPreview.diagnostics.groups[0]?.status).toBe('ok');
+    expect(fullyAssignedPreview.diagnostics.groups[0]?.diagnostics).toHaveLength(0);
+    expect(fullyAssignedPreview.diagnostics.lines[0]?.status).toBe('ok');
   });
 });

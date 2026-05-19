@@ -1,5 +1,13 @@
 import { normalizeVec3, validateGridEngModelIntegrity, type GridEngModel, type Id, type Load, type LoadCase, type ModelValidationResult, type Vec3 } from '../../entities/model';
-import { EMPTY_SELECTION, type LoadSelection, type RestraintSelection, type SelectedEntity } from '../../features/selection';
+import {
+  compactSelections,
+  EMPTY_SELECTION,
+  isEmptySelection,
+  isSameSelection,
+  type LoadSelection,
+  type RestraintSelection,
+  type SelectedEntity,
+} from '../../features/selection';
 import type { StoreActionResult, DxfImportSettingsState } from './modelStore.types';
 
 export const ACTION_SUCCESS: StoreActionResult = { ok: true };
@@ -135,6 +143,15 @@ export function sanitizeSelection(selectedEntity: SelectedEntity, model: GridEng
   }
 }
 
+export function sanitizeSelections(
+  selectedEntities: SelectedEntity[],
+  model: GridEngModel,
+): SelectedEntity[] {
+  return compactSelections(
+    selectedEntities.map((selectedEntity) => sanitizeSelection(selectedEntity, model)),
+  );
+}
+
 export function syncSelectionWithActiveLoadCase(
   selectedEntity: SelectedEntity,
   activeLoadCaseId: Id | null,
@@ -160,6 +177,70 @@ export function syncSelectionWithActiveLoadCase(
   }
 
   return selectedEntity;
+}
+
+export function syncSelectionsWithActiveLoadCase(
+  selectedEntities: SelectedEntity[],
+  activeLoadCaseId: Id | null,
+): SelectedEntity[] {
+  return compactSelections(
+    selectedEntities.map((selectedEntity) => syncSelectionWithActiveLoadCase(selectedEntity, activeLoadCaseId)),
+  );
+}
+
+export function applySelectionUpdate(
+  currentSelectedEntity: SelectedEntity,
+  currentSelectedEntities: SelectedEntity[],
+  nextSelection: SelectedEntity,
+  additive: boolean,
+): {
+  selectedEntity: SelectedEntity;
+  selectedEntities: SelectedEntity[];
+} {
+  if (isEmptySelection(nextSelection)) {
+    return additive
+      ? {
+        selectedEntity: currentSelectedEntity,
+        selectedEntities: currentSelectedEntities,
+      }
+      : {
+        selectedEntity: EMPTY_SELECTION,
+        selectedEntities: [],
+      };
+  }
+
+  if (!additive) {
+    return {
+      selectedEntity: nextSelection,
+      selectedEntities: [nextSelection],
+    };
+  }
+
+  const normalizedCurrentSelections = compactSelections(currentSelectedEntities);
+  const alreadySelected = normalizedCurrentSelections.some((candidate) =>
+    isSameSelection(candidate, nextSelection)
+  );
+
+  if (!alreadySelected) {
+    return {
+      selectedEntity: nextSelection,
+      selectedEntities: [...normalizedCurrentSelections, nextSelection],
+    };
+  }
+
+  const remainingSelections = normalizedCurrentSelections.filter((candidate) =>
+    !isSameSelection(candidate, nextSelection)
+  );
+  const nextSelectedEntity = remainingSelections.some((candidate) =>
+    isSameSelection(candidate, currentSelectedEntity)
+  )
+    ? currentSelectedEntity
+    : remainingSelections[remainingSelections.length - 1] ?? EMPTY_SELECTION;
+
+  return {
+    selectedEntity: nextSelectedEntity,
+    selectedEntities: remainingSelections,
+  };
 }
 
 export function createSequentialId(prefix: string, ids: Id[]): Id {

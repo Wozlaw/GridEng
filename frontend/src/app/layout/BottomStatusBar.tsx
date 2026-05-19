@@ -8,8 +8,11 @@ export function BottomStatusBar() {
   const model = useModelStore((state) => state.model);
   const validationReport = useModelStore((state) => state.validationReport);
   const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const totalLoads = model.loadCases.reduce((sum, loadCase) => sum + loadCase.loads.length, 0);
-  const selectedEntityLabel = formatSelectedEntityLabel(selectedEntity, t);
+  const selectedEntityLabel = selectedEntities.length > 1
+    ? t('properties.multiSelection.short', { count: selectedEntities.length })
+    : formatSelectedEntityLabel(selectedEntity, t);
   const statusText = validationReport.errors.length > 0
     ? t('status.errors', { count: validationReport.errors.length })
     : validationReport.warnings.length > 0

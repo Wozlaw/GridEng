@@ -185,3 +185,18 @@ frontend/src/
 | 24.4 | done | `prompts/24-04-dxf-profile-assignment-api-catalog.md` | DXF assignment профилей через API-каталог без записи в модель до `Импорт` |
 | 24.5 | done | `prompts/24-05-docs-cleanup-unified-spec.md` | Очистка документации, дублей reference и фиксация единой спецификации |
 
+## Примечание по интерфейсной ревизии 4
+
+Задачи 25.1–25.7 выполняются поверх завершенных задач 21–24. Они не меняют онтологию проекта и концентрируются на полировке DXF import dialog, вкладок `Модель | Профили | Логи`, диалога `Ветер`, панели `Состав проекта`, панели `Свойства` и множественного выбора.
+
+Исходник согласованных требований: `codex/reference/UI_REVISION_4_CHECKED_REQUIREMENTS.md`.
+
+| № | Статус | Файл промпта | Смысл |
+|---|---|---|---|
+| 25.1 | done | `prompts/25-01-db-console-commands.md` | Консольные команды БД/каталогов через существующий command registry |
+| 25.2 | done | `prompts/25-02-dxf-toolbar-view-modes-rotation-controls.md` | DXF dialog: нижняя toolbar-панель, режимы окраски и повороты preview |
+| 25.3 | done | `prompts/25-03-dxf-model-tab-layout-preview-colors.md` | DXF вкладка `Модель`: layout 5:4, удаление служебной подсказки и исправление цветов preview |
+| 25.4 | done | `prompts/25-04-dxf-profiles-tab-table-materials-search-colors.md` | DXF вкладка `Профили`: таблица, палитра 4×4, поиск профиля и выбор материала |
+| 25.5 | done | `prompts/25-05-dxf-logs-status-taxonomy.md` | DXF вкладка `Логи`: компактные сообщения и таксономия `error/warning/info` |
+| 25.6 | done | `prompts/25-06-wind-dialog-dto-terrain-modes.md` | Диалог `Ветер`: локализация, поля 40 px, `terrainType`, `gammaF`, режимы `simple/sp20/pue` |
+| 25.7 | done | `prompts/25-07-project-tree-properties-multiselect.md` | ProjectTree/PropertiesPanel: строки 40 px, AutoCAD-like свойства и multiselect через Shift |

@@ -13,7 +13,7 @@ interface NodePointsProps {
 }
 
 export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
-  const selectedEntity = useModelStore((state) => state.selectedEntity);
+  const selectedEntities = useModelStore((state) => state.selectedEntities);
   const selectedLoad = useModelStore((state) => state.getSelectedLoad());
   const selectedRestraint = useModelStore((state) => state.getSelectedRestraint());
   const selectEntity = useModelStore((state) => state.selectEntity);
@@ -27,7 +27,9 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
   return (
     <>
       {nodes.map((node) => {
-        const isSelected = (selectedEntity.type === 'node' && selectedEntity.id === node.id)
+        const isSelected = selectedEntities.some((selectedEntity) =>
+          selectedEntity.type === 'node' && selectedEntity.id === node.id
+        )
           || selectedRestraint?.nodeId === node.id
           || (
             selectedLoad?.type === 'nodal_concentrated'
@@ -41,7 +43,9 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
               position={scenePosition}
               onClick={(event) => {
                 event.stopPropagation();
-                selectEntity({ type: 'node', id: node.id });
+                selectEntity({ type: 'node', id: node.id }, {
+                  additive: event.nativeEvent.shiftKey,
+                });
               }}
             >
               <sphereGeometry args={[pickRadius, 12, 12]} />
@@ -64,7 +68,9 @@ export function NodePoints({ nodes, nodeRadius, visible }: NodePointsProps) {
               position={scenePosition}
               onClick={(event) => {
                 event.stopPropagation();
-                selectEntity({ type: 'node', id: node.id });
+                selectEntity({ type: 'node', id: node.id }, {
+                  additive: event.nativeEvent.shiftKey,
+                });
               }}
             >
               <sphereGeometry args={[isSelected ? nodeRadius * 1.35 : nodeRadius, 16, 16]} />
